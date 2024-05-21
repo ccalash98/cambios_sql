@@ -1,0 +1,29 @@
+[
+    {
+        "prov_cod_prov": "1",
+        "prov_des_prov": "AMAZONAS",
+        "pais_codigo_inter": "51",
+        "country_id": 173,
+        "prov_cod_pais": "28",
+        "country_name": "Peru",
+        "state_code": "PE"
+    },
+    {
+        "prov_cod_prov": "2",
+        "prov_des_prov": "AMAZONAS",
+        "pais_codigo_inter": "51",
+        "country_id": 173,
+        "prov_cod_pais": "28",
+        "country_name": "Peru",
+        "state_code": "PE"
+    },
+    {
+        "prov_cod_prov": "3",
+        "prov_des_prov": "AMAZONAS",
+        "pais_codigo_inter": "51",
+        "country_id": 173,
+        "prov_cod_pais": "28",
+        "country_name": "Peru",
+        "state_code": "PE"
+    }
+]
