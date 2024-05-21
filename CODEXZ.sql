@@ -293,3 +293,33 @@ SELECT
 FROM
     public.saecant;
 --/////// ciud ////
+
+--///tabla faltante en proyectos///---
+-- ----------------------------
+-- Table structure for saetgtra
+-- ----------------------------
+DROP TABLE IF EXISTS public.saetgtra;
+CREATE TABLE public.saetgtra (
+  tgtra_cod_tgtra serial,
+  tgtra_cod_empr int4,
+  tgtra_cod_sucu int4,
+  tgtra_nom_tgtra varchar(100) COLLATE pg_catalog.default,
+  tgtra_des_tgtra varchar(500) COLLATE pg_catalog.default,
+  tgtra_ord_movi int4,
+  tgtra_usua_act int4,
+  tgtra_fec_tgtra timestamp(6)
+)
+;
+
+-- ----------------------------
+-- Records of saetgtra
+-- ----------------------------
+INSERT INTO public.saetgtra VALUES (1, 1, 1, 'INGRESOS', 'IN', 1, 1, '2024-02-20 11:28:54');
+INSERT INTO public.saetgtra VALUES (2, 1, 1, 'COSTOS', 'CO', 2, 1, '2024-02-20 11:29:28');
+INSERT INTO public.saetgtra VALUES (3, 1, 1, 'GASTOS', 'GA', 3, 1, '2024-02-20 11:29:54');
+INSERT INTO public.saetgtra VALUES (4, 1, 1, 'AMORTIZACION', 'AM', 4, 1, '2024-02-20 11:30:14');
+
+-- ----------------------------
+-- Primary Key structure for table saetgtra
+-- ----------------------------
+ALTER TABLE public.saetgtra ADD CONSTRAINT saetgtra_pkey PRIMARY KEY (tgtra_cod_tgtra);
