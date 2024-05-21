@@ -39,7 +39,6 @@ SELECT * from public.saedefi;
 SELECT * from public.saeelem;
 */
 
-
 --Inserta estructura talento humano
 BEGIN;
     DELETE from saecten;
@@ -393,4 +392,5 @@ BEGIN;
     INSERT INTO public.saecten (cten_cod_cten, cten_cod_empr, cten_des_cten, cten_val_cten, cten_pre_cten, cten_sal_dign) VALUES ('CUITS', 1, 'VALOR UIT PERU', '0.00', '0', '0');
     INSERT INTO public.saecten (cten_cod_cten, cten_cod_empr, cten_des_cten, cten_val_cten, cten_pre_cten, cten_sal_dign) VALUES ('CSCRP', 1, 'SCRT-PENSION', '0.01', '0', '0');
     DELETE from public.saeestr;
+    DELETE from public.saerude;
 COMMIT;

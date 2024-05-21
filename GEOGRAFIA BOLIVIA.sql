@@ -32,11 +32,13 @@ BEGIN;
     UPDATE isp.pais_etiq_contr SET pais_cod_pais = 37, pais_etiq_pais = 'PROVINCIA', pais_tbl_direc = 'saeciud', pais_etiq_est = 'I' WHERE id = 3;
     UPDATE isp.pais_etiq_contr SET pais_cod_pais = 37, pais_etiq_pais = 'MUNICIPIO', pais_tbl_direc = 'saeparr', pais_etiq_est = 'A' WHERE id = 4;
 COMMIT;
+
 BEGIN;
-    UPDATE public.saeclpv SET clpv_cod_vend = NULL, clpv_cod_ciud = NULL WHERE clpv_cod_sucu = 1 AND clpv_cod_empr = 1;
+    --APLICAR SI EL PROYECTO TIENE TRASACCIONES
+    /*UPDATE public.saeclpv SET clpv_cod_vend = NULL, clpv_cod_ciud = NULL WHERE clpv_cod_sucu = 1 AND clpv_cod_empr = 1;
     UPDATE public.saevend SET zona_cod_zona = NULL, vend_cod_ciu = NULL WHERE vend_cod_empr = 1;
     UPDATE public.saeempl SET empl_cod_ciud = NULL WHERE empl_cod_empr = 1;
-    UPDATE public.saeestr SET estr_cod_ciud = NULL WHERE estr_cod_empr = 1;
+    UPDATE public.saeestr SET estr_cod_ciud = NULL WHERE estr_cod_empr = 1;*/
     DELETE FROM public.saeparr;
     DELETE FROM public.saeciud;
     DELETE FROM public.saecant;

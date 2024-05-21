@@ -13,6 +13,7 @@ BEGIN;
     delete from public.saedmov;
     delete from public.saedmov_an;
     DELETE from public.saemxfp;  --compras inventario
+    DELETE FROM PUBLIC.saebafp;
     DELETE from public.saefxfp;  --compras ventas
     DELETE FROM public.saedpag;
     DELETE from public.saefpag;  -- detalle de la saefxfp
@@ -44,6 +45,7 @@ BEGIN;
     delete from public.saedire where dire_cod_clpv IN (SELECT clpv_cod_clpv FROM public.saeclpv WHERE clpv_clopv_clpv = 'CL');
     delete from public.saeemai where emai_cod_clpv IN (SELECT clpv_cod_clpv FROM public.saeclpv WHERE clpv_clopv_clpv = 'CL');
     delete from public.saetlcp where tlcp_cod_clpv IN (SELECT clpv_cod_clpv FROM public.saeclpv WHERE clpv_clopv_clpv = 'CL');
+    DELETE from public.saecoa where clpv_cod_clpv IN (SELECT clpv_cod_clpv FROM public.saeclpv WHERE clpv_clopv_clpv = 'CL');
     delete from public.saeclpv WHERE clpv_clopv_clpv = 'CL';
     --comentar si no se desea borrar los planes creados
     delete from isp.int_paquetes_sucursal;
