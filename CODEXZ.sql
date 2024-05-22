@@ -26,9 +26,6 @@ SELECT * FROM saebode ORDER BY bode_cod_bode
 :: revisar bodegas
 
 
-
-
-
 SELECT CONCAT(a.id,',') FROM isp.contrato_pago a INNER JOIN isp.contrato_clpv b ON a.id_contrato = b.id where a.estado = 'CO' AND b.estado = 'AP'
 
 
@@ -134,21 +131,6 @@ INSERT INTO isp.int_archivos_cash_config (id_archivo, id_empresa, clave, valor, 
 INSERT INTO isp.int_archivos_cash_config (id_archivo, id_empresa, clave, valor, fecha_server) VALUES (11, 1, 'codigo_servicio', '01', '2023-11-08 13:50:01.150119');
 
 
---VERIFICACION DE CUOTAS
-SELECT ruc_clpv, nom_clpv, codigo,id_clpv
-FROM isp.contrato_clpv 
-WHERE id IN (
-    SELECT id_contrato 
-    FROM isp.contrato_pago 
-    WHERE id_contrato NOT IN (
-        SELECT id_contrato 
-        FROM isp.contrato_pago 
-        WHERE fecha = '2024-02-29'
-    ) 
-    AND fecha > '2024-02-29'
-) 
-ORDER BY id;
-
 --agregar columna a bdd
 
 ALTER TABLE comercial.tipo_iden_clpv_pais ADD COLUMN codigo_libro varchar;
@@ -171,50 +153,6 @@ SELECT dmov_can_dmov,dmov_cod_tran,dmov_cod_lote,dmov_cod_serie,* from public.sa
 
 SELECT * from public.saebode where bode_cod_bode = 31
 
-
-
-
---/////////script estructurado cuotas faltantes
-
-BEGIN;
-    DELETE FROM ISP.contrato_pago_pack WHERE id_pago in 
-    (SELECT id 
-    FROM ISP.contrato_pago 
-    WHERE id_contrato in 
-        (SELECT id
-        FROM isp.contrato_clpv 
-        WHERE id IN 
-            (SELECT id_contrato 
-            FROM isp.contrato_pago 
-            WHERE id_contrato NOT IN 
-                (SELECT id_contrato 
-                FROM isp.contrato_pago 
-                WHERE fecha = '2024-04-30'
-                )AND fecha > '2024-04-30'
-            )and estado = 'AP'
-        )and fecha > '2024-03-31'
-		and valor_pago = 0
-		and id_factura is null
-	)and fecha > '2024-03-31'
-	AND valor_pago = 0;
-
-
-    DELETE FROM ISP.contrato_pago WHERE id_contrato in 
-    (SELECT id 
-    FROM isp.contrato_clpv 
-    WHERE id IN 
-        (SELECT id_contrato 
-        FROM isp.contrato_pago 
-        WHERE id_contrato NOT IN 
-            (SELECT id_contrato 
-            FROM isp.contrato_pago 
-            WHERE fecha = '2024-04-30'
-            )AND fecha > '2024-04-30'
-        )and estado = 'AP'
-    )and fecha > '2024-03-31'
-	and valor_pago = 0
-	and id_factura is null;
-COMMIT;
 
 ---borrar asiento contable ---
 
@@ -294,32 +232,3 @@ FROM
     public.saecant;
 --/////// ciud ////
 
---///tabla faltante en proyectos///---
--- ----------------------------
--- Table structure for saetgtra
--- ----------------------------
-DROP TABLE IF EXISTS public.saetgtra;
-CREATE TABLE public.saetgtra (
-  tgtra_cod_tgtra serial,
-  tgtra_cod_empr int4,
-  tgtra_cod_sucu int4,
-  tgtra_nom_tgtra varchar(100) COLLATE pg_catalog.default,
-  tgtra_des_tgtra varchar(500) COLLATE pg_catalog.default,
-  tgtra_ord_movi int4,
-  tgtra_usua_act int4,
-  tgtra_fec_tgtra timestamp(6)
-)
-;
-
--- ----------------------------
--- Records of saetgtra
--- ----------------------------
-INSERT INTO public.saetgtra VALUES (1, 1, 1, 'INGRESOS', 'IN', 1, 1, '2024-02-20 11:28:54');
-INSERT INTO public.saetgtra VALUES (2, 1, 1, 'COSTOS', 'CO', 2, 1, '2024-02-20 11:29:28');
-INSERT INTO public.saetgtra VALUES (3, 1, 1, 'GASTOS', 'GA', 3, 1, '2024-02-20 11:29:54');
-INSERT INTO public.saetgtra VALUES (4, 1, 1, 'AMORTIZACION', 'AM', 4, 1, '2024-02-20 11:30:14');
-
--- ----------------------------
--- Primary Key structure for table saetgtra
--- ----------------------------
-ALTER TABLE public.saetgtra ADD CONSTRAINT saetgtra_pkey PRIMARY KEY (tgtra_cod_tgtra);

@@ -33,8 +33,10 @@ BEGIN;
             VALUES (9993, '010809', 'Soluciones Arcotel', 'int_sol_arc/registro.php', 'main', 'ico_nuevo.png', 'Soluciones Arcotel', 'Soluciones Arcotel', 'S', '110000000001000100000000000000', 1, 'M', 0, 'L', 'C');
         END IF;
     END $$;
+COMMIT;
 
-    --borra las tablas de incidencias
+--borra las tablas de incidencias
+BEGIN;
     delete from isp.motivo;
     delete from isp.concepto;
     delete from isp.medio;
