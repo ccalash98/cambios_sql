@@ -19,8 +19,8 @@ BEGIN;
         (1240, '010001', 'Olt', 'int_ws_olt/olt.php', 'main', 'ico_nuevo.png', 'OLT', 'OLT', 'S', '111011000100010010000100000000', 1, 'M', 0, 'L', 'C'),
         (1242, '010003', 'Vinculo Olt - Router', 'int_ws_olt_router/olt_router.php', 'main', 'ico_nuevo.png', 'Vinculo Olt - Router', 'Vinculo Olt - Router', 'S', '111011000100010010000100000000', 1, 'M', 0, 'L', 'C'),
         (1241, '010002', 'Router', 'int_ws_router/router.php', 'main', 'ico_nuevo.png', 'Router', 'Router', 'S', '111011000100010010000100000000', 1, 'M', 0, 'L', 'C'),
-        (1243, '010004', 'Onus', 'int_activar_equipo/activacion.php', 'main', 'ico_nuevo.png', 'Onus', 'Onus', 'S', '111011000100010010000100000000', 1, 'M', 0, 'L', 'C'),
-        (1244, '010004', 'Tareas programadas', 'int_ws_tareas/tareas.php', 'main', 'ico_nuevo.png', 'Tareas programadas', 'Tareas programadas', 'S', '111011000100010010000100000000', 1, 'M', 0, 'L', 'C')
+        (1244, '010004', 'Tareas programadas', 'int_ws_tareas/tareas.php', 'main', 'ico_nuevo.png', 'Tareas programadas', 'Tareas programadas', 'S', '111011000100010010000100000000', 1, 'M', 0, 'L', 'C'),
+        (1243, '010004', 'Listado Onus', 'int_ws_listado_onus/listado.php', 'main', 'ico_nuevo.png', 'Listado Onus', 'Listado Onus', 'S', '111011000100010010000100000000', 1, 'M', 0, 'L', 'C')
     ) AS data
     WHERE NOT EXISTS (
         SELECT 1 FROM comercial.menu_rd WHERE menu_id = data.column1
