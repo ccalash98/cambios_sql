@@ -7,7 +7,9 @@ BEGIN;
     INSERT INTO isp.int_motivos_acuerdo (id, acuerdo, estado) VALUES (2, 'ACUERDO', 'A ');
     INSERT INTO isp.int_motivos_acuerdo (id, acuerdo, estado) VALUES (3, 'PROMOCION', 'A ');
     INSERT INTO isp.int_motivos_acuerdo (id, acuerdo, estado) VALUES (4, 'OTROS', 'A ');
-    --valida que exista los menus
+
+    --/////VALIDA SI EXISTE LOS MENUS O NO PARA INSERTAR LOS MENUS QUE FALTEN 
+    
     INSERT INTO comercial.menu_rd (menu_id, menu_codigo, menu_nombre, menu_link, menu_target, menu_imagen, menu_ayuda_titulo, menu_ayuda_texto, menu_activo, menu_perfil, menu_orden, menu_tipo, menu_conti, menu_tip_rd, menu_cont_adm) 
     SELECT * FROM (
         VALUES 
