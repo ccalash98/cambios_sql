@@ -73,3 +73,30 @@
     dasi_num_comp int4
     )
     ;
+
+    -- ---------------------------- ///////IMPORTACIONES////////-----------------------------------
+    -- Table structure for series_oc
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."series_oc";
+    CREATE TABLE "public"."series_oc" (
+    "id" int4 NOT NULL DEFAULT nextval('series_oc_id_seq'::regclass),
+    "id_empresa" int4,
+    "id_sucursal" int4,
+    "id_bodega" int4,
+    "minv_num_comp" int8,
+    "dmov_cod_dmov" int8,
+    "prod_cod_prod" varchar(255) COLLATE "pg_catalog"."default",
+    "cantidad" int4,
+    "codigos_unicos" varchar(1000000) COLLATE "pg_catalog"."default",
+    "codigos_unicos_rec" varchar(1000000) COLLATE "pg_catalog"."default",
+    "codigos_unicos_tot" varchar(1000000) COLLATE "pg_catalog"."default",
+    "estado" varchar(50) COLLATE "pg_catalog"."default",
+    "ultimo_codigo_unico" int8,
+    "usuario" int4,
+    "fecha_ingreso" timestamp(6),
+    "usuario_act" int8,
+    "fecha_actualiza" timestamp(6)
+    )
+    ;
+    ALTER TABLE public.saeparm
+    ADD COLUMN parm_cod_sucu VARCHAR(255) NOT NULL UNIQUE DEFAULT 'default_value';
