@@ -179,6 +179,14 @@ SELECT * from public.saegrpr;
 SELECT * from public.saecate;
 SELECT * from public.saemarc;
 
+---/// verificar prestamos ////---
+
+SELECT * from saepret where pret_cod_empl = '1716339468'
+
+SELECT *from saecuot where cuot_cod_pret = '010100038'
+
+SELECT * from saepago where pago_cod_empl = '1716339468' AND pago_per_pago = '202405' 
+
 
 --/////
 
