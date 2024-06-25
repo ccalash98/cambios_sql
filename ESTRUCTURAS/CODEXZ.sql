@@ -137,7 +137,7 @@ ALTER TABLE comercial.tipo_iden_clpv_pais ADD COLUMN codigo_libro varchar;
 
 
 --ubicar series
-SELECT dmov_can_dmov,dmov_cod_tran,dmov_cod_lote,* from public.saedmov where dmov_cod_bode = 2 and dmov_cod_prod = 'ROU007' and dmov_cod_lote = 'FHTT983E1B60';
+SELECT dmov_can_dmov,dmov_cod_tran,dmov_cod_lote,* from public.saedmov where dmov_cod_bode = 2 and dmov_cod_prod = 'ROU007' and dmov_cod_lote like '%ZTEGD36707F6%';
 SELECT * from public.saetran where tran_cod_tran in('007', '009');
 
 

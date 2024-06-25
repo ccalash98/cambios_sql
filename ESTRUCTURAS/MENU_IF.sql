@@ -15,7 +15,8 @@
         (629, '010005', 'Importar Onus', 'int_ws_importa_onus/importar.php', 'main', 'ico_nuevo.png', 'Importar Onus', 'Importar Onus', 'S', '111011000100010010000100000000', 1, 'M', 0, 'L', 'C'),
         (1243, '010006', 'Listado Onus', 'int_ws_listado_onus/listado.php', 'main', 'ico_nuevo.png', 'Listado Onus', 'Listado Onus', 'S', '111011000100010010000100000000', 1, 'M', 0, 'L', 'C'),
         (630, '010007', 'Traslado Onus', 'int_ws_traslado_onus/traslado.php', 'main', 'ico_nuevo.png', 'Traslado Onus', 'Traslado Onus', 'S', '111011000100010010000100000000', 1, 'M', 0, 'L', 'C'),
-        (7899, '2420', 'Promociones', 'int_promociones/promociones.php', 'main', 'fa fa-table', 'Promociones', 'Promociones', 'S', '100000000000001000000000000000', 1, 'M', 0, 'L', 'A')
+        (7899, '2420', 'Promociones', 'int_promociones/promociones.php', 'main', 'fa fa-table', 'Promociones', 'Promociones', 'S', '100000000000001000000000000000', 1, 'M', 0, 'L', 'A'),
+        (1228, '010412', 'Modelos Onus', 'int_modelo_onu/modelo.php', 'main', 'ico_nuevo.png', 'Modelos Onus', 'Modelos Onus', 'S', '110000100000000000000000000000', 9, 'M', 0, 'L', 'C')
     ) AS data
     WHERE NOT EXISTS (
         SELECT 1 FROM comercial.menu_rd WHERE menu_id = data.column1
