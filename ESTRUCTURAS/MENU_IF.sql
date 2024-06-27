@@ -1,7 +1,32 @@
+--//SCRIPT ID DE LA MENU RD
+
+
+BEGIN;
+
+-- Paso 1: Eliminar la clave primaria temporalmente
+ALTER TABLE comercial.menu_rd DROP CONSTRAINT pk_menu_rd;
+
+-- Paso 2: Crear una columna temporal con nuevos IDs consecutivos
+ALTER TABLE comercial.menu_rd ADD COLUMN new_id SERIAL;
+
+-- Paso 3: Actualizar la columna original de IDs con los valores de la columna temporal
+UPDATE comercial.menu_rd SET menu_id = new_id;
+
+-- Paso 4: Eliminar la columna temporal
+ALTER TABLE comercial.menu_rd DROP COLUMN new_id;
+
+-- Paso 5: Restaurar la clave primaria
+ALTER TABLE comercial.menu_rd ADD CONSTRAINT pk_menu_rd PRIMARY KEY (menu_id);
+
+COMMIT;
+
+
+
 --/////VALIDA SI EXISTE LOS MENUS O NO PARA INSERTAR LOS MENUS QUE FALTEN 
-    
+
     INSERT INTO comercial.menu_rd (menu_codigo, menu_nombre, menu_link, menu_target, menu_imagen, menu_ayuda_titulo, menu_ayuda_texto, menu_activo, menu_perfil, menu_orden, menu_tipo, menu_conti, menu_tip_rd, menu_cont_adm) 
-    SELECT * FROM 
+    SELECT column1, column2, column3, column4, column5, column6, column7, column8, column9, column10, column11, column12, column13, column14
+    FROM 
     (VALUES 
         ('010806', 'Ejecucion Incidencia', 'asignar_incidencia/registro.php', 'main', 'ico_nuevo.png', 'Registro Ticket', 'Registro Ticket', 'S', '111111000000000110010100000000', 1, 'M', 0, 'L', 'C'),
         ('010807', 'Productividad Incidencias', 'int_rep_incidencia/registro.php', 'main', 'ico_nuevo.png', 'Productividad Incidencias', 'Productividad Incidencias', 'S', '111010000001000010000000000000', 1, 'M', 0, 'L', 'C'),
@@ -18,8 +43,9 @@
         ('2420', 'Promociones', 'int_promociones/promociones.php', 'main', 'fa fa-table', 'Promociones', 'Promociones', 'S', '100000000000001000000000000000', 1, 'M', 0, 'L', 'A'),
         ('010412', 'Modelos Onus', 'int_modelo_onu/modelo.php', 'main', 'ico_nuevo.png', 'Modelos Onus', 'Modelos Onus', 'S', '110000100000000000000000000000', 9, 'M', 0, 'L', 'C'),
         ('010802', 'Promesas de Pago', 'int_promesas_pago/promesas.php', 'main', 'ico_nuevo.png', 'Promesas de Pago', 'Promesas de Pago', 'S', '110011100111100000000000000000', 1, 'M', 0, 'L', 'C')
-    ) AS data
+    ) AS data (column1, column2, column3, column4, column5, column6, column7, column8, column9, column10, column11, column12, column13, column14)
     WHERE NOT EXISTS (
-        SELECT 1 FROM comercial.menu_rd 
-        WHERE CONCAT(menu_nombre, menu_link) = CONCAT(data.column3, data.column4)
+        SELECT 1 
+        FROM comercial.menu_rd 
+        WHERE CONCAT(menu_nombre, menu_link) = CONCAT(data.column2, data.column3)
     );
