@@ -48,11 +48,11 @@ BEGIN;
     INSERT INTO public.saeddev (ddev_cod_ddev, ddev_cod_empr, ddev_des_ddev, ddev_tip_ddev) VALUES (6, 1, 'Otros', 'NCR');
 COMMIT;
 
-/*--APLICAR SI EL PROYECTO TIENE TRASACCIONES
+--APLICAR SI EL PROYECTO TIENE TRASACCIONES
 UPDATE public.saeclpv SET clpv_cod_vend = NULL, clpv_cod_zona = NULL, clpv_cod_ciud = NULL WHERE clpv_cod_sucu = 1 AND clpv_cod_empr = 1;
 UPDATE public.saevend SET zona_cod_zona = NULL, vend_cod_ciu = NULL WHERE vend_cod_empr = 1;
 UPDATE public.saeempl SET empl_cod_ciud = NULL WHERE empl_cod_empr = 1;
-UPDATE public.saeestr SET estr_cod_ciud = NULL WHERE estr_cod_empr = 1;*/
+UPDATE public.saeestr SET estr_cod_ciud = NULL WHERE estr_cod_empr = 1;
 
 -- PROCESO DE ACTUALIZCION DE GEOGRAFIA
 BEGIN;

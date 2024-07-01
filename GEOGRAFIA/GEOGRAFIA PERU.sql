@@ -65,448 +65,462 @@ BEGIN;
     DELETE FROM public.saezona;
     --CREATE SEQUENCE saezona_zona_cod_zona_seq; 
     --ALTER SEQUENCE public.saezona_zona_cod_zona_seq RESTART WITH 1;
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'AMAZONAS', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'ÁNCASH', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'APURÍMAC', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'AREQUIPA', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'AYACUCHO', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'CAJAMARCA', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'PROV. CONST. DEL CALLAO', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'CUSCO', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'HUANCAVELICA', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'HUÁNUCO', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'ICA', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'JUNÍN', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'LA LIBERTAD', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'LAMBAYEQUE', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'LIMA ', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'LORETO', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'MADRE DE DIOS', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'MOQUEGUA', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'PASCO', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'PIURA', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'PUNO', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'SAN MARTÍN', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'TACNA', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'TUMBES', NULL, NULL);
-    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) VALUES (1, 1, 'UCAYALI', NULL, NULL);
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (1, 'AMAZONAS');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (2, 'ÁNCASH');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (3, 'APURÍMAC');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (4, 'AREQUIPA');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (5, 'AYACUCHO');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (6, 'CAJAMARCA');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (7, 'PROV. CONST. DEL CALLAO');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (8, 'CUSCO');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (9, 'HUANCAVELICA');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (10, 'HUÁNUCO');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (11, 'ICA');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (12, 'JUNÍN');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (13, 'LA LIBERTAD');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (14, 'LAMBAYEQUE');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (15, 'LIMA');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (16, 'LORETO');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (17, 'MADRE DE DIOS');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (18, 'MOQUEGUA');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (19, 'PASCO');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (20, 'PIURA');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (21, 'PUNO');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (22, 'SAN MARTÍN');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (23, 'TACNA');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (24, 'TUMBES');
-    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov) VALUES (25, 'UCAYALI');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (1, '10', 'CHACHAPOYAS', '', '', 1, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (2, '10', 'BAGUA', '', '', 1, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (3, '10', 'BONGARÁ', '', '', 1, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (4, '10', 'CONDORCANQUI', '', '', 1, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (5, '10', 'LUYA', '', '', 1, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (6, '10', 'RODRÍGUEZ DE MENDOZA', '', '', 1, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (7, '10', 'UTCUBAMBA', '', '', 1, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (8, '20', 'HUARAZ', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (9, '20', 'AIJA', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (10, '20', 'ANTONIO RAYMONDI', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (11, '20', 'ASUNCIÓN', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (12, '20', 'BOLOGNESI', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (13, '20', 'CARHUAZ', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (14, '20', 'CARLOS F. FITZCARRALD', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (15, '20', 'CASMA', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (16, '20', 'CORONGO', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (17, '20', 'HUARI', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (18, '20', 'HUARMEY', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (19, '20', 'HUAYLAS', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (20, '20', 'MARISCAL LUZURIAGA', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (21, '20', 'OCROS', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (22, '20', 'PALLASCA', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (23, '20', 'POMABAMBA', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (24, '20', 'RECUAY', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (25, '20', 'SANTA', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (26, '20', 'SIHUAS', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (27, '20', 'YUNGAY', '', '', 2, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (28, '30', 'ABANCAY', '', '', 3, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (29, '30', 'ANDAHUAYLAS', '', '', 3, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (30, '30', 'ANTABAMBA', '', '', 3, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (31, '30', 'AYMARAES', '', '', 3, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (32, '30', 'COTABAMBAS', '', '', 3, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (33, '30', 'CHINCHEROS', '', '', 3, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (34, '30', 'GRAU', '', '', 3, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (35, '40', 'AREQUIPA', '', '', 4, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (36, '40', 'CAMANÁ', '', '', 4, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (37, '40', 'CARAVELÍ', '', '', 4, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (38, '40', 'CASTILLA', '', '', 4, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (39, '40', 'CAYLLOMA', '', '', 4, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (40, '40', 'CONDESUYOS', '', '', 4, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (41, '40', 'ISLAY', '', '', 4, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (42, '40', 'LA UNIÓN', '', '', 4, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (43, '50', 'HUAMANGA', '', '', 5, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (44, '50', 'CANGALLO', '', '', 5, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (45, '50', 'HUANCA SANCOS', '', '', 5, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (46, '50', 'HUANTA', '', '', 5, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (47, '50', 'LA MAR', '', '', 5, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (48, '50', 'LUCANAS', '', '', 5, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (49, '50', 'PARINACOCHAS', '', '', 5, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (50, '50', 'PÁUCAR DEL SARA SARA', '', '', 5, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (51, '50', 'SUCRE', '', '', 5, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (52, '50', 'VÍCTOR FAJARDO', '', '', 5, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (53, '50', 'VILCAS HUAMÁN', '', '', 5, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (54, '60', 'CAJAMARCA', '', '', 6, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (55, '60', 'CAJABAMBA', '', '', 6, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (56, '60', 'CELENDÍN', '', '', 6, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (57, '60', 'CHOTA', '', '', 6, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (58, '60', 'CONTUMAZÁ', '', '', 6, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (59, '60', 'CUTERVO', '', '', 6, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (60, '60', 'HUALGAYOC', '', '', 6, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (61, '60', 'JAÉN', '', '', 6, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (62, '60', 'SAN IGNACIO', '', '', 6, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (63, '60', 'SAN MARCOS', '', '', 6, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (64, '60', 'SAN MIGUEL', '', '', 6, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (65, '60', 'SAN PABLO', '', '', 6, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (66, '60', 'SANTA CRUZ', '', '', 6, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (67, '70', 'CALLAO', '', '', 7, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (68, '80', 'CUSCO', '', '', 8, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (69, '80', 'ACOMAYO', '', '', 8, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (70, '80', 'ANTA', '', '', 8, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (71, '80', 'CALCA', '', '', 8, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (72, '80', 'CANAS', '', '', 8, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (73, '80', 'CANCHIS', '', '', 8, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (74, '80', 'CHUMBIVILCAS', '', '', 8, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (75, '80', 'ESPINAR', '', '', 8, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (76, '80', 'LA CONVENCIÓN', '', '', 8, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (77, '80', 'PARURO', '', '', 8, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (78, '80', 'PAUCARTAMBO', '', '', 8, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (79, '80', 'QUISPICANCHI', '', '', 8, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (80, '80', 'URUBAMBA', '', '', 8, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (81, '90', 'HUANCAVELICA', '', '', 9, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (82, '90', 'ACOBAMBA', '', '', 9, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (83, '90', 'ANGARAES', '', '', 9, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (84, '90', 'CASTROVIRREYNA', '', '', 9, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (85, '90', 'CHURCAMPA', '', '', 9, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (86, '90', 'HUAYTARÁ', '', '', 9, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (87, '90', 'TAYACAJA', '', '', 9, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (88, '100', 'HUÁNUCO', '', '', 10, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (89, '100', 'AMBO', '', '', 10, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (90, '100', 'DOS DE MAYO', '', '', 10, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (91, '100', 'HUACAYBAMBA', '', '', 10, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (92, '100', 'HUAMALÍES', '', '', 10, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (93, '100', 'LEONCIO PRADO', '', '', 10, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (94, '100', 'MARAÑÓN', '', '', 10, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (95, '100', 'PACHITEA', '', '', 10, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (96, '100', 'PUERTO INCA', '', '', 10, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (97, '100', 'LAURICOCHA', '', '', 10, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (98, '100', 'YAROWILCA', '', '', 10, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (99, '110', 'ICA', '', '', 11, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (100, '110', 'CHINCHA', '', '', 11, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (101, '110', 'NASCA', '', '', 11, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (102, '110', 'PALPA', '', '', 11, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (103, '110', 'PISCO', '', '', 11, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (104, '120', 'HUANCAYO', '', '', 12, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (105, '120', 'CONCEPCIÓN', '', '', 12, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (106, '120', 'CHANCHAMAYO', '', '', 12, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (107, '120', 'JAUJA', '', '', 12, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (108, '120', 'JUNÍN', '', '', 12, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (109, '120', 'SATIPO', '', '', 12, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (110, '120', 'TARMA', '', '', 12, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (111, '120', 'YAULI', '', '', 12, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (112, '120', 'CHUPACA', '', '', 12, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (113, '130', 'TRUJILLO', '', '', 13, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (114, '130', 'ASCOPE', '', '', 13, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (115, '130', 'BOLÍVAR', '', '', 13, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (116, '130', 'CHEPÉN', '', '', 13, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (117, '130', 'JULCÁN', '', '', 13, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (118, '130', 'OTUZCO', '', '', 13, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (119, '130', 'PACASMAYO', '', '', 13, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (120, '130', 'PATAZ', '', '', 13, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (121, '130', 'SÁNCHEZ CARRIÓN', '', '', 13, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (122, '130', 'SANTIAGO DE CHUCO', '', '', 13, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (123, '130', 'GRAN CHIMÚ', '', '', 13, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (124, '130', 'VIRÚ', '', '', 13, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (125, '140', 'CHICLAYO', '', '', 14, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (126, '140', 'FERREÑAFE', '', '', 14, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (127, '140', 'LAMBAYEQUE', '', '', 14, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (128, '150', 'LIMA METROPOLITANA', '', '', 15, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (129, '150', 'BARRANCA', '', '', 15, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (130, '150', 'CAJATAMBO', '', '', 15, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (131, '150', 'CANTA', '', '', 15, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (132, '150', 'CAÑETE', '', '', 15, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (133, '150', 'HUARAL', '', '', 15, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (134, '150', 'HUAROCHIRÍ', '', '', 15, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (135, '150', 'HUAURA', '', '', 15, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (136, '150', 'OYÓN', '', '', 15, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (137, '150', 'YAUYOS', '', '', 15, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (138, '160', 'MAYNAS', '', '', 16, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (139, '160', 'ALTO AMAZONAS', '', '', 16, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (140, '160', 'LORETO', '', '', 16, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (141, '160', 'MARISCAL RAMÓN CASTILLA', '', '', 16, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (142, '160', 'REQUENA', '', '', 16, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (143, '160', 'UCAYALI', '', '', 16, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (144, '160', 'DATEM DEL MARAÑÓN', '', '', 16, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (145, '160', 'PUTUMAYO', '', '', 16, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (146, '170', 'TAMBOPATA', '', '', 17, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (147, '170', 'MANU', '', '', 17, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (148, '170', 'TAHUAMANU', '', '', 17, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (149, '180', 'MARISCAL NIETO', '', '', 18, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (150, '180', 'GENERAL SÁNCHEZ CERRO', '', '', 18, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (151, '180', 'ILO', '', '', 18, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (152, '190', 'PASCO', '', '', 19, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (153, '190', 'DANIEL ALCIDES CARRIÓN', '', '', 19, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (154, '190', 'OXAPAMPA', '', '', 19, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (155, '200', 'PIURA', '', '', 20, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (156, '200', 'AYABACA', '', '', 20, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (157, '200', 'HUANCABAMBA', '', '', 20, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (158, '200', 'MORROPÓN', '', '', 20, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (159, '200', 'PAITA', '', '', 20, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (160, '200', 'SULLANA', '', '', 20, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (161, '200', 'TALARA', '', '', 20, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (162, '200', 'SECHURA', '', '', 20, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (163, '210', 'PUNO', '', '', 21, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (164, '210', 'AZÁNGARO', '', '', 21, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (165, '210', 'CARABAYA', '', '', 21, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (166, '210', 'CHUCUITO', '', '', 21, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (167, '210', 'EL COLLAO', '', '', 21, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (168, '210', 'HUANCANÉ', '', '', 21, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (169, '210', 'LAMPA', '', '', 21, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (170, '210', 'MELGAR', '', '', 21, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (171, '210', 'MOHO', '', '', 21, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (172, '210', 'SAN ANTONIO DE PUTINA', '', '', 21, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (173, '210', 'SAN ROMÁN', '', '', 21, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (174, '210', 'SANDIA', '', '', 21, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (175, '210', 'YUNGUYO', '', '', 21, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (176, '220', 'MOYOBAMBA', '', '', 22, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (177, '220', 'BELLAVISTA', '', '', 22, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (178, '220', 'EL DORADO', '', '', 22, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (179, '220', 'HUALLAGA', '', '', 22, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (180, '220', 'LAMAS', '', '', 22, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (181, '220', 'MARISCAL CÁCERES', '', '', 22, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (182, '220', 'PICOTA', '', '', 22, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (183, '220', 'RIOJA', '', '', 22, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (184, '220', 'SAN MARTÍN', '', '', 22, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (185, '220', 'TOCACHE', '', '', 22, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (186, '230', 'TACNA', '', '', 23, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (187, '230', 'CANDARAVE', '', '', 23, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (188, '230', 'JORGE BASADRE', '', '', 23, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (189, '230', 'TARATA', '', '', 23, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (190, '240', 'TUMBES', '', '', 24, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (191, '240', 'CONTRALMIRANTE VILLAR', '', '', 24, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (192, '240', 'ZARUMILLA', '', '', 24, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (193, '250', 'CORONEL PORTILLO', '', '', 25, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (194, '250', 'ATALAYA', '', '', 25, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (195, '250', 'PADRE ABAD', '', '', 25, 'A');
-    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) VALUES (196, '250', 'PURÚS', '', '', 25, 'A');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (1, 28, 'CHACHAPOYAS', 1, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (2, 28, 'BAGUA', 1, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (3, 28, 'BONGARÁ', 1, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (4, 28, 'CONDORCANQUI', 1, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (5, 28, 'LUYA', 1, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (6, 28, 'RODRÍGUEZ DE MENDOZA', 1, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (7, 28, 'UTCUBAMBA', 1, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (8, 28, 'HUARAZ', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (9, 28, 'AIJA', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (10, 28, 'ANTONIO RAYMONDI', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (11, 28, 'ASUNCIÓN', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (12, 28, 'BOLOGNESI', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (13, 28, 'CARHUAZ', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (14, 28, 'CARLOS F. FITZCARRALD', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (15, 28, 'CASMA', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (16, 28, 'CORONGO', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (17, 28, 'HUARI', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (18, 28, 'HUARMEY', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (19, 28, 'HUAYLAS', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (20, 28, 'MARISCAL LUZURIAGA', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (21, 28, 'OCROS', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (22, 28, 'PALLASCA', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (23, 28, 'POMABAMBA', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (24, 28, 'RECUAY', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (25, 28, 'SANTA', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (26, 28, 'SIHUAS', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (27, 28, 'YUNGAY', 2, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (28, 28, 'ABANCAY', 3, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (29, 28, 'ANDAHUAYLAS', 3, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (30, 28, 'ANTABAMBA', 3, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (31, 28, 'AYMARAES', 3, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (32, 28, 'COTABAMBAS', 3, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (33, 28, 'CHINCHEROS', 3, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (34, 28, 'GRAU', 3, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (35, 28, 'AREQUIPA', 4, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (36, 28, 'CAMANÁ', 4, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (37, 28, 'CARAVELÍ', 4, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (38, 28, 'CASTILLA', 4, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (39, 28, 'CAYLLOMA', 4, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (40, 28, 'CONDESUYOS', 4, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (41, 28, 'ISLAY', 4, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (42, 28, 'LA UNIÓN', 4, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (43, 28, 'HUAMANGA', 5, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (44, 28, 'CANGALLO', 5, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (45, 28, 'HUANCA SANCOS', 5, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (46, 28, 'HUANTA', 5, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (47, 28, 'LA MAR', 5, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (48, 28, 'LUCANAS', 5, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (49, 28, 'PARINACOCHAS', 5, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (50, 28, 'PÁUCAR DEL SARA SARA', 5, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (51, 28, 'SUCRE', 5, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (52, 28, 'VÍCTOR FAJARDO', 5, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (53, 28, 'VILCAS HUAMÁN', 5, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (54, 28, 'CAJAMARCA', 6, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (55, 28, 'CAJABAMBA', 6, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (56, 28, 'CELENDÍN', 6, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (57, 28, 'CHOTA', 6, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (58, 28, 'CONTUMAZÁ', 6, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (59, 28, 'CUTERVO', 6, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (60, 28, 'HUALGAYOC', 6, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (61, 28, 'JAÉN', 6, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (62, 28, 'SAN IGNACIO', 6, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (63, 28, 'SAN MARCOS', 6, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (64, 28, 'SAN MIGUEL', 6, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (65, 28, 'SAN PABLO', 6, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (66, 28, 'SANTA CRUZ', 6, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (67, 28, 'CALLAO', 7, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (68, 28, 'CUSCO', 8, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (69, 28, 'ACOMAYO', 8, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (70, 28, 'ANTA', 8, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (71, 28, 'CALCA', 8, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (72, 28, 'CANAS', 8, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (73, 28, 'CANCHIS', 8, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (74, 28, 'CHUMBIVILCAS', 8, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (75, 28, 'ESPINAR', 8, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (76, 28, 'LA CONVENCIÓN', 8, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (77, 28, 'PARURO', 8, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (78, 28, 'PAUCARTAMBO', 8, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (79, 28, 'QUISPICANCHI', 8, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (80, 28, 'URUBAMBA', 8, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (81, 28, 'HUANCAVELICA', 9, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (82, 28, 'ACOBAMBA', 9, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (83, 28, 'ANGARAES', 9, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (84, 28, 'CASTROVIRREYNA', 9, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (85, 28, 'CHURCAMPA', 9, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (86, 28, 'HUAYTARÁ', 9, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (87, 28, 'TAYACAJA', 9, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (88, 28, 'HUÁNUCO', 10, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (89, 28, 'AMBO', 10, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (90, 28, 'DOS DE MAYO', 10, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (91, 28, 'HUACAYBAMBA', 10, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (92, 28, 'HUAMALÍES', 10, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (93, 28, 'LEONCIO PRADO', 10, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (94, 28, 'MARAÑÓN', 10, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (95, 28, 'PACHITEA', 10, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (96, 28, 'PUERTO INCA', 10, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (97, 28, 'LAURICOCHA', 10, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (98, 28, 'YAROWILCA', 10, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (99, 28, 'ICA', 11, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (100, 28, 'CHINCHA', 11, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (101, 28, 'NASCA', 11, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (102, 28, 'PALPA', 11, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (103, 28, 'PISCO', 11, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (104, 28, 'HUANCAYO', 12, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (105, 28, 'CONCEPCIÓN', 12, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (106, 28, 'CHANCHAMAYO', 12, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (107, 28, 'JAUJA', 12, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (108, 28, 'JUNÍN', 12, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (109, 28, 'SATIPO', 12, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (110, 28, 'TARMA', 12, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (111, 28, 'YAULI', 12, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (112, 28, 'CHUPACA', 12, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (113, 28, 'TRUJILLO', 13, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (114, 28, 'ASCOPE', 13, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (115, 28, 'BOLÍVAR', 13, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (116, 28, 'CHEPÉN', 13, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (117, 28, 'JULCÁN', 13, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (118, 28, 'OTUZCO', 13, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (119, 28, 'PACASMAYO', 13, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (120, 28, 'PATAZ', 13, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (121, 28, 'SÁNCHEZ CARRIÓN', 13, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (122, 28, 'SANTIAGO DE CHUCO', 13, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (123, 28, 'GRAN CHIMÚ', 13, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (124, 28, 'VIRÚ', 13, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (125, 28, 'CHICLAYO', 14, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (126, 28, 'FERREÑAFE', 14, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (127, 28, 'LAMBAYEQUE', 14, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (128, 28, 'LIMA METROPOLITANA', 15, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (129, 28, 'BARRANCA', 15, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (130, 28, 'CAJATAMBO', 15, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (131, 28, 'CANTA', 15, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (132, 28, 'CAÑETE', 15, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (133, 28, 'HUARAL', 15, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (134, 28, 'HUAROCHIRÍ', 15, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (135, 28, 'HUAURA', 15, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (136, 28, 'OYÓN', 15, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (137, 28, 'YAUYOS', 15, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (138, 28, 'MAYNAS', 16, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (139, 28, 'ALTO AMAZONAS', 16, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (140, 28, 'LORETO', 16, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (141, 28, 'MARISCAL RAMÓN CASTILLA', 16, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (142, 28, 'REQUENA', 16, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (143, 28, 'UCAYALI', 16, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (144, 28, 'DATEM DEL MARAÑÓN', 16, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (145, 28, 'PUTUMAYO', 16, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (146, 28, 'TAMBOPATA', 17, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (147, 28, 'MANU', 17, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (148, 28, 'TAHUAMANU', 17, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (149, 28, 'MARISCAL NIETO', 18, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (150, 28, 'GENERAL SÁNCHEZ CERRO', 18, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (151, 28, 'ILO', 18, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (152, 28, 'PASCO', 19, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (153, 28, 'DANIEL ALCIDES CARRIÓN', 19, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (154, 28, 'OXAPAMPA', 19, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (155, 28, 'PIURA', 20, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (156, 28, 'AYABACA', 20, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (157, 28, 'HUANCABAMBA', 20, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (158, 28, 'MORROPÓN', 20, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (159, 28, 'PAITA', 20, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (160, 28, 'SULLANA', 20, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (161, 28, 'TALARA', 20, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (162, 28, 'SECHURA', 20, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (163, 28, 'PUNO', 21, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (164, 28, 'AZÁNGARO', 21, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (165, 28, 'CARABAYA', 21, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (166, 28, 'CHUCUITO', 21, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (167, 28, 'EL COLLAO', 21, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (168, 28, 'HUANCANÉ', 21, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (169, 28, 'LAMPA', 21, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (170, 28, 'MELGAR', 21, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (171, 28, 'MOHO', 21, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (172, 28, 'SAN ANTONIO DE PUTINA', 21, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (173, 28, 'SAN ROMÁN', 21, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (174, 28, 'SANDIA', 21, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (175, 28, 'YUNGUYO', 21, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (176, 28, 'MOYOBAMBA', 22, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (177, 28, 'BELLAVISTA', 22, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (178, 28, 'EL DORADO', 22, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (179, 28, 'HUALLAGA', 22, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (180, 28, 'LAMAS', 22, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (181, 28, 'MARISCAL CÁCERES', 22, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (182, 28, 'PICOTA', 22, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (183, 28, 'RIOJA', 22, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (184, 28, 'SAN MARTÍN', 22, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (185, 28, 'TOCACHE', 22, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (186, 28, 'TACNA', 23, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (187, 28, 'CANDARAVE', 23, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (188, 28, 'JORGE BASADRE', 23, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (189, 28, 'TARATA', 23, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (190, 28, 'TUMBES', 24, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (191, 28, 'CONTRALMIRANTE VILLAR', 24, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (192, 28, 'ZARUMILLA', 24, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (193, 28, 'CORONEL PORTILLO', 25, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (194, 28, 'ATALAYA', 25, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (195, 28, 'PADRE ABAD', 25, 0, '0', 0, '0');
-    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) VALUES (196, 28, 'PURÚS', 25, 0, '0', 0, '0');
+    INSERT INTO public.saezona (zona_cod_empr, zona_cod_sucu, zona_nom_zona, zona_opc_zona, zona_cod_ciud) 
+        VALUES (
+                (1, 1, 'AMAZONAS', NULL, NULL ),
+                (2, 1, 'ÁNCASH', NULL, NULL ),
+                (3, 1, 'APURÍMAC', NULL, NULL ),
+                (4, 1, 'AREQUIPA', NULL, NULL ),
+                (5, 1, 'AYACUCHO', NULL, NULL ),
+                (6, 1, 'CAJAMARCA', NULL, NULL ),
+                (7, 1, 'PROV. CONST. DEL CALLAO', NULL, NULL ),
+                (8, 1, 'CUSCO', NULL, NULL ),
+                (9, 1, 'HUANCAVELICA', NULL, NULL ),
+                (10, 1, 'HUÁNUCO', NULL, NULL ),
+                (11, 1, 'ICA', NULL, NULL ),
+                (12, 1, 'JUNÍN', NULL, NULL ),
+                (13, 1, 'LA LIBERTAD', NULL, NULL ),
+                (14, 1, 'LAMBAYEQUE', NULL, NULL ),
+                (15, 1, 'LIMA ', NULL, NULL ),
+                (16, 1, 'LORETO', NULL, NULL ),
+                (17, 1, 'MADRE DE DIOS', NULL, NULL ),
+                (18, 1, 'MOQUEGUA', NULL, NULL ),
+                (19, 1, 'PASCO', NULL, NULL ),
+                (20, 1, 'PIURA', NULL, NULL ),
+                (21, 1, 'PUNO', NULL, NULL ),
+                (22, 1, 'SAN MARTÍN', NULL, NULL ),
+                (23, 1, 'TACNA', NULL, NULL ),
+                (24, 1, 'TUMBES', NULL, NULL ),
+                (25, 1, 'UCAYALI', NULL, NULL )
+                );
+    INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov,prov_cod_char) 
+        VALUES (
+                (1, 'AMAZONAS', '01'),
+                (2, 'ÁNCASH', '02'),
+                (3, 'APURÍMAC', '03'),
+                (4, 'AREQUIPA', '04'),
+                (5, 'AYACUCHO', '05'),
+                (6, 'CAJAMARCA', '06'),
+                (7, 'PROV. CONST. DEL CALLAO', '07'),
+                (8, 'CUSCO', '08'),
+                (9, 'HUANCAVELICA', '09'),
+                (10, 'HUÁNUCO', '10'),
+                (11, 'ICA', '11'),
+                (12, 'JUNÍN', '12'),
+                (13, 'LA LIBERTAD', '13'),
+                (14, 'LAMBAYEQUE', '14'),
+                (15, 'LIMA', '15'),
+                (16, 'LORETO', '16'),
+                (17, 'MADRE DE DIOS', '17'),
+                (18, 'MOQUEGUA', '18'),
+                (19, 'PASCO', '19'),
+                (20, 'PIURA', '20'),
+                (21, 'PUNO', '21'),
+                (22, 'SAN MARTÍN', '22'),
+                (23, 'TACNA', '23'),
+                (24, 'TUMBES', '24'),
+                (25, 'UCAYALI', '25')
+                );
+    INSERT INTO public.saecant (cant_cod_cant, cant_cod_char, cant_des_cant, cant_sri_codi, cant_cod_provc, cant_cod_prov, cant_est_cant) 
+        VALUES  (
+                (1, '01', 'CHACHAPOYAS', '', '', 1, 'A'),
+                (2, '02', 'BAGUA', '', '', 1, 'A'),
+                (3, '03', 'BONGARÁ', '', '', 1, 'A'),
+                (4, '04', 'CONDORCANQUI', '', '', 1, 'A'),
+                (5, '05', 'LUYA', '', '', 1, 'A'),
+                (6, '06', 'RODRÍGUEZ DE MENDOZA', '', '', 1, 'A'),
+                (7, '07', 'UTCUBAMBA', '', '', 1, 'A'),
+                (8, '01', 'HUARAZ', '', '', 2, 'A'),
+                (9, '02', 'AIJA', '', '', 2, 'A'),
+                (10, '03', 'ANTONIO RAYMONDI', '', '', 2, 'A'),
+                (11, '04', 'ASUNCIÓN', '', '', 2, 'A'),
+                (12, '05', 'BOLOGNESI', '', '', 2, 'A'),
+                (13, '06', 'CARHUAZ', '', '', 2, 'A'),
+                (14, '07', 'CARLOS F. FITZCARRALD', '', '', 2, 'A'),
+                (15, '08', 'CASMA', '', '', 2, 'A'),
+                (16, '09', 'CORONGO', '', '', 2, 'A'),
+                (17, '10', 'HUARI', '', '', 2, 'A'),
+                (18, '11', 'HUARMEY', '', '', 2, 'A'),
+                (19, '12', 'HUAYLAS', '', '', 2, 'A'),
+                (20, '13', 'MARISCAL LUZURIAGA', '', '', 2, 'A'),
+                (21, '14', 'OCROS', '', '', 2, 'A'),
+                (22, '15', 'PALLASCA', '', '', 2, 'A'),
+                (23, '16', 'POMABAMBA', '', '', 2, 'A'),
+                (24, '17', 'RECUAY', '', '', 2, 'A'),
+                (25, '18', 'SANTA', '', '', 2, 'A'),
+                (26, '19', 'SIHUAS', '', '', 2, 'A'),
+                (27, '20', 'YUNGAY', '', '', 2, 'A'),
+                (28, '01', 'ABANCAY', '', '', 3, 'A'),
+                (29, '02', 'ANDAHUAYLAS', '', '', 3, 'A'),
+                (30, '03', 'ANTABAMBA', '', '', 3, 'A'),
+                (31, '04', 'AYMARAES', '', '', 3, 'A'),
+                (32, '05', 'COTABAMBAS', '', '', 3, 'A'),
+                (33, '06', 'CHINCHEROS', '', '', 3, 'A'),
+                (34, '07', 'GRAU', '', '', 3, 'A'),
+                (35, '01', 'AREQUIPA', '', '', 4, 'A'),
+                (36, '02', 'CAMANÁ', '', '', 4, 'A'),
+                (37, '03', 'CARAVELÍ', '', '', 4, 'A'),
+                (38, '04', 'CASTILLA', '', '', 4, 'A'),
+                (39, '05', 'CAYLLOMA', '', '', 4, 'A'),
+                (40, '06', 'CONDESUYOS', '', '', 4, 'A'),
+                (41, '07', 'ISLAY', '', '', 4, 'A'),
+                (42, '08', 'LA UNIÓN', '', '', 4, 'A'),
+                (43, '01', 'HUAMANGA', '', '', 5, 'A'),
+                (44, '02', 'CANGALLO', '', '', 5, 'A'),
+                (45, '03', 'HUANCA SANCOS', '', '', 5, 'A'),
+                (46, '04', 'HUANTA', '', '', 5, 'A'),
+                (47, '05', 'LA MAR', '', '', 5, 'A'),
+                (48, '06', 'LUCANAS', '', '', 5, 'A'),
+                (49, '07', 'PARINACOCHAS', '', '', 5, 'A'),
+                (50, '08', 'PÁUCAR DEL SARA SARA', '', '', 5, 'A'),
+                (51, '09', 'SUCRE', '', '', 5, 'A'),
+                (52, '10', 'VÍCTOR FAJARDO', '', '', 5, 'A'),
+                (53, '11', 'VILCAS HUAMÁN', '', '', 5, 'A'),
+                (54, '01', 'CAJAMARCA', '', '', 6, 'A'),
+                (55, '02', 'CAJABAMBA', '', '', 6, 'A'),
+                (56, '03', 'CELENDÍN', '', '', 6, 'A'),
+                (57, '04', 'CHOTA', '', '', 6, 'A'),
+                (58, '05', 'CONTUMAZÁ', '', '', 6, 'A'),
+                (59, '06', 'CUTERVO', '', '', 6, 'A'),
+                (60, '07', 'HUALGAYOC', '', '', 6, 'A'),
+                (61, '08', 'JAÉN', '', '', 6, 'A'),
+                (62, '09', 'SAN IGNACIO', '', '', 6, 'A'),
+                (63, '10', 'SAN MARCOS', '', '', 6, 'A'),
+                (64, '11', 'SAN MIGUEL', '', '', 6, 'A'),
+                (65, '12', 'SAN PABLO', '', '', 6, 'A'),
+                (66, '13', 'SANTA CRUZ', '', '', 6, 'A'),
+                (67, '01', 'CALLAO', '', '', 7, 'A'),
+                (68, '01', 'CUSCO', '', '', 8, 'A'),
+                (69, '02', 'ACOMAYO', '', '', 8, 'A'),
+                (70, '03', 'ANTA', '', '', 8, 'A'),
+                (71, '04', 'CALCA', '', '', 8, 'A'),
+                (72, '05', 'CANAS', '', '', 8, 'A'),
+                (73, '06', 'CANCHIS', '', '', 8, 'A'),
+                (74, '07', 'CHUMBIVILCAS', '', '', 8, 'A'),
+                (75, '08', 'ESPINAR', '', '', 8, 'A'),
+                (76, '09', 'LA CONVENCIÓN', '', '', 8, 'A'),
+                (77, '10', 'PARURO', '', '', 8, 'A'),
+                (78, '11', 'PAUCARTAMBO', '', '', 8, 'A'),
+                (79, '12', 'QUISPICANCHI', '', '', 8, 'A'),
+                (80, '13', 'URUBAMBA', '', '', 8, 'A'),
+                (81, '01', 'HUANCAVELICA', '', '', 9, 'A'),
+                (82, '02', 'ACOBAMBA', '', '', 9, 'A'),
+                (83, '03', 'ANGARAES', '', '', 9, 'A'),
+                (84, '04', 'CASTROVIRREYNA', '', '', 9, 'A'),
+                (85, '05', 'CHURCAMPA', '', '', 9, 'A'),
+                (86, '06', 'HUAYTARÁ', '', '', 9, 'A'),
+                (87, '07', 'TAYACAJA', '', '', 9, 'A'),
+                (88, '01', 'HUÁNUCO', '', '', 10, 'A'),
+                (89, '02', 'AMBO', '', '', 10, 'A'),
+                (90, '03', 'DOS DE MAYO', '', '', 10, 'A'),
+                (91, '04', 'HUACAYBAMBA', '', '', 10, 'A'),
+                (92, '05', 'HUAMALÍES', '', '', 10, 'A'),
+                (93, '06', 'LEONCIO PRADO', '', '', 10, 'A'),
+                (94, '07', 'MARAÑÓN', '', '', 10, 'A'),
+                (95, '08', 'PACHITEA', '', '', 10, 'A'),
+                (96, '09', 'PUERTO INCA', '', '', 10, 'A'),
+                (97, '10', 'LAURICOCHA', '', '', 10, 'A'),
+                (98, '11', 'YAROWILCA', '', '', 10, 'A'),
+                (99, '01', 'ICA', '', '', 11, 'A'),
+                (100, '02', 'CHINCHA', '', '', 11, 'A'),
+                (101, '03', 'NASCA', '', '', 11, 'A'),
+                (102, '04', 'PALPA', '', '', 11, 'A'),
+                (103, '05', 'PISCO', '', '', 11, 'A'),
+                (104, '01', 'HUANCAYO', '', '', 12, 'A'),
+                (105, '02', 'CONCEPCIÓN', '', '', 12, 'A'),
+                (106, '03', 'CHANCHAMAYO', '', '', 12, 'A'),
+                (107, '04', 'JAUJA', '', '', 12, 'A'),
+                (108, '05', 'JUNÍN', '', '', 12, 'A'),
+                (109, '06', 'SATIPO', '', '', 12, 'A'),
+                (110, '07', 'TARMA', '', '', 12, 'A'),
+                (111, '08', 'YAULI', '', '', 12, 'A'),
+                (112, '09', 'CHUPACA', '', '', 12, 'A'),
+                (113, '01', 'TRUJILLO', '', '', 13, 'A'),
+                (114, '02', 'ASCOPE', '', '', 13, 'A'),
+                (115, '03', 'BOLÍVAR', '', '', 13, 'A'),
+                (116, '04', 'CHEPÉN', '', '', 13, 'A'),
+                (117, '05', 'JULCÁN', '', '', 13, 'A'),
+                (118, '06', 'OTUZCO', '', '', 13, 'A'),
+                (119, '07', 'PACASMAYO', '', '', 13, 'A'),
+                (120, '08', 'PATAZ', '', '', 13, 'A'),
+                (121, '09', 'SÁNCHEZ CARRIÓN', '', '', 13, 'A'),
+                (122, '10', 'SANTIAGO DE CHUCO', '', '', 13, 'A'),
+                (123, '11', 'GRAN CHIMÚ', '', '', 13, 'A'),
+                (124, '12', 'VIRÚ', '', '', 13, 'A'),
+                (125, '01', 'CHICLAYO', '', '', 14, 'A'),
+                (126, '02', 'FERREÑAFE', '', '', 14, 'A'),
+                (127, '03', 'LAMBAYEQUE', '', '', 14, 'A'),
+                (128, '01', 'LIMA METROPOLITANA', '', '', 15, 'A'),
+                (129, '02', 'BARRANCA', '', '', 15, 'A'),
+                (130, '03', 'CAJATAMBO', '', '', 15, 'A'),
+                (131, '04', 'CANTA', '', '', 15, 'A'),
+                (132, '05', 'CAÑETE', '', '', 15, 'A'),
+                (133, '06', 'HUARAL', '', '', 15, 'A'),
+                (134, '07', 'HUAROCHIRÍ', '', '', 15, 'A'),
+                (135, '08', 'HUAURA', '', '', 15, 'A'),
+                (136, '09', 'OYÓN', '', '', 15, 'A'),
+                (137, '10', 'YAUYOS', '', '', 15, 'A'),
+                (138, '01', 'MAYNAS', '', '', 16, 'A'),
+                (139, '02', 'ALTO AMAZONAS', '', '', 16, 'A'),
+                (140, '03', 'LORETO', '', '', 16, 'A'),
+                (141, '04', 'MARISCAL RAMÓN CASTILLA', '', '', 16, 'A'),
+                (142, '05', 'REQUENA', '', '', 16, 'A'),
+                (143, '06', 'UCAYALI', '', '', 16, 'A'),
+                (144, '07', 'DATEM DEL MARAÑÓN', '', '', 16, 'A'),
+                (145, '08', 'PUTUMAYO', '', '', 16, 'A'),
+                (146, '01', 'TAMBOPATA', '', '', 17, 'A'),
+                (147, '02', 'MANU', '', '', 17, 'A'),
+                (148, '03', 'TAHUAMANU', '', '', 17, 'A'),
+                (149, '01', 'MARISCAL NIETO', '', '', 18, 'A'),
+                (150, '02', 'GENERAL SÁNCHEZ CERRO', '', '', 18, 'A'),
+                (151, '03', 'ILO', '', '', 18, 'A'),
+                (152, '01', 'PASCO', '', '', 19, 'A'),
+                (153, '02', 'DANIEL ALCIDES CARRIÓN', '', '', 19, 'A'),
+                (154, '03', 'OXAPAMPA', '', '', 19, 'A'),
+                (155, '01', 'PIURA', '', '', 20, 'A'),
+                (156, '02', 'AYABACA', '', '', 20, 'A'),
+                (157, '03', 'HUANCABAMBA', '', '', 20, 'A'),
+                (158, '04', 'MORROPÓN', '', '', 20, 'A'),
+                (159, '05', 'PAITA', '', '', 20, 'A'),
+                (160, '06', 'SULLANA', '', '', 20, 'A'),
+                (161, '07', 'TALARA', '', '', 20, 'A'),
+                (162, '08', 'SECHURA', '', '', 20, 'A'),
+                (163, '01', 'PUNO', '', '', 21, 'A'),
+                (164, '02', 'AZÁNGARO', '', '', 21, 'A'),
+                (165, '03', 'CARABAYA', '', '', 21, 'A'),
+                (166, '04', 'CHUCUITO', '', '', 21, 'A'),
+                (167, '05', 'EL COLLAO', '', '', 21, 'A'),
+                (168, '06', 'HUANCANÉ', '', '', 21, 'A'),
+                (169, '07', 'LAMPA', '', '', 21, 'A'),
+                (170, '08', 'MELGAR', '', '', 21, 'A'),
+                (171, '09', 'MOHO', '', '', 21, 'A'),
+                (172, '10', 'SAN ANTONIO DE PUTINA', '', '', 21, 'A'),
+                (173, '11', 'SAN ROMÁN', '', '', 21, 'A'),
+                (174, '12', 'SANDIA', '', '', 21, 'A'),
+                (175, '13', 'YUNGUYO', '', '', 21, 'A'),
+                (176, '01', 'MOYOBAMBA', '', '', 22, 'A'),
+                (177, '02', 'BELLAVISTA', '', '', 22, 'A'),
+                (178, '03', 'EL DORADO', '', '', 22, 'A'),
+                (179, '04', 'HUALLAGA', '', '', 22, 'A'),
+                (180, '05', 'LAMAS', '', '', 22, 'A'),
+                (181, '06', 'MARISCAL CÁCERES', '', '', 22, 'A'),
+                (182, '07', 'PICOTA', '', '', 22, 'A'),
+                (183, '08', 'RIOJA', '', '', 22, 'A'),
+                (184, '09', 'SAN MARTÍN', '', '', 22, 'A'),
+                (185, '10', 'TOCACHE', '', '', 22, 'A'),
+                (186, '01', 'TACNA', '', '', 23, 'A'),
+                (187, '02', 'CANDARAVE', '', '', 23, 'A'),
+                (188, '03', 'JORGE BASADRE', '', '', 23, 'A'),
+                (189, '04', 'TARATA', '', '', 23, 'A'),
+                (190, '01', 'TUMBES', '', '', 24, 'A'),
+                (191, '02', 'CONTRALMIRANTE VILLAR', '', '', 24, 'A'),
+                (192, '03', 'ZARUMILLA', '', '', 24, 'A'),
+                (193, '01', 'CORONEL PORTILLO', '', '', 25, 'A'),
+                (194, '02', 'ATALAYA', '', '', 25, 'A'),
+                (195, '03', 'PADRE ABAD', '', '', 25, 'A'),
+                (196, '04', 'PURÚS', '', '', 25, 'A')
+                );
+
+    INSERT INTO public.saeciud (ciud_cod_ciud, ciud_cod_pais, ciud_nom_ciud, ciud_cod_prov, ciud_tip_ciud, ciud_cod_sri, ciud_cod_urbano, ciud_zip_code) 
+                        VALUES  (
+                                (1, 28, 'CHACHAPOYAS', 1, 0, '0', 0, '0'),
+                                (2, 28, 'BAGUA', 1, 0, '0', 0, '0'),
+                                (3, 28, 'BONGARÁ', 1, 0, '0', 0, '0'),
+                                (4, 28, 'CONDORCANQUI', 1, 0, '0', 0, '0'),
+                                (5, 28, 'LUYA', 1, 0, '0', 0, '0'),
+                                (6, 28, 'RODRÍGUEZ DE MENDOZA', 1, 0, '0', 0, '0'),
+                                (7, 28, 'UTCUBAMBA', 1, 0, '0', 0, '0'),
+                                (8, 28, 'HUARAZ', 2, 0, '0', 0, '0'),
+                                (9, 28, 'AIJA', 2, 0, '0', 0, '0'),
+                                (10, 28, 'ANTONIO RAYMONDI', 2, 0, '0', 0, '0'),
+                                (11, 28, 'ASUNCIÓN', 2, 0, '0', 0, '0'),
+                                (12, 28, 'BOLOGNESI', 2, 0, '0', 0, '0'),
+                                (13, 28, 'CARHUAZ', 2, 0, '0', 0, '0'),
+                                (14, 28, 'CARLOS F. FITZCARRALD', 2, 0, '0', 0, '0'),
+                                (15, 28, 'CASMA', 2, 0, '0', 0, '0'),
+                                (16, 28, 'CORONGO', 2, 0, '0', 0, '0'),
+                                (17, 28, 'HUARI', 2, 0, '0', 0, '0'),
+                                (18, 28, 'HUARMEY', 2, 0, '0', 0, '0'),
+                                (19, 28, 'HUAYLAS', 2, 0, '0', 0, '0'),
+                                (20, 28, 'MARISCAL LUZURIAGA', 2, 0, '0', 0, '0'),
+                                (21, 28, 'OCROS', 2, 0, '0', 0, '0'),
+                                (22, 28, 'PALLASCA', 2, 0, '0', 0, '0'),
+                                (23, 28, 'POMABAMBA', 2, 0, '0', 0, '0'),
+                                (24, 28, 'RECUAY', 2, 0, '0', 0, '0'),
+                                (25, 28, 'SANTA', 2, 0, '0', 0, '0'),
+                                (26, 28, 'SIHUAS', 2, 0, '0', 0, '0'),
+                                (27, 28, 'YUNGAY', 2, 0, '0', 0, '0'),
+                                (28, 28, 'ABANCAY', 3, 0, '0', 0, '0'),
+                                (29, 28, 'ANDAHUAYLAS', 3, 0, '0', 0, '0'),
+                                (30, 28, 'ANTABAMBA', 3, 0, '0', 0, '0'),
+                                (31, 28, 'AYMARAES', 3, 0, '0', 0, '0'),
+                                (32, 28, 'COTABAMBAS', 3, 0, '0', 0, '0'),
+                                (33, 28, 'CHINCHEROS', 3, 0, '0', 0, '0'),
+                                (34, 28, 'GRAU', 3, 0, '0', 0, '0'),
+                                (35, 28, 'AREQUIPA', 4, 0, '0', 0, '0'),
+                                (36, 28, 'CAMANÁ', 4, 0, '0', 0, '0'),
+                                (37, 28, 'CARAVELÍ', 4, 0, '0', 0, '0'),
+                                (38, 28, 'CASTILLA', 4, 0, '0', 0, '0'),
+                                (39, 28, 'CAYLLOMA', 4, 0, '0', 0, '0'),
+                                (40, 28, 'CONDESUYOS', 4, 0, '0', 0, '0'),
+                                (41, 28, 'ISLAY', 4, 0, '0', 0, '0'),
+                                (42, 28, 'LA UNIÓN', 4, 0, '0', 0, '0'),
+                                (43, 28, 'HUAMANGA', 5, 0, '0', 0, '0'),
+                                (44, 28, 'CANGALLO', 5, 0, '0', 0, '0'),
+                                (45, 28, 'HUANCA SANCOS', 5, 0, '0', 0, '0'),
+                                (46, 28, 'HUANTA', 5, 0, '0', 0, '0'),
+                                (47, 28, 'LA MAR', 5, 0, '0', 0, '0'),
+                                (48, 28, 'LUCANAS', 5, 0, '0', 0, '0'),
+                                (49, 28, 'PARINACOCHAS', 5, 0, '0', 0, '0'),
+                                (50, 28, 'PÁUCAR DEL SARA SARA', 5, 0, '0', 0, '0'),
+                                (51, 28, 'SUCRE', 5, 0, '0', 0, '0'),
+                                (52, 28, 'VÍCTOR FAJARDO', 5, 0, '0', 0, '0'),
+                                (53, 28, 'VILCAS HUAMÁN', 5, 0, '0', 0, '0'),
+                                (54, 28, 'CAJAMARCA', 6, 0, '0', 0, '0'),
+                                (55, 28, 'CAJABAMBA', 6, 0, '0', 0, '0'),
+                                (56, 28, 'CELENDÍN', 6, 0, '0', 0, '0'),
+                                (57, 28, 'CHOTA', 6, 0, '0', 0, '0'),
+                                (58, 28, 'CONTUMAZÁ', 6, 0, '0', 0, '0'),
+                                (59, 28, 'CUTERVO', 6, 0, '0', 0, '0'),
+                                (60, 28, 'HUALGAYOC', 6, 0, '0', 0, '0'),
+                                (61, 28, 'JAÉN', 6, 0, '0', 0, '0'),
+                                (62, 28, 'SAN IGNACIO', 6, 0, '0', 0, '0'),
+                                (63, 28, 'SAN MARCOS', 6, 0, '0', 0, '0'),
+                                (64, 28, 'SAN MIGUEL', 6, 0, '0', 0, '0'),
+                                (65, 28, 'SAN PABLO', 6, 0, '0', 0, '0'),
+                                (66, 28, 'SANTA CRUZ', 6, 0, '0', 0, '0'),
+                                (67, 28, 'CALLAO', 7, 0, '0', 0, '0'),
+                                (68, 28, 'CUSCO', 8, 0, '0', 0, '0'),
+                                (69, 28, 'ACOMAYO', 8, 0, '0', 0, '0'),
+                                (70, 28, 'ANTA', 8, 0, '0', 0, '0'),
+                                (71, 28, 'CALCA', 8, 0, '0', 0, '0'),
+                                (72, 28, 'CANAS', 8, 0, '0', 0, '0'),
+                                (73, 28, 'CANCHIS', 8, 0, '0', 0, '0'),
+                                (74, 28, 'CHUMBIVILCAS', 8, 0, '0', 0, '0'),
+                                (75, 28, 'ESPINAR', 8, 0, '0', 0, '0'),
+                                (76, 28, 'LA CONVENCIÓN', 8, 0, '0', 0, '0'),
+                                (77, 28, 'PARURO', 8, 0, '0', 0, '0'),
+                                (78, 28, 'PAUCARTAMBO', 8, 0, '0', 0, '0'),
+                                (79, 28, 'QUISPICANCHI', 8, 0, '0', 0, '0'),
+                                (80, 28, 'URUBAMBA', 8, 0, '0', 0, '0'),
+                                (81, 28, 'HUANCAVELICA', 9, 0, '0', 0, '0'),
+                                (82, 28, 'ACOBAMBA', 9, 0, '0', 0, '0'),
+                                (83, 28, 'ANGARAES', 9, 0, '0', 0, '0'),
+                                (84, 28, 'CASTROVIRREYNA', 9, 0, '0', 0, '0'),
+                                (85, 28, 'CHURCAMPA', 9, 0, '0', 0, '0'),
+                                (86, 28, 'HUAYTARÁ', 9, 0, '0', 0, '0'),
+                                (87, 28, 'TAYACAJA', 9, 0, '0', 0, '0'),
+                                (88, 28, 'HUÁNUCO', 10, 0, '0', 0, '0'),
+                                (89, 28, 'AMBO', 10, 0, '0', 0, '0'),
+                                (90, 28, 'DOS DE MAYO', 10, 0, '0', 0, '0'),
+                                (91, 28, 'HUACAYBAMBA', 10, 0, '0', 0, '0'),
+                                (92, 28, 'HUAMALÍES', 10, 0, '0', 0, '0'),
+                                (93, 28, 'LEONCIO PRADO', 10, 0, '0', 0, '0'),
+                                (94, 28, 'MARAÑÓN', 10, 0, '0', 0, '0'),
+                                (95, 28, 'PACHITEA', 10, 0, '0', 0, '0'),
+                                (96, 28, 'PUERTO INCA', 10, 0, '0', 0, '0'),
+                                (97, 28, 'LAURICOCHA', 10, 0, '0', 0, '0'),
+                                (98, 28, 'YAROWILCA', 10, 0, '0', 0, '0'),
+                                (99, 28, 'ICA', 11, 0, '0', 0, '0'),
+                                (100, 28, 'CHINCHA', 11, 0, '0', 0, '0'),
+                                (101, 28, 'NASCA', 11, 0, '0', 0, '0'),
+                                (102, 28, 'PALPA', 11, 0, '0', 0, '0'),
+                                (103, 28, 'PISCO', 11, 0, '0', 0, '0'),
+                                (104, 28, 'HUANCAYO', 12, 0, '0', 0, '0'),
+                                (105, 28, 'CONCEPCIÓN', 12, 0, '0', 0, '0'),
+                                (106, 28, 'CHANCHAMAYO', 12, 0, '0', 0, '0'),
+                                (107, 28, 'JAUJA', 12, 0, '0', 0, '0'),
+                                (108, 28, 'JUNÍN', 12, 0, '0', 0, '0'),
+                                (109, 28, 'SATIPO', 12, 0, '0', 0, '0'),
+                                (110, 28, 'TARMA', 12, 0, '0', 0, '0'),
+                                (111, 28, 'YAULI', 12, 0, '0', 0, '0'),
+                                (112, 28, 'CHUPACA', 12, 0, '0', 0, '0'),
+                                (113, 28, 'TRUJILLO', 13, 0, '0', 0, '0'),
+                                (114, 28, 'ASCOPE', 13, 0, '0', 0, '0'),
+                                (115, 28, 'BOLÍVAR', 13, 0, '0', 0, '0'),
+                                (116, 28, 'CHEPÉN', 13, 0, '0', 0, '0'),
+                                (117, 28, 'JULCÁN', 13, 0, '0', 0, '0'),
+                                (118, 28, 'OTUZCO', 13, 0, '0', 0, '0'),
+                                (119, 28, 'PACASMAYO', 13, 0, '0', 0, '0'),
+                                (120, 28, 'PATAZ', 13, 0, '0', 0, '0'),
+                                (121, 28, 'SÁNCHEZ CARRIÓN', 13, 0, '0', 0, '0'),
+                                (122, 28, 'SANTIAGO DE CHUCO', 13, 0, '0', 0, '0'),
+                                (123, 28, 'GRAN CHIMÚ', 13, 0, '0', 0, '0'),
+                                (124, 28, 'VIRÚ', 13, 0, '0', 0, '0'),
+                                (125, 28, 'CHICLAYO', 14, 0, '0', 0, '0'),
+                                (126, 28, 'FERREÑAFE', 14, 0, '0', 0, '0'),
+                                (127, 28, 'LAMBAYEQUE', 14, 0, '0', 0, '0'),
+                                (128, 28, 'LIMA METROPOLITANA', 15, 0, '0', 0, '0'),
+                                (129, 28, 'BARRANCA', 15, 0, '0', 0, '0'),
+                                (130, 28, 'CAJATAMBO', 15, 0, '0', 0, '0'),
+                                (131, 28, 'CANTA', 15, 0, '0', 0, '0'),
+                                (132, 28, 'CAÑETE', 15, 0, '0', 0, '0'),
+                                (133, 28, 'HUARAL', 15, 0, '0', 0, '0'),
+                                (134, 28, 'HUAROCHIRÍ', 15, 0, '0', 0, '0'),
+                                (135, 28, 'HUAURA', 15, 0, '0', 0, '0'),
+                                (136, 28, 'OYÓN', 15, 0, '0', 0, '0'),
+                                (137, 28, 'YAUYOS', 15, 0, '0', 0, '0'),
+                                (138, 28, 'MAYNAS', 16, 0, '0', 0, '0'),
+                                (139, 28, 'ALTO AMAZONAS', 16, 0, '0', 0, '0'),
+                                (140, 28, 'LORETO', 16, 0, '0', 0, '0'),
+                                (141, 28, 'MARISCAL RAMÓN CASTILLA', 16, 0, '0', 0, '0'),
+                                (142, 28, 'REQUENA', 16, 0, '0', 0, '0'),
+                                (143, 28, 'UCAYALI', 16, 0, '0', 0, '0'),
+                                (144, 28, 'DATEM DEL MARAÑÓN', 16, 0, '0', 0, '0'),
+                                (145, 28, 'PUTUMAYO', 16, 0, '0', 0, '0'),
+                                (146, 28, 'TAMBOPATA', 17, 0, '0', 0, '0'),
+                                (147, 28, 'MANU', 17, 0, '0', 0, '0'),
+                                (148, 28, 'TAHUAMANU', 17, 0, '0', 0, '0'),
+                                (149, 28, 'MARISCAL NIETO', 18, 0, '0', 0, '0'),
+                                (150, 28, 'GENERAL SÁNCHEZ CERRO', 18, 0, '0', 0, '0'),
+                                (151, 28, 'ILO', 18, 0, '0', 0, '0'),
+                                (152, 28, 'PASCO', 19, 0, '0', 0, '0'),
+                                (153, 28, 'DANIEL ALCIDES CARRIÓN', 19, 0, '0', 0, '0'),
+                                (154, 28, 'OXAPAMPA', 19, 0, '0', 0, '0'),
+                                (155, 28, 'PIURA', 20, 0, '0', 0, '0'),
+                                (156, 28, 'AYABACA', 20, 0, '0', 0, '0'),
+                                (157, 28, 'HUANCABAMBA', 20, 0, '0', 0, '0'),
+                                (158, 28, 'MORROPÓN', 20, 0, '0', 0, '0'),
+                                (159, 28, 'PAITA', 20, 0, '0', 0, '0'),
+                                (160, 28, 'SULLANA', 20, 0, '0', 0, '0'),
+                                (161, 28, 'TALARA', 20, 0, '0', 0, '0'),
+                                (162, 28, 'SECHURA', 20, 0, '0', 0, '0'),
+                                (163, 28, 'PUNO', 21, 0, '0', 0, '0'),
+                                (164, 28, 'AZÁNGARO', 21, 0, '0', 0, '0'),
+                                (165, 28, 'CARABAYA', 21, 0, '0', 0, '0'),
+                                (166, 28, 'CHUCUITO', 21, 0, '0', 0, '0'),
+                                (167, 28, 'EL COLLAO', 21, 0, '0', 0, '0'),
+                                (168, 28, 'HUANCANÉ', 21, 0, '0', 0, '0'),
+                                (169, 28, 'LAMPA', 21, 0, '0', 0, '0'),
+                                (170, 28, 'MELGAR', 21, 0, '0', 0, '0'),
+                                (171, 28, 'MOHO', 21, 0, '0', 0, '0'),
+                                (172, 28, 'SAN ANTONIO DE PUTINA', 21, 0, '0', 0, '0'),
+                                (173, 28, 'SAN ROMÁN', 21, 0, '0', 0, '0'),
+                                (174, 28, 'SANDIA', 21, 0, '0', 0, '0'),
+                                (175, 28, 'YUNGUYO', 21, 0, '0', 0, '0'),
+                                (176, 28, 'MOYOBAMBA', 22, 0, '0', 0, '0'),
+                                (177, 28, 'BELLAVISTA', 22, 0, '0', 0, '0'),
+                                (178, 28, 'EL DORADO', 22, 0, '0', 0, '0'),
+                                (179, 28, 'HUALLAGA', 22, 0, '0', 0, '0'),
+                                (180, 28, 'LAMAS', 22, 0, '0', 0, '0'),
+                                (181, 28, 'MARISCAL CÁCERES', 22, 0, '0', 0, '0'),
+                                (182, 28, 'PICOTA', 22, 0, '0', 0, '0'),
+                                (183, 28, 'RIOJA', 22, 0, '0', 0, '0'),
+                                (184, 28, 'SAN MARTÍN', 22, 0, '0', 0, '0'),
+                                (185, 28, 'TOCACHE', 22, 0, '0', 0, '0'),
+                                (186, 28, 'TACNA', 23, 0, '0', 0, '0'),
+                                (187, 28, 'CANDARAVE', 23, 0, '0', 0, '0'),
+                                (188, 28, 'JORGE BASADRE', 23, 0, '0', 0, '0'),
+                                (189, 28, 'TARATA', 23, 0, '0', 0, '0'),
+                                (190, 28, 'TUMBES', 24, 0, '0', 0, '0'),
+                                (191, 28, 'CONTRALMIRANTE VILLAR', 24, 0, '0', 0, '0'),
+                                (192, 28, 'ZARUMILLA', 24, 0, '0', 0, '0'),
+                                (193, 28, 'CORONEL PORTILLO', 25, 0, '0', 0, '0'),
+                                (194, 28, 'ATALAYA', 25, 0, '0', 0, '0'),
+                                (195, 28, 'PADRE ABAD', 25, 0, '0', 0, '0'),
+                                (196, 28, 'PURÚS', 25, 0, '0', 0, '0')
+                                );
+
     INSERT INTO public.saeparr (parr_cod_parr, parr_cod_char, parr_cod_cant, parr_des_parr, parr_zip_code, parr_cod_ciud) VALUES (1, '1', 1, 'CHACHAPOYAS', '', '1');
     INSERT INTO public.saeparr (parr_cod_parr, parr_cod_char, parr_cod_cant, parr_des_parr, parr_zip_code, parr_cod_ciud) VALUES (2, '2', 1, 'ASUNCIÓN', '', '1');
     INSERT INTO public.saeparr (parr_cod_parr, parr_cod_char, parr_cod_cant, parr_des_parr, parr_zip_code, parr_cod_ciud) VALUES (3, '3', 1, 'BALSAS', '', '1');

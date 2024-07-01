@@ -238,6 +238,25 @@ SELECT
     },') AS prov_jason
 FROM
     public.saecant;
+
+--/////// busqueda columnas ////
+
+SELECT 
+    parr_des_parr,
+    (
+        SELECT cant_cod_char 
+        FROM saecant 
+        WHERE cant_cod_cant = saeparr.parr_cod_parr
+    ) AS cant_cod_char,
+		    (
+        SELECT cant_cod_char 
+        FROM saeprov 
+        WHERE cant_cod_cant = saeparr.parr_cod_parr
+    ) AS prov_cod_char
+FROM 
+    saeparr;
+
+
 --/////// ciud ////
 BEGIN;
 	INSERT 
@@ -259,3 +278,6 @@ BEGIN;
     (1, 2, 4, 1, 'PLANETTIAHUANACO', 'PLANETTIAHUANACO', 't', '2024-05-30 15:42:59+00', '2024-05-30 15:42:59+00' )
     );
 COMMIT;
+
+---EXTRAER CIUDAD
+SELECT concat('(',ciud_cod_ciud,', ',ciud_cod_pais,', ','''',ciud_nom_ciud,''', ',ciud_cod_prov,', ',ciud_tip_ciud, ', ''0'', ',ciud_cod_urbano,', ''0''),') from saeciud ORDER BY ciud_cod_ciud asc

@@ -213,6 +213,10 @@ WHERE menu_nombre LIKE '%Ejecucion Inci%' OR menu_nombre LIKE '%Productividad In
 INSERT INTO comercial.doc_time (id_time, documento, time, estado, centro_costos, tipo) VALUES (20, 'CORREOS MASIVOS', 4, 'S', 'N', 'E');
 
 
+--///// menu agregado peru
+
+INSERT INTO comercial.menu_rd (menu_id, menu_codigo, menu_nombre, menu_link, menu_target, menu_imagen, menu_ayuda_titulo, menu_ayuda_texto, menu_activo, menu_perfil, menu_orden, menu_tipo, menu_conti, menu_tip_rd, menu_cont_adm) VALUES (1288, '2203', 'Zonas', 'config_zonas/zonas.php', 'main', 'fa fa-folder', 'Zonas', 'Zonas', 'S', '110011000000000000000000000000', 1, 'M', 0, 'L', 'A');
+UPDATE comercial.menu_rd SET menu_nombre = 'Regiones' WHERE menu_id = 122;
 
 --///// validacion de inserts if exists
 
