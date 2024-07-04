@@ -16,7 +16,6 @@ BEGIN;
     DELETE FROM PUBLIC.saebafp;
     DELETE from public.saefxfp;  --compras ventas
     DELETE FROM public.saedpag;
-    DELETE from public.saefpag;  -- detalle de la saefxfp
     delete from public.saeminv;
     delete from public.saeminv_an;
     delete from public.saeppr where ppr_cod_bode not IN (1); --PRECIOS PRODUCTO (1) mat // (2) serv
