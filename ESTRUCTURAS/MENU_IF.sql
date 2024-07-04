@@ -46,9 +46,9 @@ BEGIN;
         ('010005', 'Importar Onus', 'int_ws_importa_onus/importar.php', 'main', 'ico_nuevo.png', 'Importar Onus', 'Importar Onus', 'S', '111011000100010010000100000000', 1, 'M', 0, 'L', 'C'),
         ('010006', 'Listado Onus', 'int_ws_listado_onus/listado.php', 'main', 'ico_nuevo.png', 'Listado Onus', 'Listado Onus', 'S', '111011000100010010000100000000', 1, 'M', 0, 'L', 'C'),
         ('010007', 'Traslado Onus', 'int_ws_traslado_onus/traslado.php', 'main', 'ico_nuevo.png', 'Traslado Onus', 'Traslado Onus', 'S', '111011000100010010000100000000', 1, 'M', 0, 'L', 'C'),
-        ('2420', 'Promociones', 'int_promociones/promociones.php', 'main', 'fa fa-table', 'Promociones', 'Promociones', 'S', '100000000000001000000000000000', 1, 'M', 0, 'L', 'A'),
         ('010412', 'Modelos Onus', 'int_modelo_onu/modelo.php', 'main', 'ico_nuevo.png', 'Modelos Onus', 'Modelos Onus', 'S', '110000100000000000000000000000', 9, 'M', 0, 'L', 'C'),
-        ('010802', 'Promesas de Pago', 'int_promesas_pago/promesas.php', 'main', 'ico_nuevo.png', 'Promesas de Pago', 'Promesas de Pago', 'S', '110011100111100000000000000000', 1, 'M', 0, 'L', 'C')
+        ('010802', 'Promesas de Pago', 'int_promesas_pago/promesas.php', 'main', 'ico_nuevo.png', 'Promesas de Pago', 'Promesas de Pago', 'S', '110011100111100000000000000000', 1, 'M', 0, 'L', 'C'),
+        ('2421', 'Parametros Webservice', 'int_ws_parametros/parametros.php', 'main', 'fa fa-table', 'Parametros Webservice', 'Parametros Webservice', 'S', '100000000000000000000000000000', 1, 'M', 0, 'L', 'A')
     ) AS data (column1, column2, column3, column4, column5, column6, column7, column8, column9, column10, column11, column12, column13, column14)
     WHERE NOT EXISTS (
         SELECT 1 
