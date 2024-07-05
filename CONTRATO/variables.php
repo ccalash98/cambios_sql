@@ -127,7 +127,7 @@ function carga($aForm = '')
 }
 
 
-function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
+function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0, $nombres_completos, $ciudad_crm = 0, $provincia_crm = 0, $direccion_crm = 0, $identificacion_crm, $email_crm, $celular_crm, $tipo_iden_crm = 0, $vendedor_crm)
 {
     global $DSN_Ifx, $DSN;
 
@@ -302,6 +302,16 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
             if ($oCon->NumFilas() > 0) {
                 do {
                     $optionRuletera .= '<option value="' . $oCon->f('id') . '">' . $oCon->f('nombre') . '</option>';
+                } while ($oCon->SiguienteRegistro());
+            }
+        }
+        $oCon->Free();
+
+        $sql = "SELECT codigo_manual_sn FROM isp.int_parametros where id_empresa = $idempresa and id_sucursal = $idsucursal ";
+        if ($oCon->Query($sql)) {
+            if ($oCon->NumFilas() > 0) {
+                do {
+                    $codigo_manual_sn = $oCon->f('codigo_manual_sn');
                 } while ($oCon->SiguienteRegistro());
             }
         }
@@ -540,13 +550,37 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
         }
         $oCon->Free();
 
+        //QUERY PARA TABLA SCORE
+        /*
+        $sql = "SELECT habilitado_sn FROM comercial.equifax_credentials WHERE empresa_id = $idempresa";
+        if ($oCon->Query($sql)) {
+            if ($oCon->NumFilas() > 0) {
+                do {
+                    $habilitado_score = $oCon->f('habilitado_sn');
+                } while ($oCon->SiguienteRegistro());
+            }
+        }
+        $oCon->Free(); */
+
+
         //VALIDACION PARA MOSTRAR // OCULTAR CAMPOS
         $campos_generacion = '';
-        $sql = "SELECT campos_generacion FROM isp.int_parametros_general WHERE id_empresa = $idempresa";
+        $sql = "SELECT campos_generacion, score_activo_sn FROM isp.int_parametros_general WHERE id_empresa = $idempresa";
         if ($oCon->Query($sql)) {
             if ($oCon->NumFilas() > 0) {
                 do {
                     $campos_generacion = json_decode($oCon->f('campos_generacion', false));
+                    $habilitado_score = $oCon->f('score_activo_sn');
+                } while ($oCon->SiguienteRegistro());
+            }
+        }
+        $oCon->Free();
+
+        $sql = "SELECT usa_promo_sn FROM isp.int_parametros WHERE id_empresa = $idempresa AND id_sucursal = $idsucursal";
+        if ($oCon->Query($sql)) {
+            if ($oCon->NumFilas() > 0) {
+                do {
+                    $usa_promo_sn = $oCon->f('usa_promo_sn');
                 } while ($oCon->SiguienteRegistro());
             }
         }
@@ -557,10 +591,10 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
             'ruta_check', 'calle_prin_check', 'n_calle_check', 'calle_secu_check',
             'dire_compl_check', 'ref_check'
         ];
-        
+
         foreach ($campos as $campo) {
             if ($campo == 'dire_compl_check') {
-                ${'visible_' . $campo} = ($campos_generacion->$campo == 'S') ? 'disabled' : '';
+                ${'visible_' . $campo} = ($campos_generacion->$campo == 'S') ? 'readonly' : '';
             } else {
                 ${'visible_' . $campo} = ($campos_generacion->$campo == 'N') ? ' style="display:none" ' : '';
             }
@@ -568,11 +602,13 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
 
         // ------------------- CAMPOS DE INFORMACION GENERAL -------------------
         $tableContrato .=   '<div class="container-fluid">
+
+       
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
-                                                <div id="divInfoContrato" class="row col-md-10"></div>
-                                                <div id="divFotoContrato" class="row col-md-2" align="right"></div>
+                                                <div id="divInfoContrato" class="row col-md-12"></div>
+                                                <!-- <div id="divFotoContrato" class="row col-md-2" align="right"></div> -->
                                         </div>
                                         ' . $num . '
                                     </div>
@@ -586,6 +622,9 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                             <input type="text" id="ruc_cli" name="ruc_cli" class="form-control required_valid" value="" placeholder="IDENTIFICACION" onchange="consultaExistenciaIden();" onblur="validarDocumento()" required autocomplete="off" />';
         if ($validador_pais == '51') {
             $tableContrato .= '<span class="input-group-addon primary" onclick="verificaDocumentoSunat();" style="cursor:pointer;"><i class="fa-brands fa-searchengin"></i></span>';
+        }
+        if ($habilitado_score == 'S') {
+            $tableContrato .= '<span class="input-group-addon success" onclick="consultar_score();" style="cursor:pointer;" title="Consulta Score"><i class="fa-solid fa-s" style="color: #34f000;"></i></span>';
         }
         $tableContrato .= '</div></div>
                                     </div>
@@ -604,7 +643,10 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4">
-                                        
+                                        <div class="form-group">
+                                            <label class="control-label" for="telefono">Código contrato:</label>
+                                            <input type="text" id="codigoContrato" name="codigoContrato" class="form-control ' . $classReq . '" value="" size="' . $num_digitos . '" placeholder="CODIGO" ' . $disabledContrato . '/>
+                                        </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
@@ -625,14 +667,19 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <div id="divIdContrato"></div>
-                                            <div id="codigoCID"></div>
-                                            <input type="text" id="codigoContrato" name="codigoContrato" class="form-control '.$classReq.'" value="" size="' . $num_digitos . '" placeholder="CODIGO" ' . $disabledContrato . '/>
+                                <div class="row">';
+        if ($codigo_manual_sn == 'S') {
+            $tableContrato .= '
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                            <label class="control-label" for="telefono">Código contrato físico:</label>
+                                            <input type="text" id="codigo_preimpreso" name="codigo_preimpreso" class="form-control" value="" size="" placeholder="CODIGO PREIMPRESO"/>
                                         </div>
-                                    </div>';
+                                </div>';
+        } else {
+            $tableContrato .= '<div class="col-md-4"></div>';
+        }
+
 
         if ($plan_moneda_ext == 'S') {
             $tableContrato .= ' <div class="col-md-6">
@@ -644,7 +691,7 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label class="control-label" for="selec_moneda_id">Moneda:</label><br>
-                                                <select id="selec_moneda_id" name="selec_moneda_id" class="form-control" required style="width: 100%;">
+                                                <select id="selec_moneda_id" name="selec_moneda_id" class="form-control required_valid" required style="width: 100%;">
                                                     <option value="0">Seleccione una opcion..</option>
                                                     ' . $optionMone . '
                                                 </select> 
@@ -658,6 +705,8 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                             </div>
                                         </div>';
         }
+
+
 
         $tableContrato .= '</div>
                                 <div class="row">
@@ -855,8 +904,52 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                 </div>';
         }
 
-        $tableContrato .= '</div>
-                                <div class="row">
+        $tableContrato .= '</div>';
+
+        if ($usa_promo_sn == 'S') {
+            $tableContrato .= '<div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="cambio_oper_promo">Cambio de operador:</label>
+                                            <input type="checkbox" id="cambio_oper_promo" name="cambio_oper_promo" value="S">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="vivienda_propia_promo">Vivienda propia:</label>
+                                            <input type="checkbox" id="vivienda_propia_promo" name="vivienda_propia_promo" value="S">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="con_empleo_promo">Cuenta con empleo:</label>
+                                            <input type="checkbox" id="con_empleo_promo" name="con_empleo_promo" value="S">
+                                        </div>
+                                    </div>
+                                </div>';
+        }
+
+        if ($habilitado_score == 'S') {
+            $tableContrato .= '<div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="puntaje_score">Puntaje Score actual: <span class="label label-info" id="tipo_score" name="tipo_score"></span></label>
+                                            <input type="number" class="form-control" id="puntaje_score" name="puntaje_score" readonly/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div id="base_obtenida" name="base_obtenida"></div>
+                                        <div id="base_obtenida" name="base_obtenida"> <h7 id ="tipo_riesgo_eq" class="text-danger"></h7></div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="col-xs-12 col-sm-12 col-md-4" id="informacion_adicional_equif" style="text-align-center">
+                                            <label class="control-label" for="identificacion">.</label><br>
+                                        </div>
+                                    </div>
+                                </div>';
+        }
+
+        $tableContrato .= '<div class="row">
                                     <div class="col-md-12">
                                         <input type="hidden" id="num_digitos" name="num_digitos" value="' . $num_digitos . '">
                                         <input type="hidden" id="num_letras" name="num_letras" value="' . $num_letras . '">
@@ -1001,7 +1094,7 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                 
                             </div>
                             <div class="row">
-                                <div class="col-md-4" '.$visible_calles_check.'>
+                                <div class="col-md-4" ' . $visible_calles_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="tipo_direccion">Tipo Dirección:</label>
                                         <select id="tipo_direccion" name="tipo_direccion" class="form-control select2" onchange="cargarCalle()" style="width: 100%;">
@@ -1010,7 +1103,7 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-4" '.$visible_calles_check.'>
+                                <div class="col-md-4" ' . $visible_calles_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="tipo_direccion">Calle Dirección:</label>
                                         <select id="calle_direccion" name="calle_direccion" class="form-control select2" style="width: 100%;" onchange="llenarCalle()">
@@ -1018,7 +1111,7 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-4" '.$visible_calles_check.'>
+                                <div class="col-md-4" ' . $visible_calles_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="tipo_direccion">Calle:</label>
                                         <input type="text" id="calle_direccion_txt" name="calle_direccion_txt" class="form-control" value="" placeholder="" autocomplete="off" readonly>
@@ -1027,7 +1120,7 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                             </div>
                             
                             <div class="row">
-                                <div class="col-md-4" '.$visible_num_calle_check.'>
+                                <div class="col-md-4" ' . $visible_num_calle_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="tipo_direccion">N° Calle:</label>
                                         <select id="n_calle_select" name="n_calle_select" class="form-control select2" style="width: 100%;" onchange="llenarCalle()">
@@ -1035,7 +1128,7 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-4" '.$visible_tip_conjun_check.'>
+                                <div class="col-md-4" ' . $visible_tip_conjun_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="conjDire">* Tipo de Conjunto:</label>
                                         <select id="conjDire" name="conjDire" class="form-control select2" style="width: 100%;" onchange="obtenerSiglaDire(this)">
@@ -1045,7 +1138,7 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                     </div>
                                     <input type="hidden" id="siglaConj">
                                 </div>
-                                <div class="col-md-4" '.$visible_tip_vivienda_check.'>
+                                <div class="col-md-4" ' . $visible_tip_vivienda_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="tipo_casa">* Tipo Vivienda:</label>
                                         <select id="tipo_casa" name="tipo_casa" class="form-control select2" style="width: 100%;">
@@ -1059,7 +1152,7 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                             </div>
 
                             <div class="row">
-                                <div class="col-md-4" '.$visible_ruta_check.'>
+                                <div class="col-md-4" ' . $visible_ruta_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="rutaDire">Ruta</label>
                                         <select id="rutaDire" name="rutaDire" class="form-control select2" style="width: 100%;">
@@ -1068,19 +1161,19 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-2" '.$visible_ruta_check.'>
+                                <div class="col-md-2" ' . $visible_ruta_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="">&nbsp;</label>
                                         <button type="button" class="btn btn-warning" onclick="detalleRutasCliente();" style="width: 100%;">Rutas</button>
                                     </div>
                                 </div>
-                                <div class="col-md-3" '.$visible_ruta_check.'>
+                                <div class="col-md-3" ' . $visible_ruta_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="ordenRutaDire">Orden Ruta:</label>
                                         <input type="text" id="ordenRutaDire" name="ordenRutaDire" class="form-control" value="" placeholder="" autocomplete="off" onkeyUp="cargarCodigoRuta(2);">
                                     </div>
                                 </div>
-                                <div class="col-md-3" '.$visible_ruta_check.'>
+                                <div class="col-md-3" ' . $visible_ruta_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="codigoRutaDire">Codigo Ruta:</label>
                                         <input type="text" id="codigoRutaDire" name="codigoRutaDire" class="form-control" value="" placeholder="" autocomplete="off" readOnly>
@@ -1088,19 +1181,19 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6" '.$visible_calle_prin_check.'>
+                                <div class="col-md-6" ' . $visible_calle_prin_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="callePrincipal">Calle Principal:</label>
                                         <input type="text" id="callePrincipal" name="callePrincipal" class="form-control" value="" placeholder="CALLE PRINCIPAL" autocomplete="off" onkeyUp="crearDireccion();">
                                     </div>
                                 </div>
-                                <div class="col-md-2" '.$visible_n_calle_check.'>
+                                <div class="col-md-2" ' . $visible_n_calle_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="numeroDire">Número:</label>
                                         <input type="text" id="numeroDire" name="numeroDire" class="form-control" value="" placeholder="" autocomplete="off" onkeyUp="crearDireccion();">
                                     </div>
                                 </div>
-                                <div class="col-md-4" '.$visible_calle_secu_check.'>
+                                <div class="col-md-4" ' . $visible_calle_secu_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="calleSecundaria">Calle Secundaria:</label>
                                         <input type="text" id="calleSecundaria" name="calleSecundaria" class="form-control" value="" placeholder="CALLE SECUNDARIA" autocomplete="off" onkeyUp="crearDireccion();">
@@ -1111,12 +1204,12 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                 <div class="col-md-12">
                                     <div class="form-group" >
                                         <label class="control-label" for="direccion">* Direcci&oacute;n Completa:</label>
-                                        <input type="text" id="direccion" name="direccion" class="form-control" '.$visible_dire_compl_check.' placeholder="DIRECCION COMPLETA" autocomplete="off">
+                                        <input type="text" id="direccion" name="direccion" class="form-control" ' . $visible_dire_compl_check . ' placeholder="DIRECCION COMPLETA" autocomplete="off">
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-12" '.$visible_ref_check.'>
+                                <div class="col-md-12" ' . $visible_ref_check . '>
                                     <div class="form-group">
                                         <label class="control-label" for="referenciaDire">Referencia:</label>
                                         <input type="text" id="referenciaDire" name="referenciaDire" class="form-control" value="" placeholder="REFERENCIA" autocomplete="off">
@@ -1148,7 +1241,7 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
                                         <div class="form-group">
                                             <label class="control-label" for="pago">Forma de Pago:</label>
                                             <select id="pago" name="pago" class="form-control select2" style="width: 100%;">
-                                                    <option value="">Seleccione una opcion..</option>
+                                                    <!-- <option value="">Seleccione una opcion..</option> -->
                                                     ' . $optionMedioPago . '
                                             </select>
                                             <input type="hidden" id="idMedioPago" name="idMedioPago" value="0">
@@ -1316,18 +1409,34 @@ function genera_formulario_cliente($aForm = '', $id_clpv = 0, $id_contrato = 0)
         $oReturn->assign('divReporteDireccion', 'innerHTML', '');
         $oReturn->assign('divFinalizar', 'innerHTML', $sHtmlFinalizar);
         $oReturn->assign('btn_reactivar', 'innerHTML', '');
+        $oReturn->assign('nom_clpv', 'value', $nombres_completos);
+        $oReturn->assign('callePrincipal', 'value', $direccion_crm);
+        $oReturn->assign('dprovc', 'value', $provincia_crm);
+        $oReturn->assign('ruc_cli', 'value', $identificacion_crm);
+        $oReturn->assign('email', 'value', $email_crm);
+        $oReturn->assign('telefono', 'value', $celular_crm);
+        $oReturn->assign('vendedor', 'value', $vendedor_crm);
 
         $oReturn->script("$('.select2').select2();
 
-						$('#rutaDire').change(function () {
-							cargarCodigoRuta(1);
+                        $('#rutaDire').change(function () {
+                            cargarCodigoRuta(1);
                         });
                         
                         $('#pago').change(function(){
                             validarFormaPago(this);
                         });");
 
+        if ($tipo_iden_crm == 'P') {
+            $oReturn->assign("03",  "checked", true);
+        } elseif ($tipo_iden_crm == 'R') {
+            $oReturn->assign("01",  "checked", true);
+        } elseif ($tipo_iden_crm == 'C') {
+            $oReturn->assign("02",  "checked", true);
+        }
 
+        $oReturn->script('cargarCantonCiudad()');
+        $oReturn->script('callePrincipal()');
         $oReturn->script('initOmitirSaltoLinea();');
     } catch (Exception $e) {
         $oReturn->alert($e->getMessage());
@@ -1685,39 +1794,6 @@ function seleccionarContrato($aForm = '', $id_clpv = 0, $id = 0)
 
     try {
 
-        $sql = "SELECT table_name FROM information_schema.columns 
-                WHERE table_name='contrato_firmas' 
-                AND table_schema = 'public'";
-        if ($oCon->Query($sql)) {
-            if ($oCon->NumFilas() > 0) {
-                $table_name    = $oCon->f('table_name');
-            }
-        }
-        $oCon->Free();
-
-        if (empty($table_name)) {
-
-            $oCon1->QueryT('BEGIN;');
-
-            $sqlCreateTable = 'CREATE TABLE "public"."contrato_firmas" (
-                                "id" int4 NOT NULL GENERATED BY DEFAULT AS IDENTITY (
-                                INCREMENT 1
-                                MINVALUE  1
-                                MAXVALUE 2147483647
-                                START 1
-                                CACHE 1
-                                ),
-                                "id_contrato" int4 NOT NULL,
-                                "imagen" text COLLATE "pg_catalog"."default" NOT NULL,
-                                "created_at" timestamp(0),
-                                "updated_at" timestamp(0)
-                                );';
-            $oCon1->QueryT($sqlCreateTable);
-
-            $sqlClavePrimaria = 'ALTER TABLE "public"."contrato_firmas" ADD CONSTRAINT "contrato_firmas_pkey" PRIMARY KEY ("id");';
-            $oCon1->QueryT($sqlClavePrimaria);
-        }
-
         $oCon1->QueryT('COMMIT;');
 
         $sql = "SELECT num_digitos, aprobar_automatico from isp.int_parametros WHERE id_empresa = $idempresa AND id_sucursal = $idsucursal";
@@ -1786,14 +1862,29 @@ function seleccionarContrato($aForm = '', $id_clpv = 0, $id = 0)
             }
 
             $btn_reactivar = '';
-            if ($estado == 'CA') {
+            if ($estado == 'CA' || $estado == 'AN') {
                 $btn_reactivar = '<button type="button" class="btn btn-info" onclick="reinstalar_contrato(' . $id . ')">Reinstalar Contrato</button>';
             }
 
-            $sql = "SELECT identificador, id_tipo_cont_serv, ruc_clpv from isp.contrato_clpv where id = $id";
-            $identificador      = consulta_string($sql, 'identificador', $oCon, '');
-            $id_tipo_cont_serv  = consulta_string($sql, 'id_tipo_cont_serv', $oCon, '');
-            $ruc_clpv_iden      = consulta_string($sql, 'ruc_clpv', $oCon, '');
+            $sql = "SELECT identificador, id_tipo_cont_serv, ruc_clpv, codigo_preimpreso, puntaje_score, cambio_operador_sn, vivienda_propia_sn, con_empleo_sn, id_promo_aplica
+                    from isp.contrato_clpv 
+                    where id = $id";
+            if ($oCon->Query($sql)) {
+                if ($oCon->NumFilas() > 0) {
+                    do {
+                        $identificador      = $oCon->f('identificador');
+                        $id_tipo_cont_serv  = $oCon->f('id_tipo_cont_serv');
+                        $ruc_clpv_iden      = $oCon->f('ruc_clpv_iden');
+                        $codigo_preimpreso  = $oCon->f('codigo_preimpreso');
+                        $puntaje_score      = $oCon->f('puntaje_score');
+                        $cambio_operador_sn = $oCon->f('cambio_operador_sn');
+                        $vivienda_propia_sn = $oCon->f('vivienda_propia_sn');
+                        $con_empleo_sn      = $oCon->f('con_empleo_sn');
+                        $id_promo_aplica    = $oCon->f('id_promo_aplica');
+                    } while ($oCon->SiguienteRegistro());
+                }
+            }
+            $oCon->Free();
 
             $sql = "SELECT imagen from contrato_firmas where id_contrato = $id";
             $imagen_firma       = consulta_string($sql, 'imagen', $oCon, '');
@@ -1820,7 +1911,7 @@ function seleccionarContrato($aForm = '', $id_clpv = 0, $id = 0)
                 $array_cid = array_dato($oCon, $sql, 'id_contrato', 'datos_2');
                 $codigo_cid_fn = $array_cid[$id];
 
-                $lbl_cid = '<label class="control-label" for="codigoContrato">Código de pago:  <br> <span> ' . $codigo_cid_fn . ' </span></label>';
+                $lbl_cid = '<label class="control-label" for="codigoContrato">Código de pago: <span> ' . $codigo_cid_fn . ' </span></label>';
                 $oReturn->assign('codigoCID', 'innerHTML', $lbl_cid);
             }
 
@@ -1834,7 +1925,7 @@ function seleccionarContrato($aForm = '', $id_clpv = 0, $id = 0)
             }
 
             //control contratos
-            $sql = "select count(*) as control from isp.contrato_clpv where id_clpv = $id_clpv and ruc_clpv = '$ruc_clpv_iden'";
+            $sql = "select count(*) as control from isp.contrato_clpv where id_clpv = $id_clpv";
             $numContratos = consulta_string_func($sql, 'control', $oCon, 0);
 
             $sql = "select c.clpv_cod_vend, c.clpv_pre_ven, c.clv_con_clpv,c.clpv_fec_naci
@@ -1853,7 +1944,34 @@ function seleccionarContrato($aForm = '', $id_clpv = 0, $id = 0)
 
             $fecha_nacimineto = $clpv_fec_naci;
 
-            $sHtml = '<div class="col-xs-12 col-sm-12 col-md-4">
+            $sql = "SELECT usa_promo_sn from isp.int_parametros WHERE id_sucursal = $idsucursal";
+            $usa_promo_sn = consulta_string_func($sql, 'usa_promo_sn', $oCon, 0);    
+
+            $sHtml = '';
+            if($usa_promo_sn == 'S' && $id_promo_aplica > 0){
+                $sql = "SELECT info_actual_promo
+                        from isp.contrato_clpv 
+                        where id = $id";
+                if ($oCon->Query($sql)) {
+                    if ($oCon->NumFilas() > 0) {
+                        do {
+                            $info_actual_promo      = $oCon->f('info_actual_promo', false);
+                            $info_actual_promo      = json_decode($info_actual_promo);
+                            $nombre_promo           = $info_actual_promo->nombre;                            
+                        } while ($oCon->SiguienteRegistro());
+                    }
+                }
+                $oCon->Free();
+
+                $sHtml .= '<div class="col-xs-12 col-sm-12 col-md-3">
+                                <div class="form-group has-error">
+                                        <label>Contrato con promoción:</label>
+                                        <h5 class="success" style="color:green; font-size: 20px; font-weight: bold; margin: 0px;">' . $nombre_promo . '</h5>
+                                </div>
+                            </div>';
+            }
+
+            $sHtml .= '<div class="col-xs-12 col-sm-12 col-md-2">
                             <div class="form-group has-error">
                                     <label>Estado</label>
                                     <h5 class="' . $estadoClass . '" style="color:' . $estadoColor . '; font-size: 20px; font-weight: bold; margin: 0px;">' . $estadoNombre . '</h5>
@@ -1877,13 +1995,15 @@ function seleccionarContrato($aForm = '', $id_clpv = 0, $id = 0)
                                 <input type="text" class="form-control" id="adeudaContrato" value="' . number_format($valorDeuda, 2, '.', '') . '"  style="text-align: right" readonly/>
                             </div>
                         </div>
-                       <div class="col-xs-12 col-sm-12 col-md-2">
+                       <div class="col-xs-12 col-sm-12 col-md-1">
                             <div class="form-group">
                                 <label>&nbsp;</label>
                                 <button type="button" class="btn btn-success " onclick="actualizaInfo()" title="Actualizar Informaci&oacute;n "><i class="glyphicon glyphicon-refresh"></i></button>
                                 <button type="button" class="btn btn-info " onclick="listadoContratos(' . $id_clpv . ')" title="Contratos Registrados"> ' . $numContratos . '</button>
                             </div>
                         </div>';
+
+            
 
             //numero notas
             $sql = "select count(*) as notas
@@ -1898,31 +2018,7 @@ function seleccionarContrato($aForm = '', $id_clpv = 0, $id = 0)
             $sql_1 = "SELECT clv_con_clpv from saeclpv where clpv_cod_clpv=$id_clpv";
             $tip_doc = consulta_string_func($sql_1, 'clv_con_clpv', $oCon, 0);
 
-            //RUC
-            if ($tip_doc == 01) {
-                $oReturn->assign('01', 'checked', true);
-            }
-            //CEDULA/DNI
-
-            if ($tip_doc == 02) {
-                $oReturn->assign('02', 'checked', true);
-            }
-            //PASAPORTE
-            if ($tip_doc == 03) {
-                $oReturn->assign('03', 'checked', true);
-            }
-
-            //C.FINAL/OTROS
-
-            if ($tip_doc == 07) {
-                $oReturn->assign('07', 'checked', true);
-            }
-
-            //EXTRANJERIA
-
-            if ($tip_doc == 04) {
-                $oReturn->assign('04', 'checked', true);
-            }
+            $oReturn->script('asigna_tip_iden(\'' . $tip_doc . '\')');
 
             $oReturn->assign('divInfoContrato', 'innerHTML', $sHtml);
 
@@ -1951,6 +2047,17 @@ function seleccionarContrato($aForm = '', $id_clpv = 0, $id = 0)
             $oReturn->assign('tipo_servicio_contrato', 'value', $id_tipo_cont_serv);
             $oReturn->assign('btn_reactivar', 'innerHTML', $btn_reactivar);
             $oReturn->assign('fecha_naci', 'value', $fecha_nacimineto);
+            $oReturn->assign('codigo_preimpreso', 'value', $codigo_preimpreso);
+            $oReturn->assign('puntaje_score', 'value', $puntaje_score);
+
+            if(!empty($puntaje_score)){
+                $oReturn->script("califica_score($puntaje_score)");
+                
+                $sql = "SELECT descripcion from isp.int_promociones_score where puntos_ini <= $puntaje_score order by puntos_ini desc limit 1 ";
+                $descripcion_score = consulta_string_func($sql, 'descripcion', $oCon, '');
+
+                $oReturn->assign('tipo_score', 'innerHTML', $descripcion_score);
+            }
 
             $oReturn->script("listaPais()");
 
@@ -2014,10 +2121,28 @@ function seleccionarContrato($aForm = '', $id_clpv = 0, $id = 0)
                 $oReturn->assign('email_factura', 'checked', false);
             }
 
-            $div_id_contrato = '<label class="control-label" for="codigoContrato">ID: <span> ' . $id . '</span></label>';
+            if ($cambio_operador_sn == 'S') {
+                $oReturn->assign('cambio_oper_promo', 'checked', true);
+            } else {
+                $oReturn->assign('cambio_oper_promo', 'checked', false);
+            }
+
+            if ($vivienda_propia_sn == 'S') {
+                $oReturn->assign('vivienda_propia_promo', 'checked', true);
+            } else {
+                $oReturn->assign('vivienda_propia_promo', 'checked', false);
+            }
+
+            if ($con_empleo_sn == 'S') {
+                $oReturn->assign('con_empleo_promo', 'checked', true);
+            } else {
+                $oReturn->assign('con_empleo_promo', 'checked', false);
+            }
+
+            $div_id_contrato = '<label class="control-label" for="codigoContrato">ID Contrato: <span> ' . $id . '</span></label>';
 
             $oReturn->assign('divIdContrato', 'innerHTML', $div_id_contrato);
-            $oReturn->assign('divFotoContrato', 'innerHTML', $sHtmlFoto);
+            //$oReturn->assign('divFotoContrato', 'innerHTML', $sHtmlFoto);
             if ($id_clpv) {
                 $oReturn->script('reporteTelefonoCliente();');
                 $oReturn->script('reporteEmailCliente();');
@@ -2040,13 +2165,14 @@ function seleccionarContrato($aForm = '', $id_clpv = 0, $id = 0)
 
 
             //rutas
-            $sql = "SELECT id_ruta, ruta, latitud, longitud from isp.contrato_clpv WHERE id = $id";
+            $sql = "SELECT id_ruta, ruta, latitud, longitud, tipo_cliente from isp.contrato_clpv WHERE id = $id";
             if ($oCon->Query($sql)) {
                 if ($oCon->NumFilas() > 0) {
                     $id_ruta = $oCon->f('id_ruta');
                     $ruta = $oCon->f('ruta');
                     $latitud1 = $oCon->f('latitud');
                     $longitud1 = $oCon->f('longitud');
+                    $tipo_cliente_c = $oCon->f('tipo_cliente');
                 }
             }
             $oCon->Free();
@@ -2085,11 +2211,13 @@ function seleccionarContrato($aForm = '', $id_clpv = 0, $id = 0)
             $oReturn->assign('fac_dire', 'value', $f_direccion);
             $oReturn->assign('fac_telefono', 'value', $f_telefono);
             $oReturn->assign('fac_email', 'value', $f_email);
+            $oReturn->assign('condicion_cliente', 'value', $tipo_cliente_c);
 
             $classContratos->registraHistorialBusqueda(1, $codigo, $abonado, $nom_clpv, $sobrenombre, $userWeb);
 
             $oReturn->script('finalizar(\'' . $aprobar_automatico . '\')');
-
+            $oReturn->script('$("#latitud_ini").val(\'' . $latitud1 . '\');');
+            $oReturn->script('$("#longitud_ini").val(\'' . $longitud1 . '\');');
             $oReturn->script('initMap(\'' . $latitud1 . '\',\'' . $longitud1 . '\')');
 
             $oReturn->script("$('#tipo_contrato').val($op_tip_contrato_cobro)");
@@ -2181,7 +2309,7 @@ function cabeceraContrato($aForm = '', $id = 0)
     return $oReturn;
 }
 
-function generarContrato($aForm = '')
+function generarContrato($aForm = '', $id_crm_contacto = 0)
 {
     global $DSN_Ifx, $DSN;
 
@@ -2251,6 +2379,21 @@ function generarContrato($aForm = '')
     $selec_moneda_id            = $aForm['selec_moneda_id'];
     $tipo_servicio_contrato     = $aForm['tipo_servicio_contrato'];
     $fact_lotes                 = $aForm['fact_lotes'];
+    $codigo_preimpreso          = $aForm['codigo_preimpreso'];
+    $puntaje_score              = $aForm['puntaje_score'];
+    $cambio_oper_promo          = $aForm['cambio_oper_promo'];
+    $vivienda_propia_promo      = $aForm['vivienda_propia_promo'];
+    $con_empleo_promo           = $aForm['con_empleo_promo'];
+
+    if(empty($cambio_oper_promo)){
+        $cambio_oper_promo = 'N';
+    }
+    if(empty($vivienda_propia_promo)){
+        $vivienda_propia_promo = 'N';
+    }
+    if(empty($con_empleo_promo)){
+        $con_empleo_promo = 'N';
+    }
 
     if (!isset($tipo_servicio_contrato)) {
         $tipo_servicio_contrato = 0;
@@ -2302,6 +2445,8 @@ function generarContrato($aForm = '')
         // commit
         $oIfx->QueryT('BEGIN;');
         $oCon->QueryT('BEGIN;');
+
+
 
         $sql = "select empr_cod_pais from saeempr where empr_cod_empr = $empresa";
         $pais = consulta_string_func($sql, 'empr_cod_pais', $oIfx, 0);
@@ -2407,9 +2552,6 @@ function generarContrato($aForm = '')
                 }
             }
 
-
-            //echo $clpv ;
-            //exit;
             $ctrlCodigo = true;
 
             /**
@@ -2428,8 +2570,11 @@ function generarContrato($aForm = '')
             $dia_cobro = $objectParametros->dia_cobro;
             $estado = $objectParametros->estado_aprueba;
 
-            $sql = "SELECT num_digitos, aprobar_automatico from isp.int_parametros WHERE id_empresa = $empresa AND id_sucursal = $sucursal";
+            $sql = "SELECT num_digitos, aprobar_automatico, tip_gen_letras, letras_codigo 
+                    FROM isp.int_parametros WHERE id_empresa = $empresa AND id_sucursal = $sucursal";
             $aprobar_automatico = consulta_string_func($sql, 'aprobar_automatico', $oCon, 0);
+            $tip_gen_letras = consulta_string_func($sql, 'tip_gen_letras', $oCon, 0);
+            $letras_codigo = consulta_string_func($sql, 'letras_codigo', $oCon, 0);
 
             $sql = "SELECT codigo_abonado_sn, codigo_num_dig, codigo_actual as codigo_actual_general from isp.int_parametros_general WHERE id_empresa = $empresa";
             $codigo_abonado_sn      = consulta_string_func($sql, 'codigo_abonado_sn', $oCon, 0);
@@ -2479,7 +2624,12 @@ function generarContrato($aForm = '')
                 if ($codigo_abonado_sn == 'S') {
                     $codigoContratoOk = $codigoContrato;
                 } else {
-                    $codigoContratoOk = algoritmoCodigo($codigoContrato, $num_digitos, $num_letras);
+                    if($tip_gen_letras == 2){
+                        $codigoContratoOk = algoritmoCodigo2($codigoContrato, $num_digitos, $num_letras, $letras_codigo);
+                    }else{
+                        $codigoContratoOk = algoritmoCodigo($codigoContrato, $num_digitos, $num_letras);
+                    }
+
                 }
 
 
@@ -2487,6 +2637,11 @@ function generarContrato($aForm = '')
                 if (strlen($creditoContrato) == 0) {
                     $creditoContrato = 0;
                 }
+
+                if (empty($puntaje_score) || !isset($puntaje_score)) {
+                    $puntaje_score = 0;
+                }
+
                 $sql = "INSERT into isp.contrato_clpv(id_empresa, id_sucursal, id_clpv, fecha_contrato, fecha_firma,
                                                         fecha_corte, fecha_cobro, observaciones, sobrenombre, tipo_contrato,
                                                         duracion, penalidad, estado, user_web, fecha_server,
@@ -2494,7 +2649,8 @@ function generarContrato($aForm = '')
                                                         cheque_sn, vendedor, cobrador, limite,
                                                         nombre,email,telefono,apellido, abonado, tipo_duracion, fecha_c_vence, id_pais,
                                                         email_factura, tipo_factura, ruletera, id_tipo_cobro, id_ruletera, tipo_contrato_de_cobro, 
-                                                        tipo_cliente, id_tipo_cont_serv, moneda_id, facturable_lotes_sn)
+                                                        tipo_cliente, id_tipo_cont_serv, moneda_id, facturable_lotes_sn, codigo_preimpreso, puntaje_score,
+                                                        cambio_operador_sn, vivienda_propia_sn, con_empleo_sn)
                                         values($empresa, $sucursal,$clpv, '$fechaContrato', '$fechaFirma',
                                                         '$fechaCorte', '$fechaCobro', '$detalleContrato', '$sobrenombre', '$tipo_contrato',
                                                         $duracionContrato, $penalidadContrato,  '$estado', $usuario_web, '$fechaServer',
@@ -2502,7 +2658,8 @@ function generarContrato($aForm = '')
                                                         '$aceptaCheque', '$vendedor', '$cobrador', '$creditoContrato',
                                                         '$nombres','$email','$telefono', '$apellidos', '$abonadoContrato', $tipoDuracion, '$fechaVencimiento', $pais,
                                                         '$email_factura' , '$tipo_factura', '$ruletera', $id_tipo_cobro, $id_ruletera, '$tipo_contrato_de_cobro', 
-                                                        $tipo_cliente, $tipo_servicio_contrato, $selec_moneda_id, '$fact_lotes')";
+                                                        $tipo_cliente, $tipo_servicio_contrato, $selec_moneda_id, '$fact_lotes', '$codigo_preimpreso', $puntaje_score,
+                                                        '$cambio_oper_promo', '$vivienda_propia_promo', '$con_empleo_promo')";
                 $oCon->QueryT($sql);
 
                 //id contrato
@@ -2546,6 +2703,17 @@ function generarContrato($aForm = '')
                     }
                 }
 
+                $sql_valida_sucu = " AND id_sucursal = $sucursal ";
+                if ($codigo_abonado_sn == 'S') {
+                    $sql_valida_sucu = "";
+                }
+
+                $sql = "SELECT id FROM isp.contrato_clpv WHERE codigo = '$codigoContratoOk' AND id != $idContrato AND id_empresa = $empresa $sql_valida_sucu";
+                $id_codigo_valida = consulta_string_func($sql, 'id', $oCon, 0);
+                if($id_codigo_valida > 0){
+                    throw new Exception("CODIGO DE CONTRATO YA REGISTRADO.");
+                }
+
                 $Contratos = new Contratos($oCon, $oIfx, $empresa, $sucursal, $clpv, $idContrato);
                 $Contratos->registraAuditoriaContratos(1, $usuario_web, '');
 
@@ -2577,6 +2745,10 @@ function generarContrato($aForm = '')
             if (empty($limite)) {
                 $limite = 0;
             }
+            if (empty($puntaje_score) || !isset($puntaje_score)) {
+                $puntaje_score = 0;
+            }
+
             $sql = "UPDATE isp.contrato_clpv set 
                                         codigo = '$codigoContrato',
                                         ruc_clpv = '$ruc_cli',
@@ -2612,7 +2784,12 @@ function generarContrato($aForm = '')
                                         tipo_cliente = $tipo_cliente,
                                         id_tipo_cont_serv = $tipo_servicio_contrato,
                                         moneda_id = $selec_moneda_id,
-                                        facturable_lotes_sn = '$fact_lotes'
+                                        facturable_lotes_sn = '$fact_lotes',
+                                        codigo_preimpreso = '$codigo_preimpreso',
+                                        puntaje_score = $puntaje_score,
+                                        cambio_operador_sn = '$cambio_oper_promo', 
+                                        vivienda_propia_sn = '$vivienda_propia_promo', 
+                                        con_empleo_sn = '$con_empleo_promo'
                                         where id_empresa = $empresa and
                                         id_clpv = $clpv and
                                         id = $idContrato";
@@ -2650,7 +2827,7 @@ function generarContrato($aForm = '')
                 $respuesta_update  = $Webservice->enviaComando($parametros, $envio_get, $envio_post);
             }
 
-            //VALIDACION POSTGRESS 
+            //VALIDACION POSTGRESS
             if (strlen($creditoContrato) == 0) {
                 $creditoContrato = 0;
             }
@@ -2699,6 +2876,9 @@ function generarContrato($aForm = '')
             $Contratos = new Contratos($oCon, $oIfx, $empresa, $sucursal, $clpv, $idContrato);
             $Contratos->registraAuditoriaContratos(2, $usuario_web, '');
 
+
+
+
             $oReturn->script("Swal.fire({
                                 position: 'center',
                                 type: 'success',
@@ -2711,13 +2891,47 @@ function generarContrato($aForm = '')
             $oReturn->script("jsRemoveWindowLoad()");
         }
 
+
+        //------------------------------------------------------------------------------------//
+        // ACTULIZAMOS LA TABLA DEL CRM CONTACTOS CUANDO EL CONTACTO SE CONVIERTE EN CLIENTE  //
+        //-------------------------------------------------------------------------------------
+
+        if ($id_crm_contacto > 0) {
+
+            $fecha_server = date('Y-m-d H:i:s');
+            $sql = "UPDATE comercial.crm_contactos 
+                    set 
+                    vendido_sn='S',
+                    id_contrato='$idContrato',
+                    fecha_venta='$fecha_server'
+                    where 
+                    id = $id_crm_contacto";
+            $oCon->QueryT($sql);
+        }
         $oIfx->QueryT('COMMIT WORK;');
+
+        // // validacion de registro del nuevo cliente
+        // $sql_empr = "SELECT empr_openpay_sn FROM SAEEMPR WHERE empr_cod_empr = '$empresa'";
+        // $empr_openpay_sn = consulta_string($sql_empr, 'empr_openpay_sn', $oIfx, '');
+        // // print_r($empr_openpay_sn);exit;
+       
+        // if ($empr_openpay_sn == 'S') {
+        //     // ejecuta la fucnion guardar cliente al determinar que el parametro de open pay esta en estado "S" (activo la integracion)
+            
+        //     GuardarClientesOpenPay($nombre, $email,$clpv,$empresa, $oIfx);
+        //     $oIfx->QueryT('COMMIT WORK;');
+            
+
+        // }
+
         $oCon->QueryT('COMMIT;');
+
+
 
         //fotos
         if (!empty($foto)) {
             $sHtmlFoto = '<img src="' . path(DIR_ARCHIVOS) . '/' . $foto . '" style="width: 100px; height: 100px;">';
-            $oReturn->assign('divFotoContrato', 'innerHTML', $sHtmlFoto);
+            //$oReturn->assign('divFotoContrato', 'innerHTML', $sHtmlFoto);
         }
 
         $sql = "SELECT codigo, id_tipo_cont_serv from isp.contrato_clpv where id = $idContrato";
@@ -2728,6 +2942,9 @@ function generarContrato($aForm = '')
         $oCon->Query($sql);
         $codigo_servicio_sn = $oCon->f('codigo_servicio_sn');
         $oCon->Free();
+
+
+        $oReturn->assign("proc_recep",  "checked", $check_sn);
 
         if ($codigo_servicio_sn == 'S' && !empty($id_tipo_cont_serv)) {
             //REMPLAZADO EL 12/10/2023 A PEDIDO DE GLOBAL
@@ -2747,9 +2964,12 @@ function generarContrato($aForm = '')
 
             $codigo_cid_fn = $array_cid[$idContrato];
 
-            $lbl_cid = '<label class="control-label" for="codigoContrato">Código de pago:  <br> <span> ' . $codigo_cid_fn . ' </span></label>';
+            $lbl_cid = '<label class="control-label" for="codigoContrato">Código de pago: <span> ' . $codigo_cid_fn . ' </span></label>';
             $oReturn->assign('codigoCID', 'innerHTML', $lbl_cid);
         }
+
+
+
 
         $div_id_contrato = '<label class="control-label" for="codigoContrato">ID: <span> ' . $idContrato . '</span></label>';
 
@@ -2766,7 +2986,7 @@ function generarContrato($aForm = '')
 }
 
 
-function resumenEquipoPaquetes($aForm, $array_servicios, $id_contrato)
+function resumenEquipoPaquetes($aForm, $array_servicios, $id_contrato, $id_promocion_aplica)
 {
     session_start();
 
@@ -2781,6 +3001,26 @@ function resumenEquipoPaquetes($aForm, $array_servicios, $id_contrato)
     $array_servicios = json_decode($array_servicios, true);
 
     $politica_bqn = $aForm['politica_bqn'];
+
+    $servicios_extra = '';
+    if($id_promocion_aplica > 0){
+        $sql = "SELECT servicios_extra, meses_indefinido, num_meses, intervalo_meses
+                FROM isp.int_promociones 
+                WHERE id = $id_promocion_aplica";
+        if ($oCon->Query($sql)) {
+            if ($oCon->NumFilas() > 0) {
+                do {
+                    $servicios_extra            = $oCon->f('servicios_extra', false);
+                    $servicios_extra            = json_decode($servicios_extra);
+                    $meses_indefinido           = $oCon->f('meses_indefinido');
+                    $num_meses                  = $oCon->f('num_meses');
+                    $intervalo_meses            = $oCon->f('intervalo_meses');
+                } while ($oCon->SiguienteRegistro());
+            }
+        }
+        $oCon->Free();
+    }
+
 
     //PLANES
     $sql = "SELECT id, paquete, id_tipo_prod FROM isp.int_paquetes";
@@ -2831,7 +3071,7 @@ function resumenEquipoPaquetes($aForm, $array_servicios, $id_contrato)
         $pol_bqn = ' <h4 class="text-danger" align="center">Política BQN: ' . $politica_bqn . '</h4>';
     }
 
-    $sHtml = '<div class="modal-dialog modal-lg" role="document" style="width:50%;">
+    $sHtml = '<div class="modal-dialog modal-lg" role="document" style="width:80%;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -2871,10 +3111,49 @@ function resumenEquipoPaquetes($aForm, $array_servicios, $id_contrato)
         }
     }
 
-    $sHtml .= '         </table>
-                    </div>
+    $sHtml .= '         </table>';
+
+    if(count($servicios_extra) > 0){
+        $sHtml .= '<h3 class="text-danger" align="center">Servicios adicionales</h3>
+                <table class="table table-bordered table-striped table-hover" style="width: 100%;">
+                <tr>
+                    <td class="text-primary">Nombre de servicio</td>
+                    <td class="text-primary">Precio</td>
+                    <td class="text-primary">Descuento %</td>
+                    <td class="text-primary">Descuento $</td>
+                    <td class="text-primary">Precio final</td>
+                    <td class="text-primary">Número de meses que aplica</td>
+                    <td class="text-primary">Intervalo de meses</td>
+                    <td class="text-primary">Indefinido</td>
+                </tr>';
+        foreach($servicios_extra as $servicio_extra){
+
+            $numMeses       = $servicio_extra->NumMeses;
+            $intervaloMeses = $servicio_extra->IntervaloMeses;
+            $indefinido     = $servicio_extra->Indefinido;
+            if($servicio_extra->IgualPromo == 'S'){
+                $numMeses = $num_meses;
+                $intervaloMeses = $intervalo_meses;
+                $indefinido = $meses_indefinido;
+            }
+
+            $sHtml .= ' <tr>
+                            <td>'.$servicio_extra->Servicio.'</td>
+                            <td align="right">'. number_format($servicio_extra->Precio, 2, '.', ',') .'</td>
+                            <td align="right">'. number_format($servicio_extra->DescuentoPor, 2, '.', ',') .'</td>
+                            <td align="right">'. number_format($servicio_extra->DescuentoVal, 2, '.', ',') .'</td>
+                            <td align="right">'. number_format($servicio_extra->PrecioFin, 2, '.', ',') .'</td>
+                            <td>'.$numMeses.'</td>
+                            <td>'.$intervaloMeses.'</td>
+                            <td>'.$indefinido.'</td>
+                        </tr>';
+        }
+        $sHtml .= '</table>';
+    }
+
+            $sHtml .='</div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" onclick="agregarEquipos()">Guardar</button>
+                            <button type="button" class="btn btn-primary" onclick="agregarEquipos('.$id_promocion_aplica.')">Guardar</button>
                             <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
                         </div>
                     </div>
@@ -2888,7 +3167,7 @@ function resumenEquipoPaquetes($aForm, $array_servicios, $id_contrato)
     return $oReturn;
 }
 
-function agregarEquipoPaquetes($aForm, $array_servicios)
+function agregarEquipoPaquetes($aForm, $array_servicios, $id_promocion_aplica, $seleccionados_promo)
 {
     session_start();
 
@@ -2907,6 +3186,7 @@ function agregarEquipoPaquetes($aForm, $array_servicios)
     $array_servicios = json_decode($array_servicios, true);
 
     $politica_bqn   = $aForm['politica_bqn'];
+    $cantidadCuentasIptv   = $aForm['cantidadCuentasIptv'];
     $gestion_bqn_sn = $_SESSION['gestion_bqn_sn'];
 
     //INFORMACION SERVICIO
@@ -2938,13 +3218,112 @@ function agregarEquipoPaquetes($aForm, $array_servicios)
     $fecha = date("Y-m-d H:i:s");
 
     try {
+
+        $sql = "SELECT usa_promo_sn from isp.int_parametros WHERE id_sucursal = $idsucursal";
+        $usa_promo_sn = consulta_string_func($sql, 'usa_promo_sn', $oCon, 0);
+
+        if($usa_promo_sn == 'S' && $id_promocion_aplica > 0){
+            $info_promo = array();
+            $sql = "SELECT *
+                    FROM isp.int_promociones 
+                    WHERE id = $id_promocion_aplica";
+            if ($oCon->Query($sql)) {
+                if ($oCon->NumFilas() > 0) {
+                    do {
+                        $id                         = $oCon->f('id');
+                        $id_empresa                 = $oCon->f('id_empresa');
+                        $id_usuario                 = $oCon->f('id_usuario');
+                        $id_usuario_edit            = $oCon->f('id_usuario_edit');
+                        $nombre                     = $oCon->f('nombre');
+                        $descripcion                = $oCon->f('descripcion');
+                        $id_sucursal                = $oCon->f('id_sucursal');
+                        $id_provincia               = $oCon->f('id_provincia');
+                        $id_canton                  = $oCon->f('id_canton');
+                        $id_parroquia               = $oCon->f('id_parroquia');
+                        $id_sector                  = $oCon->f('id_sector');
+                        $dia_proporcional           = $oCon->f('dia_proporcional');
+                        $fecha_desde                = $oCon->f('fecha_desde');
+                        $fecha_hasta                = $oCon->f('fecha_hasta');
+                        $meses_indefinido           = $oCon->f('meses_indefinido');
+                        $num_meses                  = $oCon->f('num_meses');
+                        $intervalo_meses            = $oCon->f('intervalo_meses');
+                        $id_fpag                    = $oCon->f('id_fpag');
+                        $id_tipo_vivienda           = $oCon->f('id_tipo_vivienda');
+                        $cambio_operador_sn         = $oCon->f('cambio_operador_sn');
+                        $vivienda_propia_sn         = $oCon->f('vivienda_propia_sn');
+                        $con_empleo_sn              = $oCon->f('con_empleo_sn');
+                        $es_cliente_sn              = $oCon->f('es_cliente_sn');
+                        $num_equipos_descuento      = $oCon->f('num_equipos_descuento');
+                        $equipos_descuento          = $oCon->f('equipos_descuento', false);
+                        $planes                     = $oCon->f('planes', false);
+                        $aplica_score_sn            = $oCon->f('aplica_score_sn');
+                        $tipos_score                = $oCon->f('tipos_score', false);
+                        $servicios_extra            = $oCon->f('servicios_extra', false);
+                        $servicios_vel_promocional  = $oCon->f('servicios_vel_promocional', false);
+                        $estado                     = $oCon->f('estado');
+                        $fecha_server_promo         = $oCon->f('fecha_server');
+                        $fecha_server_edit_promo    = $oCon->f('fecha_server_edit');
+
+                        $info_promo = array(
+                            "id" => $id,
+                            "id_empresa" => $id_empresa,
+                            "id_usuario" => $id_usuario,
+                            "id_usuario_edit" => $id_usuario_edit,
+                            "nombre" => $nombre,
+                            "descripcion" => $descripcion,
+                            "id_sucursal" => $id_sucursal,
+                            "id_provincia" => $id_provincia,
+                            "id_canton" => $id_canton,
+                            "id_parroquia" => $id_parroquia,
+                            "id_sector" => $id_sector,
+                            "dia_proporcional" => $dia_proporcional,
+                            "fecha_desde" => $fecha_desde,
+                            "fecha_hasta" => $fecha_hasta,
+                            "meses_indefinido" => $meses_indefinido,
+                            "num_meses" => $num_meses,
+                            "intervalo_meses" => $intervalo_meses,
+                            "id_fpag" => $id_fpag,
+                            "id_tipo_vivienda" => $id_tipo_vivienda,
+                            "cambio_operador_sn" => $cambio_operador_sn,
+                            "vivienda_propia_sn" => $vivienda_propia_sn,
+                            "con_empleo_sn" => $con_empleo_sn,
+                            "es_cliente_sn" => $es_cliente_sn,
+                            "num_equipos_descuento" => $num_equipos_descuento,
+                            "equipos_descuento" => $equipos_descuento,
+                            "planes" => $planes,
+                            "aplica_score_sn" => $aplica_score_sn,
+                            "tipos_score" => $tipos_score,
+                            "servicios_extra" => $servicios_extra,
+                            "servicios_vel_promocional" => $servicios_vel_promocional,
+                            "estado" => $estado,
+                            "fecha_server" => $fecha_server_promo,
+                            "fecha_server_edit" => $fecha_server_edit_promo
+                        );
+                    } while ($oCon->SiguienteRegistro());
+                }
+            }
+            $oCon->Free();
+
+            $info_promo_json = json_encode($info_promo);
+            $seleccionados_promo_json = json_encode($seleccionados_promo);
+
+            $sql = "UPDATE isp.contrato_clpv 
+                    SET id_promo_aplica = $id_promocion_aplica,
+                        info_actual_promo = '$info_promo_json',
+                        planes_promo = '$seleccionados_promo_json'
+                    WHERE id = $idContrato";
+            $oCon->QueryT($sql);
+        }
+
         //CONTROL DE TAREAS
-        $sql = "SELECT estado, fecha_c_vence, tipo_contrato from isp.contrato_clpv WHERE id = $idContrato";
+        $sql = "SELECT estado, fecha_c_vence, tipo_contrato, info_actual_promo from isp.contrato_clpv WHERE id = $idContrato";
         if ($oCon->Query($sql)) {
             if ($oCon->NumFilas() > 0) {
-                $estado_c = $oCon->f('estado');
-                $fecha_c_vence = $oCon->f('fecha_c_vence');
-                $tipo_contrato = $oCon->f('tipo_contrato');
+                $estado_c               = $oCon->f('estado');
+                $fecha_c_vence          = $oCon->f('fecha_c_vence');
+                $tipo_contrato          = $oCon->f('tipo_contrato');
+                $info_actual_promo_c    = $oCon->f('info_actual_promo', false);
+                $info_actual_promo_c    = json_decode($info_actual_promo_c);
             }
         }
         $oCon->Free();
@@ -2984,7 +3363,7 @@ function agregarEquipoPaquetes($aForm, $array_servicios)
                     null, null, null, null, null, null, null, null
                 );
 
-                if ($i > 0 && $tipo_contrato == 7 || $tipo_contrato == 12) {
+                if ($tipo_contrato == 7 || $tipo_contrato == 12) {
                     $id_tipo_prod_valida = $array_e[14];
 
                     if ($id_tipo_prod_valida == 8 || $id_tipo_prod_valida == 2) {
@@ -3017,6 +3396,70 @@ function agregarEquipoPaquetes($aForm, $array_servicios)
                     if ($gestion_bqn_sn == 'S') {
                         $sql = "UPDATE isp.int_contrato_caja SET politica_bqn = '$politica_bqn' WHERE id = $id";
                         $oCon->QueryT($sql);
+                    }
+                }
+            }
+        }
+
+        //PROCESO DE INGRESO DE SERVICIOS ADICIONALES DE PROMOCION SOLO SI ES INDEFINIDO
+        if(count($info_actual_promo_c) > 0){
+            $datos_serv_extra = json_decode($info_actual_promo_c->servicios_extra);
+            $indefinido_promo = $info_actual_promo_c->meses_indefinido;
+
+            if(count($datos_serv_extra) > 0){
+
+                foreach($datos_serv_extra as $dato_serv_extra){
+                    $arrayOk        = [];
+                    $array_e        = [];
+                    $id_prod_valida = $dato_serv_extra->Id;
+                    $codigo_adi     = $dato_serv_extra->Codigo;
+                    $precio_adi     = $dato_serv_extra->PrecioFin;
+                    $igualPromo     = $dato_serv_extra->IgualPromo;
+                    $indefinido     = $dato_serv_extra->Indefinido;
+
+                    if($igualPromo == 'S'){
+                        $indefinido = $indefinido_promo;
+                    }
+
+                    if($indefinido == 'S'){
+                        $id_valida = 0;
+                        $sql = "SELECT id FROM isp.int_contrato_caja_pack WHERE id_contrato = $idContrato AND id_prod = $id_prod_valida";
+                        if ($oCon->Query($sql)) {
+                            if ($oCon->NumFilas() > 0) {
+                                $id_valida = $oCon->f('id');
+                            }
+                        }
+                        $oCon->Free();
+
+                        if($id_valida == 0){//VALIDA QUE NO ESTE INGRESADO EL SERVICIO EXTRA YA EN EL CONTRATO
+
+                            $id_tipo_prod = 0;
+                            $tipo = '';
+                            $sql = "SELECT id_tipo_prod, tipo FROM isp.int_paquetes WHERE id = $id_prod_valida";
+                            if ($oCon->Query($sql)) {
+                                if ($oCon->NumFilas() > 0) {
+                                    $id_tipo_prod   = $oCon->f('id_tipo_prod');
+                                    $tipo           = $oCon->f('tipo');
+                                }
+                            }
+                            $oCon->Free();
+
+                            if($id_tipo_prod > 0 && $tipo != ''){
+                                $array_e = array(
+                                    null, null, null, null, null, '', null, null, null, 'P',
+                                    $idUser, $fecha, $fecha_c_vence, null, $id_tipo_prod, $tipo, null, null,
+                                    null, null, null, null, null, null, null, null
+                                );
+
+                                $id = $Equipos->registraCajaContrato($array_e);
+
+                                $arrayOk[] = array($codigo_adi, $precio_adi, 'P');
+
+                                if ($id > 0) {
+                                    $Equipos->registraCajaContratoPaquetes($id, $arrayOk, $idUser);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -3070,6 +3513,9 @@ function agregarEquipoPaquetes($aForm, $array_servicios)
 
         $sql = "SELECT num_digitos, aprobar_automatico from isp.int_parametros WHERE id_empresa = $idempresa AND id_sucursal = $idsucursal";
         $aprobar_automatico = consulta_string_func($sql, 'aprobar_automatico', $oCon, 0);
+
+        $sql = "UPDATE isp.int_contrato_caja SET num_cuentas_iptv = '$cantidadCuentasIptv' WHERE id_contrato = $idContrato AND id_tipo_prod = 6";
+        $oCon->QueryT($sql);
 
         $oCon->QueryT('COMMIT;');
         $oReturn->script('$("#miModalPaquetes").modal("hide");');
@@ -3586,9 +4032,7 @@ function reporteReferencias($aForm = '')
 
         $sql = "select id, nombre, id_parent, telefono, ruc
 				from isp.contrato_referencia
-				where id_empresa = $idempresa and
-				id_sucursal = $idsucursal and
-				id_clpv = $codigoCliente and
+				where 
 				id_contrato = $idContrato";
         if ($oCon->Query($sql)) {
             if ($oCon->NumFilas() > 0) {
@@ -3662,11 +4106,12 @@ function reporteMedioPago_old($aForm = '')
         $sHtml .= '<td>Tipo Cuenta</td>';
         $sHtml .= '<td>Numero</td>';
         $sHtml .= '<td>Estado</td>';
+        $sHtml .= '<td>Debito Cash</td>';
         $sHtml .= '<td>Editar</td>';
         $sHtml .= '</tr>';
 
         $sql = "select id, id_pago, id_tipo, id_banco, id_tarjeta, tarjeta, 
-                cuenta, tipo_cuenta, estado, fecha
+                cuenta, tipo_cuenta, estado, fecha,deb_cash_sn
                 from isp.contrato_medio_pago
                 where id_empresa = $idempresa and
                 id_sucursal = $idsucursal and
@@ -3685,6 +4130,7 @@ function reporteMedioPago_old($aForm = '')
                     $tipo_cuenta = $oCon->f('tipo_cuenta');
                     $estado = $oCon->f('estado');
                     $fecha = $oCon->f('fecha');
+                    $deb_cash_sn = $oCon->f('deb_cash_sn');
 
                     $numero = '';
                     if (!empty($cuenta)) {
@@ -3725,6 +4171,7 @@ function reporteMedioPago_old($aForm = '')
                     $sHtml .= '<td align="left">' . $nom_cuenta . '</td>';
                     $sHtml .= '<td align="left">' . $numero . '</td>';
                     $sHtml .= '<td align="center">' . $estado . '</td>';
+                    $sHtml .= '<td align="center">' . $deb_cash_sn . '</td>';
                     $sHtml .= '<td align="center">
                                     <div class="btn btn-warning btn-sm" onclick="editarMedioPago(' . $id . ', \'' . $id_pago . '\', \'' . $id_banco . '\');">
                                             <i class="fa fa-pencil"></i>
@@ -3800,11 +4247,12 @@ function reporteMedioPago($aForm = '')
         $sHtml .= '<td>Año. Tarj</td>';
 
         $sHtml .= '<td>Estado</td>';
-        $sHtml .= '<td>Editar</td>';
+        $sHtml .= '<td>Debito Cash</td>';
+        $sHtml .= '<td>Eliminar</td>';
         $sHtml .= '</tr>';
 
         $sql = "select id, id_pago, id_tipo, id_banco, id_tarjeta, tarjeta, 
-                cuenta, tipo_cuenta, estado, fecha,mes_traj,anio_tarj
+                cuenta, tipo_cuenta, estado, fecha,mes_traj,anio_tarj, deb_cash_sn
                 from isp.contrato_medio_pago
                 where id_empresa = $idempresa and
                 id_sucursal = $idsucursal and
@@ -3826,6 +4274,7 @@ function reporteMedioPago($aForm = '')
 
                     $mes_traj = $oCon->f('mes_traj');
                     $anio_tarj = $oCon->f('anio_tarj');
+                    $deb_cash_sn = $oCon->f('deb_cash_sn');
 
                     $numero = '';
                     if (!empty($cuenta)) {
@@ -3872,10 +4321,11 @@ function reporteMedioPago($aForm = '')
                     $sHtml .= '<td align="left">' . $anio_tarj . '</td>';
 
                     $sHtml .= '<td align="center">' . $estado . '</td>';
+                    $sHtml .= '<td align="center">' . $deb_cash_sn . '</td>';
                     $sHtml .= '<td align="center">
-                                    <div class="btn btn-warning btn-sm" onclick="editarMedioPago(' . $id . ', \'' . $id_pago . '\', \'' . $id_banco . '\');">
+                                    <!-- <div class="btn btn-warning btn-sm" onclick="editarMedioPago(' . $id . ', \'' . $id_pago . '\', \'' . $id_banco . '\');">
                                             <i class="fa fa-pencil"></i>
-                                    </div>
+                                    </div> -->
 									<div class="btn btn-danger btn-sm" onclick="eliminarMedioPago(' . $id . ', \'' . $id_pago . '\', \'' . $id_banco . '\');">
 								<i class="fa fa-trash"></i>
 						</div>
@@ -4288,7 +4738,7 @@ function agregarMedioPago_old($aForm = '')
 }
 
 
-function validarFormaPago($aForm = '')
+function validarFormaPago_old2($aForm = '')
 {
     session_start();
     global $DSN_Ifx, $DSN;
@@ -4323,7 +4773,7 @@ function validarFormaPago($aForm = '')
         $etiquetaBtn = 'Agregar';
         if (!empty($idMedioPago)) {
             $sql = "select id_pago, id_tipo, id_banco, id_tarjeta, tarjeta, 
-                    cuenta, tipo_cuenta , nom_clpv, ruc_clpv,mes_traj,anio_tarj
+                    cuenta, tipo_cuenta , nom_clpv, ruc_clpv,mes_traj,anio_tarj,deb_cash_sn
                     from isp.contrato_medio_pago
                     where id = $idMedioPago";
             if ($oCon->Query($sql)) {
@@ -4341,10 +4791,13 @@ function validarFormaPago($aForm = '')
                     $ruc_clpv = $oCon->f('ruc_clpv');
                     $mes_traj = $oCon->f('mes_traj');
                     $anio_tarj = $oCon->f('anio_tarj');
+                    $deb_cash_sn = $oCon->f('deb_cash_sn');
                 }
             }
             $oCon->Free();
         }
+
+        $deb_cash_sn = $deb_cash_sn?$deb_cash_sn:'N';
 
         //tipo de pago
         $sql = "select fpag_cot_fpag from saefpag where fpag_cod_empr = $idempresa and fpag_cod_sucu = $idsucursal and fpag_cod_fpag = '$pago'";
@@ -4383,6 +4836,8 @@ function validarFormaPago($aForm = '')
             $arrayVisibles[7] = 'in-line';
             $arrayVisibles[8] = 'in-line';
             $arrayVisibles[9] = 'none';
+            $arrayVisibles[10] = 'in-line';
+
         }
 
         $fu->AgregarCampoListaSQL('pagoTipoTarjeta', 'Tipo|left', "select id, tipo_tarjeta
@@ -4482,6 +4937,14 @@ function validarFormaPago($aForm = '')
         $sHtml .= '<td style="display: ' . $arrayVisibles[8] . '">' . $fu->ObjetoHtmlLBL('ced_dep') . '</td>';
         $sHtml .= '<td style="display: ' . $arrayVisibles[8] . '">' . $fu->ObjetoHtml('ced_dep') . '</td>';
 
+
+        $fu->AgregarCampoCheck('deb_cash_sn', 'Activar debito cash S/N|left', false, "$deb_cash_sn");
+        $fu->cCampos['deb_cash_sn']->xValor = "$deb_cash_sn";
+
+
+        $sHtml .= '<td style="display: ' . $arrayVisibles[10] . '">' . $fu->ObjetoHtmlLBL('deb_cash_sn') . '</td>';
+        $sHtml .= '<td style="display: ' . $arrayVisibles[10] . '">' . $fu->ObjetoHtml('deb_cash_sn') . '</td>';
+
         //$sHtml .= '<td style="display: none">' . $fu->ObjetoHtmlLBL('ced_dep') . '</td>';
         //$sHtml .= '<td style="display: none">' . $fu->ObjetoHtml('ced_dep') . '</td>';
 
@@ -4496,6 +4959,205 @@ function validarFormaPago($aForm = '')
         $sHtml .= '</table>';
 
         $oReturn->assign('divDetalleFormaPago', 'innerHTML', $sHtml);
+    } catch (Exception $e) {
+        $oReturn->alert($e->getMessage());
+    }
+
+
+    return $oReturn;
+}
+
+function validarFormaPago($aForm = '')
+{
+    session_start();
+    global $DSN_Ifx, $DSN;
+
+    $oCon = new Dbo;
+    $oCon->DSN = $DSN;
+    $oCon->Conectar();
+
+    $oIfx = new Dbo;
+    $oIfx->DSN = $DSN_Ifx;
+    $oIfx->Conectar();
+
+    $fu = new Formulario;
+    $fu->DSN = $DSN;
+
+    $ifu = new Formulario;
+    $ifu->DSN = $DSN_Ifx;
+
+    $oReturn = new xajaxResponse();
+
+    $idempresa  = $_SESSION['U_EMPRESA'];
+    $idsucursal = $_SESSION['U_SUCURSAL'];
+
+    $pago           = $aForm['pago'];
+    $idMedioPago    = $aForm['idMedioPago'];
+
+    try {
+
+        $etiquetaBtn = 'Agregar';
+
+        if (!empty($idMedioPago)) {
+            $sql = "SELECT  id_pago, id_tipo, id_banco, id_tarjeta, tarjeta, 
+                            cuenta, tipo_cuenta , nom_clpv, ruc_clpv, mes_traj,
+                            anio_tarj, deb_cash_sn
+                    from isp.contrato_medio_pago
+                    where id = $idMedioPago";
+            if ($oCon->Query($sql)) {
+                if ($oCon->NumFilas() > 0) {
+                    $id_pago        = $oCon->f('id_pago');
+                    $id_tipo        = $oCon->f('id_tipo');
+                    $id_banco       = $oCon->f('id_banco');
+                    $id_tarjeta     = $oCon->f('id_tarjeta');
+                    $tarjeta        = $oCon->f('tarjeta');
+                    $cuenta         = $oCon->f('cuenta');
+                    $tipo_cuenta    = $oCon->f('tipo_cuenta');
+                    $nom_clpv       = $oCon->f('nom_clpv');
+                    $ruc_clpv       = $oCon->f('ruc_clpv');
+                    $mes_traj       = $oCon->f('mes_traj');
+                    $anio_tarj      = $oCon->f('anio_tarj');
+                    $deb_cash_sn    = $oCon->f('deb_cash_sn');
+
+                    $etiquetaBtn    = 'Modificar';
+                }
+            }
+            $oCon->Free();
+        }
+
+        $deb_cash_sn = $deb_cash_sn?$deb_cash_sn:'N';
+
+        $sql = "SELECT fpag_cot_fpag 
+                from saefpag 
+                where fpag_cod_empr = $idempresa and fpag_cod_sucu = $idsucursal and fpag_cod_fpag = '$pago'";
+        $fpag_cot_fpag = consulta_string_func($sql, 'fpag_cot_fpag', $oIfx, '');
+
+        $sql = "SELECT id, tipo_tarjeta
+                from isp.int_tipo_tarjeta
+                where id_empresa = $idempresa and
+                id_sucursal = $idsucursal";
+        $lista_tipo_tarjeta = lista_boostrap_func($oCon, $sql, 0, 'id',  'tipo_tarjeta');
+
+        $sql = "SELECT id, banco
+                from isp.int_bancos
+                where id_empresa = $idempresa and
+                id_sucursal = $idsucursal";
+        $lista_bancos = lista_boostrap_func($oCon, $sql, 0, 'id',  'banco');
+
+        $lista_tipo_cuenta = '<option value="1">AHORROS</option>';
+        $lista_tipo_cuenta .= '<option value="2">CORRIENTE</option>';
+
+        $anio_actual = date('Y');
+        $ultimo_anio = 2030;
+        $lista_anios = '';
+        for ($i = $anio_actual; $i <= $ultimo_anio; $i++) {
+            $lista_anios .= '<option value='.$i.'>'.$i.'</option>';
+        }
+
+        $sql = "SELECT id_mes, mes
+            from comercial.mes";
+        $lista_meses = lista_boostrap_func($oCon, $sql, 0, 'id_mes',  'mes');
+
+        $sHtml = '';
+        if ($fpag_cot_fpag == 'TAR') {
+            $sHtml .= '  <div class="row">
+                            <div class="col-md-4">
+                                <label class="control-label" for="tipo_tarjeta_mp">* Tipo tarjeta:</label>
+                                <select id="tipo_tarjeta_mp" name="tipo_tarjeta_mp" class="form-control select2" style="width:100%" >
+                                    ' . $lista_tipo_tarjeta . '
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label" for="banco_tarjeta_mp">* Banco:</label>
+                                <select id="banco_tarjeta_mp" name="banco_tarjeta_mp" class="form-control select2" style="width:100%" >
+                                    ' . $lista_bancos . '
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label" for="numero_tarjeta_mp">* # Tarjeta:</label>
+                                <input type="text" id="numero_tarjeta_mp" name="numero_tarjeta_mp" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="control-label" for="mes_tarjeta_mp">* Mes:</label>
+                                <select id="mes_tarjeta_mp" name="mes_tarjeta_mp" class="form-control select2" style="width:100%" >
+                                    ' . $lista_meses . '
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label" for="anio_tarjeta_mp">* Año:</label>
+                                <select id="anio_tarjeta_mp" name="anio_tarjeta_mp" class="form-control select2" style="width:100%" >
+                                    ' . $lista_anios . '
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label" for="ccv_mp">* CCV:</label>
+                                <input type="text" id="ccv_mp" name="ccv_mp" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="control-label" for="nombre_mp">* Nombre - Apellidos:</label>
+                                <input type="text" id="nombre_mp" name="nombre_mp" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label" for="identificion_mp">* Identificación:</label>
+                                <input type="text" id="identificion_mp" name="identificion_mp" class="form-control">
+                            </div>
+                        </div>';
+        } elseif ($fpag_cot_fpag == 'DEP') {
+            $sHtml .= '  <div class="row">
+                            <div class="col-md-4">
+                                <label class="control-label" for="banco_deposito_mp">* Banco:</label>
+                                <select id="banco_deposito_mp" name="banco_deposito_mp" class="form-control select2" style="width:100%" >
+                                    ' . $lista_bancos . '
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label" for="tipo_cuenta_deposito_mp">* Tipo cuenta:</label>
+                                <select id="tipo_cuenta_deposito_mp" name="tipo_cuenta_deposito_mp" class="form-control select2" style="width:100%" >
+                                    ' . $lista_tipo_cuenta . '
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label" for="numero_cuenta_dep_mp">* # Cuenta:</label>
+                                <input type="text" id="numero_cuenta_dep_mp" name="numero_cuenta_dep_mp" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="control-label" for="nombre_mp">* Nombre - Apellidos:</label>
+                                <input type="text" id="nombre_mp" name="nombre_mp" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label" for="identificion_mp">* Identificación:</label>
+                                <input type="text" id="identificion_mp" name="identificion_mp" class="form-control">
+                            </div>
+                        </div>';
+        }
+
+        $sHtmlFin = ' <div class="row">
+                        <div class="col-md-12">
+                            '.$sHtml.'
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="control-label" for="deb_cash_sn">* Activar debito cash S/N:</label> <br>
+                                    <input type="checkbox" id="deb_cash_sn" name="deb_cash_sn" value="S" checked>
+                                </div>
+                                <br>
+                                <div class="col-md-9" align="center">
+                                    <div class="btn btn-success btn-sm" onclick="agregarMedioPago();">
+                                        <span class="glyphicon glyphicon-plus-sign"></span>
+                                        ' . $etiquetaBtn . ' Medio Pago
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>';
+
+        $oReturn->assign('divDetalleFormaPago', 'innerHTML', $sHtmlFin);
+        $oReturn->script("$('.select2').select2();");
     } catch (Exception $e) {
         $oReturn->alert($e->getMessage());
     }
@@ -4526,93 +5188,117 @@ function agregarMedioPago($aForm = '')
     $idempresa = $_SESSION['U_EMPRESA'];
     $idsucursal = $_SESSION['U_SUCURSAL'];
 
-    $codigoCliente = $aForm['codigoCliente'];
-    $idContrato = $aForm['idContrato'];
-    $idMedioPago = $aForm['idMedioPago'];
-    $pago = $aForm['pago'];
-    $pagoTipoTarjeta = $aForm['pagoTipoTarjeta'];
-    $pagoBanco = $aForm['pagoBanco'];
-    $pagoTipoCuenta = $aForm['pagoTipoCuenta'];
-    $pagoTarjeta = $aForm['pagoTarjeta'];
-    $pagoCuenta = $aForm['pagoCuenta'];
-    $fecha = date("Y-m-d");
-    $fechaServer = date("Y-m-d H:i:s");
-    $nomb_dep = $aForm['nomb_dep'];
-    $ced_dep = $aForm['ced_dep'];
-    $pagoClave = $aForm['pagoClave'];
+    $codigoCliente      = $aForm['codigoCliente'];
+    $idContrato         = $aForm['idContrato'];
+    $idMedioPago        = $aForm['idMedioPago'];
+    $pago               = $aForm['pago'];
+    $pagoTipoTarjeta    = $aForm['pagoTipoTarjeta'];
+    $pagoBanco          = $aForm['pagoBanco'];
+    $pagoTipoCuenta     = $aForm['pagoTipoCuenta'];
+    $pagoTarjeta        = $aForm['pagoTarjeta'];
+    $pagoCuenta         = $aForm['pagoCuenta'];
+    $fecha              = date("Y-m-d");
+    $fechaServer        = date("Y-m-d H:i:s");
+    $nomb_dep           = $aForm['nomb_dep'];
+    $ced_dep            = $aForm['ced_dep'];
+    $pagoClave          = $aForm['pagoClave'];
 
-    $mes_traj = $aForm['dia_co'];
-    $anio_tarj = $aForm['anio_co'];
+    $mes_traj           = $aForm['dia_co'];
+    $anio_tarj          = $aForm['anio_co'];
 
-    //    print_r($mes_traj);exit;
-
-    //  LECTURA SUCIA
-    //
+    $deb_cash_sn = val_check_inv($aForm['deb_cash_sn'], 'S', 'N');
 
     try {
 
         $oCon->QueryT('BEGIN;');
 
         //tipo de pago
-        $sql = "select fpag_cot_fpag from saefpag where fpag_cod_empr = $idempresa and fpag_cod_sucu = $idsucursal and fpag_cod_fpag = '$pago'";
+        $sql = "SELECT fpag_cot_fpag from saefpag where fpag_cod_empr = $idempresa and fpag_cod_sucu = $idsucursal and fpag_cod_fpag = '$pago'";
         $fpag_cot_fpag = consulta_string_func($sql, 'fpag_cot_fpag', $oIfx, '');
 
-        //CONTROL PARA POSTGRESS
-        if (strlen($pagoBanco) == 0) {
-            $pagoBanco = 0;
-        }
+        $tipo_tarjeta_mp = 0;
+        $id_banco = 0;
+        $numero_tarjeta_mp = 0;
+        $mes_tarjeta_mp = 0;
+        $anio_tarjeta_mp = 0;
+        $ccv_mp = 0;
+        $nombre_mp = 0;
+        $identificion_mp = 0;
+        $banco_deposito_mp = 0;
+        $tipo_cuenta_deposito_mp = 0;
+        $numero_cuenta_dep_mp = 0;
 
-        if (strlen($pagoTipoTarjeta) == 0) {
-            $pagoTipoTarjeta = 0;
-        }
-
-        if (strlen($pagoTarjeta) == 0) {
-            $pagoTarjeta = 0;
-        }
-
-        if (strlen($pagoTipoCuenta) == 0) {
-            $pagoTipoCuenta = 0;
+        if($fpag_cot_fpag == 'TAR'){
+            $tipo_tarjeta_mp            = $aForm["tipo_tarjeta_mp"];
+            $id_banco                   = $aForm["banco_tarjeta_mp"];
+            $numero_tarjeta_mp          = $aForm["numero_tarjeta_mp"];
+            $mes_tarjeta_mp             = $aForm["mes_tarjeta_mp"];
+            $anio_tarjeta_mp            = $aForm["anio_tarjeta_mp"];
+            $ccv_mp                     = $aForm["ccv_mp"];
+            $nombre_mp                  = $aForm["nombre_mp"];
+            $identificion_mp            = $aForm["identificion_mp"];
+        }else if($fpag_cot_fpag == 'DEP'){
+            $id_banco                   = $aForm["banco_deposito_mp"];
+            $tipo_cuenta_deposito_mp    = $aForm["tipo_cuenta_deposito_mp"];
+            $numero_cuenta_dep_mp       = $aForm["numero_cuenta_dep_mp"];
+            $nombre_mp                  = $aForm["nombre_mp"];
+            $identificion_mp            = $aForm["identificion_mp"];
         }
 
         if (empty($idMedioPago)) {
 
-            $sql = "insert into isp.contrato_medio_pago(
-                                id_empresa,         id_sucursal,        id_clpv,        id_contrato,
-                                id_pago,            id_tipo,            id_banco,       id_tarjeta, 
-                                tarjeta,            cuenta,             tipo_cuenta,    estado, 
-                                user_web,           fecha,              fecha_server ,  nom_clpv,
-                                ruc_clpv,pagoClave,mes_traj,anio_tarj )
-                        values( $idempresa,         $idsucursal,        $codigoCliente, $idContrato,
-                                '$pago',            '$fpag_cot_fpag',   '$pagoBanco',   '$pagoTipoTarjeta', 
-                                '$pagoTarjeta',     '$pagoCuenta',      '$pagoTipoCuenta', 'A', 
-                                $idUser,            '$fecha',           '$fechaServer' , '$nomb_dep' ,
-                                '$ced_dep','$pagoClave','$mes_traj','$anio_tarj'  )";
+            // actualiza a "N" las otras cuentas (solo debe existir un cuenta deb_cash_sn con tipo S)
+            $sql = "UPDATE isp.contrato_medio_pago 
+                    set deb_cash_sn = 'N' 
+                    where id_empresa = '$idempresa' and id_sucursal = '$idsucursal' and id_clpv = '$codigoCliente' and id_contrato = '$idContrato'";
             $oCon->QueryT($sql);
+
+            $sql = "INSERT into isp.contrato_medio_pago(
+                                id_empresa,             id_sucursal,                id_clpv,                    id_contrato,
+                                id_pago,                id_tipo,                    id_banco,                   id_tarjeta, 
+                                tarjeta,                cuenta,                     tipo_cuenta,                estado, 
+                                user_web,               fecha,                      fecha_server,               nom_clpv,
+                                ruc_clpv,               pagoClave,                  mes_traj,                   anio_tarj, 
+                                deb_cash_sn)
+                        values( $idempresa,             $idsucursal,                $codigoCliente,             $idContrato,
+                                '$pago',                '$fpag_cot_fpag',           '$id_banco',                '$tipo_tarjeta_mp', 
+                                '$numero_tarjeta_mp',   '$numero_cuenta_dep_mp',    '$tipo_cuenta_deposito_mp', 'A', 
+                                $idUser,                '$fecha',                   '$fechaServer' ,            '$nombre_mp' ,
+                                '$identificion_mp',     '$ccv_mp',                  '$mes_tarjeta_mp',          '$anio_tarjeta_mp',
+                                '$deb_cash_sn'  )";
+            $oCon->QueryT($sql);
+
+
         } else {
-            $sql = "update isp.contrato_medio_pago set id_pago = '$pago', 
+            $sql = "UPDATE isp.contrato_medio_pago 
+                                set id_pago         = '$pago', 
                                     id_tipo         = '$fpag_cot_fpag', 
-                                    id_banco        = '$pagoBanco', 
-                                    id_tarjeta      = '$pagoTipoTarjeta', 
-                                    tarjeta         = '$pagoTarjeta', 
-                                    cuenta          = '$pagoCuenta', 
-                                    tipo_cuenta     = '$pagoTipoCuenta' ,
-                                    nom_clpv        = '$nomb_dep' ,
-                                    ruc_clpv        = '$ced_dep',
-									pagoClave       = '$pagoClave',
-									mes_traj 		= '$mes_traj',
-									anio_tarj		= '$anio_tarj'
+                                    id_banco        = '$id_banco', 
+                                    id_tarjeta      = '$tipo_tarjeta_mp', 
+                                    tarjeta         = '$numero_tarjeta_mp', 
+                                    cuenta          = '$numero_cuenta_dep_mp', 
+                                    tipo_cuenta     = '$tipo_cuenta_deposito_mp' ,
+                                    nom_clpv        = '$nombre_mp' ,
+                                    ruc_clpv        = '$identificion_mp',
+									pagoClave       = '$ccv_mp',
+									mes_traj 		= '$mes_tarjeta_mp',
+									anio_tarj		= '$anio_tarjeta_mp',
+									deb_cash_sn		= '$deb_cash_sn'
                                 where id = $idMedioPago";
+            $oCon->QueryT($sql);
+
+            // actualiza a "N" las otras cuentas (solo debe existir un cuenta deb_cash_sn con tipo S)
+            $sql = "UPDATE isp.contrato_medio_pago set deb_cash_sn = 'N' where id_empresa = '$idempresa' and id_sucursal = '$idsucursal' and id_clpv = '$codigoCliente' and id_contrato = '$idContrato' and id <> $idMedioPago";
             $oCon->QueryT($sql);
         }
 
         //actualiza forma de pago
-        $sql = "update isp.contrato_clpv set forma_pago = '$pago'
-                                where id_empresa = $idempresa and
-                                id_sucursal = $idsucursal and
-                                id_clpv = $codigoCliente and
-                                id = $idContrato";
-
-        //        $oReturn->alert($sql);
+        $sql = "UPDATE isp.contrato_clpv 
+                SET forma_pago = '$pago'
+                WHERE id_empresa = $idempresa and
+                      id_sucursal = $idsucursal and
+                      id_clpv = $codigoCliente and
+                      id = $idContrato";
         $oCon->QueryT($sql);
 
         $oReturn->alert('Procesado Correctamente...');
@@ -5716,8 +6402,8 @@ function agregarEntidad($aForm = '', $op = 0)
                 $campoTelf = "telefono";
             }
 
-            $sql = "update isp.contrato_clpv set $campoTelf = '$telefono' where id = $idContrato";
-            $oCon->QueryT($sql);
+            /* $sql = "update isp.contrato_clpv set $campoTelf = '$telefono' where id = $idContrato";
+            $oCon->QueryT($sql); */
 
             $oReturn->assign('tipo_telefono', 'value', '');
             $oReturn->assign('telefono_cli', 'value', '');
@@ -5738,8 +6424,8 @@ function agregarEntidad($aForm = '', $op = 0)
                         values($empresa, $clpv, 'E', 1, $usuario_web, '$fechaSever')";
             $oCon->QueryT($sqlCtrl);
 
-            $sql = "update isp.contrato_clpv set email = '$email' where id = $idContrato";
-            $oCon->QueryT($sql);
+            /* $sql = "update isp.contrato_clpv set email = '$email' where id = $idContrato";
+            $oCon->QueryT($sql); */
 
             $oReturn->assign('emai_ema_emai', 'value', '');
             $oReturn->script("reporteEmailCliente();");
@@ -5955,20 +6641,20 @@ function updateEntidad($aForm = '', $op = 0)
                     //$oReturn->alert($sqlDire);
                     $oIfx->QueryT($sqlDire);
 
-                    //update contrato
+                    /* //update contrato
                     $campoTelf = "celular";
                     if ($tipoTelf != 'C') {
                         $campoTelf = "telefono";
                     }
 
                     $sql = "update isp.contrato_clpv set $campoTelf = '$direccion' where id = $idContrato";
-                    $oCon->QueryT($sql);
+                    $oCon->QueryT($sql); */
                 }
 
                 //control modificado datos
-                $sqlCtrl = "insert into isp.control_clpv(id_empresa, id_clpv, tipo, opcion, user_web, fecha_server) 
+                /*  $sqlCtrl = "insert into isp.control_clpv(id_empresa, id_clpv, tipo, opcion, user_web, fecha_server)
                             values($empresa, $clpv, 'T', 2, $usuario_web, '$fechaSever')";
-                $oCon->QueryT($sqlCtrl);
+                $oCon->QueryT($sqlCtrl); */
 
                 $oReturn->script("reporteTelefonoCliente()");
             }
@@ -5986,8 +6672,8 @@ function updateEntidad($aForm = '', $op = 0)
                     $oIfx->QueryT($sqlDire);
                 }
 
-                $sql = "update isp.contrato_clpv set email = '$direccion' where id = $idContrato";
-                $oCon->QueryT($sql);
+                /*  $sql = "update isp.contrato_clpv set email = '$direccion' where id = $idContrato";
+                $oCon->QueryT($sql); */
 
                 //control modificado datos
                 $sqlCtrl = "insert into isp.control_clpv(id_empresa, id_clpv, tipo, opcion, user_web, fecha_server) 
@@ -7375,496 +8061,66 @@ function imprimirContrato($aForm = '', $id_tip_contr, $formato)
     //variables del formulario
     $clpv           = $aForm['codigoCliente'];
 
-    //DATOS DE LA EMPRESA
-    $sql = "SELECT * from saeempr where empr_cod_empr='$empresa'";
-    $empr_repres        = consulta_string($sql, 'empr_repres', $oIfx, '');
-    $ced_repres         = consulta_string($sql, 'empr_ced_repr', $oIfx, '');
-    $empr_cod_ciud      = consulta_string($sql, 'empr_cod_ciud', $oIfx, 0);
-    $empr_path_logo     = consulta_string($sql, 'empr_path_logo', $oIfx, '');
-    $direccionempr      = consulta_string($sql, 'empr_dir_empr', $oIfx, '');
-    $empr_nom_empr      = consulta_string($sql, 'empr_nom_empr', $oIfx, '');
-    $empr_ruc_empr      = consulta_string($sql, 'empr_ruc_empr', $oIfx, '');
-    $empr_cod_prov      = consulta_string($sql, 'empr_cod_prov', $oIfx, '');
-    $empr_cod_cant      = consulta_string($sql, 'empr_cod_cant', $oIfx, '');
-    $empr_tel_resp      = consulta_string($sql, 'empr_tel_resp', $oIfx, '');
-    $empr_mai_empr      = consulta_string($sql, 'empr_mai_empr', $oIfx, '');
-    $empr_cel_empr      = consulta_string($sql, 'empr_fax_empr', $oIfx, '');
-    $empr_fec_resu      = consulta_string($sql, 'empr_fec_resu', $oIfx, '');
-    $empr_nomcome_empr  = consulta_string($sql, 'empr_nomcome_empr', $oIfx, '');
+    try {
+
+        //DATOS DE LA EMPRESA
+        $sql = "SELECT * from saeempr where empr_cod_empr='$empresa'";
+        $empr_repres        = consulta_string($sql, 'empr_repres', $oIfx, '');
+        $ced_repres         = consulta_string($sql, 'empr_ced_repr', $oIfx, '');
+        $empr_cod_ciud      = consulta_string($sql, 'empr_cod_ciud', $oIfx, 0);
+        $empr_path_logo     = consulta_string($sql, 'empr_path_logo', $oIfx, '');
+        $direccionempr      = consulta_string($sql, 'empr_dir_empr', $oIfx, '');
+        $empr_nom_empr      = consulta_string($sql, 'empr_nom_empr', $oIfx, '');
+        $empr_ruc_empr      = consulta_string($sql, 'empr_ruc_empr', $oIfx, '');
+        $empr_cod_prov      = consulta_string($sql, 'empr_cod_prov', $oIfx, '');
+        $empr_cod_cant      = consulta_string($sql, 'empr_cod_cant', $oIfx, '');
+        $empr_tel_resp      = consulta_string($sql, 'empr_tel_resp', $oIfx, '');
+        $empr_mai_empr      = consulta_string($sql, 'empr_mai_empr', $oIfx, '');
+        $empr_cel_empr      = consulta_string($sql, 'empr_fax_empr', $oIfx, '');
+        $empr_fec_resu      = consulta_string($sql, 'empr_fec_resu', $oIfx, '');
+        $empr_nomcome_empr  = consulta_string($sql, 'empr_nomcome_empr', $oIfx, '');
+        $empr_ced_repr      = consulta_string($sql, 'empr_ced_repr', $oIfx, '');
+        $empr_cod_parr      = consulta_string($sql, 'empr_cod_parr', $oIfx, '');
 
 
-    $sql = "SELECT sucu_dir_sucu, sucu_telf_secu,sucu_email_secu, sucu_fax_secu, sucu_nom_sucu from saesucu where sucu_cod_sucu='$idsucursal'";
-    $sucu_dir_sucu        = consulta_string($sql, 'sucu_dir_sucu', $oIfx, '');
-    $sucu_telf_secu       = consulta_string($sql, 'sucu_telf_secu', $oIfx, '');
-    $sucu_email_secu      = consulta_string($sql, 'sucu_email_secu', $oIfx, '');
-    $sucu_fax_secu        = consulta_string($sql, 'sucu_fax_secu', $oIfx, '');
-    $sucu_nom_secu        = consulta_string($sql, 'sucu_nom_sucu', $oIfx, '');
 
-    $path_img = explode("/", $empr_path_logo);
-    $count = count($path_img) - 1;
+        $sql = "SELECT sucu_dir_sucu, sucu_telf_secu,sucu_email_secu, sucu_fax_secu, sucu_nom_sucu from saesucu where sucu_cod_sucu='$idsucursal'";
+        $sucu_dir_sucu        = consulta_string($sql, 'sucu_dir_sucu', $oIfx, '');
+        $sucu_telf_secu       = consulta_string($sql, 'sucu_telf_secu', $oIfx, '');
+        $sucu_email_secu      = consulta_string($sql, 'sucu_email_secu', $oIfx, '');
+        $sucu_fax_secu        = consulta_string($sql, 'sucu_fax_secu', $oIfx, '');
+        $sucu_nom_secu        = consulta_string($sql, 'sucu_nom_sucu', $oIfx, '');
 
-    $path_logo_img = DIR_FACTELEC . 'Include/Clases/Formulario/Plugins/reloj/' . $path_img[$count];
+        $path_img = explode("/", $empr_path_logo);
+        $count = count($path_img) - 1;
 
-
-    // $path_logo_img = '';
-    if ($path_logo_img != '') {
-        $empr_logo = '<img src="' . $path_logo_img . '" style="width:100px;">';
-    } else {
-        $empr_logo = '<span><font color="red">SIN LOGO</font></span>';
-    }
-
-    /// RUBRICA DE EMPRESA 
-    $path_rubr = DIR_FACTELEC . 'imagenes/isp_digital/firma/rubrica.png'; //
-
-    //echo $path_rubr; exit;
-    //$path_rubr = '';
-    if ($path_rubr != '') {
-        $empr_rub = '<img src="' . $path_rubr . '" style="width:150px;">';
-        $empr_rub_cv = '<img src="' . $path_rubr . '" style="width:100px;">';
-    } else {
-        $empr_rub = '<span><font color="red">SIN LOGO</font></span>';
-        $empr_rub_cv = '<span><font color="red">SIN LOGO</font></span>';
-    }
-    //////////////////////////////////////////////////////////////////////////////
-
-    //IMAGENES CABLE SELVA
-    $img_base_path = DIR_FACTELEC . 'modulos/int_clientes/images/';
-
-    $img_cable_selva_header = $img_base_path . 'cable_selva/bg_header.png';
-    $img_cable_selva_body   = $img_base_path . 'cable_selva/bg_body.png';
-    $img_cable_selva_footer = $img_base_path . 'cable_selva/bg1_3.png';
-    $img_cable_selva_footer = $img_base_path . 'cable_selva/bg1_3.png';
-
-    $img_cable_vision_promo_parte1 = $img_base_path . 'cablevision/step1.jpg';
-    $img_cable_vision_promo_parte2 = $img_base_path . 'cablevision/step2.jpg';
+        $path_logo_img = DIR_FACTELEC . 'Include/Clases/Formulario/Plugins/reloj/' . $path_img[$count];
 
 
-    //////////////////////////////////////////////////////////////////////////////
-
-    //IMAGENES PERU
-    $serv = DIR_FACTELEC . 'modulos/int_clientes/images/peru/serv.jpeg';
-    $serv_1 = $serv;
-
-    //LOGO ANEXO PERU
-    $img_logo_anexo = $path_logo_img;
-
-    //IMG1 PERU
-    $img_1 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/1.png';
-    //IMG2 PERU
-    $img_2 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/2.jpg';
-    //IMG3 PERU
-    $img_3 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/3.jpg';
-    //IMG4 PERU
-    $img_4 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/4.png';
-    //IMG5 PERU
-    $img_5 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/5.png';
-    //IMG6 PERU
-    $img_6 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/6.png';
-    //IMG7 PERU
-    $img_7 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/7.png';
-    //IMG8 PERU
-    $img_8 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/8.jpg';
-    //IMG9 PERU
-    $img_9 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/9.png';
-    //IMG10 PERU
-    $img_10 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/10.png';
-    //IMG11 PERU
-    $img_11 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/11.jpg';
-    //IMG12 PERU
-    $img_12 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/12.jpeg';
-    //IMG13 PERU
-    $img_13 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/13.png';
-    //IMG14 PERU
-    $img_14 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/14.png';
-
-    $wsp_img = DIR_FACTELEC . 'modulos/int_clientes/images/peru/wsp.png';
-
-    $qr  =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/QR.jpg';
-    //CABLEVISION CONTRATO
-    $check_si   =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/checksi.jpg';
-    $check_no   =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/checkno.jpg';
-    $ncanalescv =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/canales.jpg';
-    $whatspe    =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/WS.jpg';
-    $canaleshd  =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/canaleshd.jpg';
-    $canalessd  =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/canalessd.jpg';
-    $imgoscip1  =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/O1.jpg';
-    $imgoscip2  =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/O2.jpg';
-    $sign       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/sign.jpg';
-    $cali       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/cali.jpg';
-    $not        =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/not.jpg';
-    $dual       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/dual.jpg';
-    $speed      =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/speed.jpg';
-    $home       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/home.jpg';
-    $heat       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/heat.jpg';
-    $clud       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/clud.jpg';
-    $play       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/play.jpg';
-    //DATOS DEL CLIENTE
-
-
-    $sql = "select tipo_contrato,tipo_cliente,fecha_contrato, nom_clpv, direccion, ruc_clpv, email, telefono, celular, id_barrio, codigo, duracion, identificador, referencia, 
-    nomb_conjunto, departamento, monto_pago, vendedor, id_clpv, id_provincia, id_canton, id_ciudad, id_parroquia, fecha_corte, tipo_contrato_de_cobro, suscripcion, sobrenombre,
-    id_tipo_cont_serv from isp.contrato_clpv where id=$id";
-    $fecha_con          = consulta_string($sql, 'fecha_contrato', $oCon, '');
-    $nom_clpv           = consulta_string($sql, 'nom_clpv', $oCon, '');
-    $fecha_nacimiento   = consulta_string($sql, 'fecha_contrato', $oCon, '');
-    $direccion          = consulta_string($sql, 'direccion', $oCon, '');
-    $direccion_ref      = consulta_string($sql, 'referencia', $oCon, '');
-    $ruc_clpv           = consulta_string($sql, 'ruc_clpv', $oCon, '');
-    $email              = consulta_string($sql, 'email', $oCon, '');
-    $num_referencia     = consulta_string($sql, 'telefono', $oCon, '');
-    $num_celular        = empty(consulta_string($sql, 'celular', $oCon, '')) ? " no tiene" : consulta_string($sql, 'celular', $oCon, '');
-    $id_barrio          = consulta_string($sql, 'id_barrio', $oCon, '');
-    $codigo             = consulta_string($sql, 'codigo', $oCon, '');
-    $duracion           = consulta_string($sql, 'duracion', $oCon, '');
-    $codigo_contrato    = consulta_string($sql, 'codigo', $oCon, '');
-    $identificador      = consulta_string($sql, 'identificador', $oCon, '');
-    $tipo_cliente       = consulta_string($sql, 'tipo_cliente', $oCon, '');
-    $tipo_contrato      = consulta_string($sql, 'tipo_contrato', $oCon, '');
-    $referencia         = consulta_string($sql, 'referencia', $oCon, '');
-    $lugar              = consulta_string($sql, 'nomb_conjunto', $oCon, '');
-    $departamento       = consulta_string($sql, 'departamento', $oCon, '');
-    $mensualidad        = consulta_string($sql, 'monto_pago', $oCon, '');
-    $vendedor           = consulta_string($sql, 'vendedor', $oCon, '');
-    $id_clpv            = consulta_string($sql, 'id_clpv', $oCon, '');
-    $id_provincia_clpv  = consulta_string($sql, 'id_provincia', $oCon, '');
-    $id_canton_clpv     = consulta_string($sql, 'id_canton', $oCon, '');
-    $id_ciudad_clpv     = consulta_string($sql, 'id_ciudad', $oCon, '');
-    $id_parroquia_clpv  = consulta_string($sql, 'id_parroquia', $oCon, '');
-    $fecha_corte        = consulta_string($sql, 'fecha_corte', $oCon, '');
-    $tipo_de_cobro      = consulta_string($sql, 'tipo_contrato_de_cobro', $oCon, '');
-    $instalacionclpv    = consulta_string($sql, 'suscripcion', $oCon, '');
-    $sobrenombreclpv    = consulta_string($sql, 'sobrenombre', $oCon, '');
-    $tipo_cont_serv     = consulta_string($sql, 'id_tipo_cont_serv', $oCon, '');
-
-    
-
-    if ($tipo_de_cobro == 'POSTPAGO') {
-        //$checkpostpago = $check_si;
-        $checkpostpago = '<img class="left" src="' . $check_si . '" width="10"/>';
-        $checkprepago = '<img class="left" src="' . $check_no . '" width="10"/>';
-    } else if ($tipo_de_cobro == 'PREPAGO') {
-        //$checkprepago = $check_si;
-        $checkprepago = '<img class="left" src="' . $check_si . '" width="10"/>';
-        $checkpostpago = '<img class="left" src="' . $check_no . '" width="10"/>';
-    } else {
-        $checkpostpago = '<img class="left" src="' . $check_no . '" width="10"/>';
-        $checkprepago = '<img class="left" src="' . $check_no . '" width="10"/>';
-    }
-
-    $sql_inst_cuot = "SELECT count(id) as contador from isp.int_suscribir where id_contrato = $id and estado != 'AN' and  precio > 0";
-    $inst_cuot = intval(consulta_string($sql_inst_cuot, 'contador', $oCon, 0));
-
-    if ($inst_cuot > 1) {
-        $nocontado = '<img class="left" src="' . $check_si . '" width="10"/>';
-        $contado = '<img class="left" src="' . $check_no . '" width="10"/>';
-        $sininst = '<img class="left" src="' . $check_no . '" width="10"/>';
-        $sql_precioinst = "SELECT max(precio) AS precio from isp.int_suscribir where id_contrato = $id";
-        $precioinstdif  = consulta_string($sql_precioinst, 'precio', $oCon, '');
-    } else if ($inst_cuot == 1) {
-        $nocontado = '<img class="left" src="' . $check_no . '" width="10"/>';
-        $contado = '<img class="left" src="' . $check_si . '" width="10"/>';
-        $sininst = '<img class="left" src="' . $check_no . '" width="10"/>';
-        $sql_precioinst = "SELECT max(precio) AS precio from isp.int_suscribir where id_contrato = $id";
-        $precioinstcont  = consulta_string($sql_precioinst, 'precio', $oCon, '');
-    } else {
-        $nocontado = '<img class="left" src="' . $check_no . '" width="10"/>';
-        $contado = '<img class="left" src="' . $check_no . '" width="10"/>';
-        $sininst = '<img class="left" src="' . $check_si . '" width="10"/>';
-    }
-
-    $sql_referencias = "SELECT nombre from isp.contrato_referencia where id_contrato = $id";
-    $referencia_parient  = consulta_string($sql_referencias, 'nombre', $oCon, '');
-
-    if ($tipo_cont_serv == 1) {
-        $id_serv_empr = '<b>X</b>';
-    } else if ($tipo_cont_serv == 2) {
-        $id_serv_hog = '<b>X</b>';
-    } else {
-        $id_serv_empr = '';
-        $id_serv_hog = '';
-    }
-    
-    $sql_tipo  = "SELECT clv_con_clpv, clpv_fec_naci from public.saeclpv where clpv_cod_clpv = $id_clpv";
-    $fecha_nacimientocon = consulta_string($sql_tipo, 'clpv_fec_naci', $oCon, '');
-    $tipo_iden = consulta_string($sql_tipo, 'clv_con_clpv', $oCon, '');
-    if ($tipo_iden == '01') {
-        $nat_jur =
-            '<table border="1" cellpadding ="1px">
-            <tr>
-                <td align="center" colspan="6"><b>Persona Jurídica</b></td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width: 100px; height: 20px;">Nombre Comercial</td>
-                <td colspan="1" style="width: 100px; height: 20px;">nombreemplco</td>
-                <td colspan="1" style="width: 100px; height: 20px;">R:T:N</td>
-                <td colspan="1" style="width: 96px; height: 20px;"></td>
-                <td colspan="1" style="width: 96px; height: 20px;">Registro mercantil</td>
-                <td colspan="1" style="width: 96px; height: 20px;"></td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width: 100px; height: 20px;">Fecha Mercantil</td>
-                <td colspan="1" style="width: 100px; height: 20px;">diasco/mesco/anioco</td>
-                <td colspan="1" style="width: 100px; height: 20px;">No.Tomo</td>
-                <td colspan="1" style="width: 96px; height: 20px;"></td>
-                <td colspan="1" style="width: 96px; height: 20px;">Actividad Económica</td>
-                <td colspan="1" style="width: 96px; height: 20px;"></td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width: 100px; height: 20px;">Dirección Completa</td>
-                <td colspan="5" style="width: 88px; height: 20px;">direemplco direrefemplco</td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width: 100px; height: 20px;">Teléfono</td>
-                <td colspan="1" style="width: 100px; height: 20px;">teleemplco</td>
-                <td colspan="1" style="width: 100px; height: 20px;">Fax</td>
-                <td colspan="1" style="width: 96px; height: 20px;"></td>
-                <td colspan="1" style="width: 96px; height: 20px;">Cel</td>
-                <td colspan="1" style="width: 96px; height: 20px;"></td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width: 100px; height: 20px;">Nombre del Representante</td>
-                <td colspan="2" style="width: 94px; height: 20px;">referenciabo</td>
-                <td colspan="1" style="width: 100px; height: 20px;">Cargo Desempeñado</td>
-                <td colspan="2" style="width: 94px; height: 20px;"></td>
-            </tr>
-        </table>
-        <br>';
-
-        $espacios = '<br><br><br><br><br><br><br>';
-    } else if ($tipo_iden == '02' || $tipo_iden == '03') {
-        $nat_jur =
-            '<table border="1" cellpadding ="1px">
-            <tr>
-                <td align="center" colspan="6"><b>Persona Individual</b></td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width: 99px; height: 20px;">Nombre Completo</td>
-                <td colspan="1" style="width: 99px; height: 20px;">nombreemplco</td>
-                <td colspan="1" style="width: 99px; height: 20px;">R:T:N</td>
-                <td colspan="1" style="width: 98px; height: 20px;"></td>
-                <td colspan="1" style="width: 98px; height: 20px;">Estado Civil</td>
-                <td colspan="1" style="width: 98px; height: 20px;"></td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width: 99px; height: 20px;">Número de Identidad</td>
-                <td colspan="1" style="width: 99px; height: 20px;">idenco</td>
-                <td colspan="1" style="width: 99px; height: 20px;">Nacionalidad</td>
-                <td colspan="1" style="width: 98px; height: 20px;"></td>
-                <td colspan="1" style="width: 98px; height: 20px;">Fecha Nacimiento </td>
-                <td colspan="1" style="width: 98px; height: 20px;">nacimientoco</td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width: 99px; height: 20px;">Profesión u Oficio </td>
-                <td colspan="1" style="width: 99px; height: 20px;"></td>
-                <td colspan="1" style="width: 99px; height: 20px;">Ocupación</td>
-                <td colspan="1" style="width: 98px; height: 20px;"></td>
-                <td colspan="1" style="width: 98px; height: 20px;">Edad</td>
-                <td colspan="1" style="width: 98px; height: 20px;"></td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width:  97px; height: 20px;">Dirección Completa</td>
-                <td colspan="5" style="width: 494px; height: 20px;">direemplco direrefemplco</td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width: 99px; height: 20px;">Teléfono</td>
-                <td colspan="1" style="width: 99px; height: 20px;">teleemplco</td>
-                <td colspan="1" style="width: 99px; height: 20px;">Fax</td>
-                <td colspan="1" style="width: 98px; height: 20px;"></td>
-                <td colspan="1" style="width: 98px; height: 20px;">Cel</td>
-                <td colspan="1" style="width: 98px; height: 20px;"></td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width: 99px; height: 20px;">Casa Propia</td>
-                <td colspan="1" style="width: 99px; height: 20px;">Si___ No___ </td>
-                <td colspan="1" style="width: 99px; height: 20px;">Propietario del Inmueble</td>
-                <td colspan="1" style="width: 98px; height: 20px;"></td>
-                <td colspan="1" style="width: 98px; height: 20px;">Renta Mensual</td>
-                <td colspan="1" style="width: 98px; height: 20px;"></td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width: 99px; height: 20px;">Tiempo de Ocupar el Inmueble</td>
-                <td colspan="1" style="width: 99px; height: 20px;">Si___ No___</td>
-                <td colspan="1" style="width: 99px; height: 20px;">Tiene familia en USA</td>
-                <td colspan="1" style="width: 98px; height: 20px;">Si___No___</td>
-                <td colspan="1" style="width: 98px; height: 20px;">Ingresos Mensuales</td>
-                <td colspan="1" style="width: 98px; height: 20px;"></td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width:  97px; height: 20px;">Referencia laboral dentro de la empresa</td>
-                <td colspan="5" style="width: 494px; height: 20px;"></td>
-            </tr>
-            <tr>
-                <td colspan="1" style="width: 99px; height: 20px;">Nombre del Conyuge</td>
-                <td colspan="1" style="width: 99px; height: 20px;">referenciabo</td>
-                <td colspan="1" style="width: 99px; height: 20px;">Ingresos del Cónyuge</td>
-                <td colspan="1" style="width: 98px; height: 20px;"></td>
-                <td colspan="1" style="width: 98px; height: 20px;">Donde Labora</td>
-                <td colspan="1" style="width: 98px; height: 20px;"></td>
-            </tr>
-        </table>
-        <br>';
-
-        $espacios = '<br>';
-    }
-
-    $sql_nom_iden = "SELECT identificacion from comercial.tipo_iden_clpv where tipo = '$tipo_iden'";
-    $iden_con_clpv = consulta_string($sql_nom_iden, 'identificacion', $oCon, '');
-
-    // echo $sql;exit;
-    $id_caja           = consulta_string($sql, 'id', $oCon, '');
-
-    $sql_tipo_contrato = "select tipo from isp.int_tipo_contrato tc  where tc.id = $tipo_contrato";
-    $tipo_contrato_nombre   = consulta_string($sql_tipo_contrato, 'tipo', $oCon, '');
-
-    $sql_plan = "select a.id as id_caja_pack, c.nombre, b.paquete, d.estado, a.precio, a.estado as id_estado, b.id_tipo_prod, d.color, b.egress as v_bajada, b.ingress as v_subida
-                FROM isp.int_contrato_caja_pack a INNER JOIN
-                        isp.int_paquetes b ON a.id_prod = b.id INNER JOIN
-                        isp.int_tipo_prod c ON b.id_tipo_prod = c.id INNER JOIN
-                        isp.int_estados_equipo d ON a.estado = d.id
-                WHERE 
-                        a.id_contrato = $id AND
-                        a.id_clpv = $id_clpv AND
-                        a.estado NOT IN ('E')";
-
-    $lista_planes_html = '';
-
-    // echo $sql_plan;exit;
-    $altura_tipo_plan  = 0;
-    $altura_tipo_plan_base  = 33;
-    $altura_tipo_plan_base_2  = -45.5;
-
-    $img_pie_altura = -155;
-    $rubrico_altura = -165;
-    $firma_contrato_altura = -165;
-    $datos_clpv_altura = -115;
-
-    if ($oIplan->Query($sql_plan)) {
-        if ($oIplan->NumFilas() > 0) {
-            do {
-                $paquetes   = $oIplan->f('paquete');
-                $precio     = $oIplan->f('precio');
-
-                $lista_planes_html .= '<li style="width: 30px; height: 20px; border: 1px solid rgb(0,32,96);">
-                                        <pre>        ' . $paquetes . ' ----&gt; s/. ' . $precio . '</pre>
-                                        <span class="checkmark">
-                                            <div class="checkmark_stem"></div>
-                                            <div class="checkmark_kick"></div>
-                                        </span>
-                                    </li><br>';
-
-                $altura_tipo_plan = $altura_tipo_plan + 10;
-            } while ($oIplan->SiguienteRegistro());
+        // $path_logo_img = '';
+        if ($path_logo_img != '') {
+            $empr_logo = '<img src="' . $path_logo_img . '" style="width:100px;">';
+        } else {
+            $empr_logo = '<span><font color="red">SIN LOGO</font></span>';
         }
-    }
-    $oIplan->Free();
 
-    $titilo_plan = $tipo_contrato_nombre;
-    $lista_planes_contenedor_html = '';
+        /// RUBRICA DE EMPRESA
+        $path_rubr = DIR_FACTELEC . 'imagenes/isp_digital/firma/rubrica.png';
 
-    if ($tipo_contrato == 2) {
-        $titilo_plan = 'PLANES DE INTERNET';
-    }
-    if ($tipo_contrato == 7) {
-        $titilo_plan = 'PLANES DE INTERNET + CABLE (DÚO)';
-    }
+        if (file_exists($path_rubr)) {
+            $empr_rub = '<img src="' . $path_rubr . '" style="width:150px;">';
+            $empr_rub_cv = '<img src="' . $path_rubr . '" style="width:100px;">';
+        } else {
+            $empr_rub = '<br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>';
 
-    $lista_planes_contenedor_html = '<td>
-                                        <ul style="font-weight: normal; color: rgb(0,32,96); list-style-type:none; font-family: Arial; font-size: 9.5px; text-align: center; width: 550px;">
-                                            <li style="text-align: center;"><strong>' . $titilo_plan . '</strong></li>
-                                            <br>' . $lista_planes_html . '
-                                        </ul>
-                                    </td>';
-
-
-
-
-    // echo $lista_planes_html;exit;
-
-    // CONSULTA CONTRATO INTERNET
-    $sql_int = "SELECT a.id as id_caja_pack, c.nombre, b.paquete, d.estado, a.precio, a.estado as id_estado, b.id_tipo_prod, d.color
-                                    FROM isp.int_contrato_caja_pack a INNER JOIN
-                                            isp.int_paquetes b ON a.id_prod = b.id INNER JOIN
-                                            isp.int_tipo_prod c ON b.id_tipo_prod = c.id INNER JOIN
-                                            isp.int_estados_equipo d ON a.estado = d.id
-                                    WHERE a.id_caja = $id AND 
-                                            a.id_contrato = $id_contrato AND 
-                                            a.id_clpv = $id_clpv AND
-                                            a.estado NOT IN ('E')";
-
-    if (empty($vendedor)) {
-        $vendedor = 0;
-    }
-    $sql = "SELECT vend_nom_vend from saevend where vend_cod_vend = '$vendedor'";
-    $vendedoremp       = consulta_string($sql, 'vend_nom_vend', $oCon, 'No especifica');
-
-    if (empty($id_clpv)) {
-        $id_clpv = 0;
-    }
-    $sql_clpv_nacimi = "SELECT clpv_fec_naci from saeclpv where clpv_cod_clpv = $id_clpv";
-    $fecha_nacimiento_cliente   = consulta_string($sql_clpv_nacimi, 'clpv_fec_naci', $oCon, 'SIN REGISTRAR');
-
-    if (empty($departamento)) {
-        $departamento = 0;
-    }
-    $sql = "SELECT nombre from comercial.dire_siglas where id=$departamento";
-    $calleprincipal     = consulta_string($sql, 'nombre', $oCon, 'No especifica');
-
-
-    if (empty($tipo_cliente)) {
-        $tipo_cliente = 1;
-    }
-
-    if ($tipo_cliente == 1) {
-        $si_t_e = '____';
-        $si_dis = '____';
-        $no_t_e = '__<b>X</b>__';
-        $no_dis = '__<b>X</b>__';
-    }
-    if ($tipo_cliente == 2) { //discapac
-        $si_t_e = '';
-        $si_dis = '__<b>X</b>__';
-        $no_t_e = '__<b>X</b>__';
-        $no_dis = '';
-    }
-
-    if ($tipo_cliente == 3) { //tercera edad
-        $si_t_e = '__<b>X</b>__';
-        $si_dis = '____';
-        $no_t_e = '____';
-        $no_dis = '__<b>X</b>__';
-    }
-
-
-    $dia_con = substr($fecha_con, 8, 2);
-    $mes_con = substr($fecha_con, 5, 2);
-    $año_con = substr($fecha_con, 0, 4);
-    //echo $fecha_con;exit;
-
-    //echo $dia_con.'---'.$mes_con.'----',$año_con;exit;
-
-
-    $sql = "SELECT imagen from contrato_firmas where id_contrato = $id";
-    $imagen_firma       = consulta_string($sql, 'imagen', $oCon, '');
-
-    $exister_firma = 'N';
-    if (!empty($imagen_firma)) {
-        $identificador     = '<img width="200px;" height="100px;" src="data:image/png;base64,' . $imagen_firma . '">';
-        $identificadorcv     = '<img width="100px;" height="100px;" src="data:image/png;base64,' . $imagen_firma . '">';
-
-        $exister_firma = 'S';
-    } else {
-    }
-    if ($exister_firma == 'N') {
-        $identificador = '<br>
-                          <br>
-                          <br>
-                          <br>
-                          <br>
-                          <br>
-                          <br>
-                          <br>';
-                          
-        $identificadorcv = '<br>
+            $empr_rub_cv = '<br>
                             <br>
                             <br>
                             <br>
@@ -7872,292 +8128,352 @@ function imprimirContrato($aForm = '', $id_tip_contr, $formato)
                             <br>
                             <br>
                             <br>';
-    } 
-
-    //var_dump($identificadorcv);exit;
-
-
-
-    $paquetes = '';
-    //DATOS DE PAQUETE
-    $sqlInt = "SELECT b.paquete, a.precio, a.cod_prod, a.codigo_cid 
-                from isp.int_contrato_caja_pack a, isp.int_paquetes b 
-                WHERE a.cod_prod = b.prod_cod_prod and a.id_contrato = $id and a.estado in ('A','P','C') and a.activo = 'S' AND b.id_tipo_prod = 2";
-    if ($oCon->Query($sqlInt)) {
-        if ($oCon->NumFilas() > 0) {
-            do {
-                $id_paquete = $oCon->f('paquete');
-                $precio     = $oCon->f('precio');
-                $codigo_cid = $oCon->f('codigo_cid');
-
-                $paquetes .= '<tr>
-                                <td style="width: 40%;">' . $id_paquete . '</td>
-                                <td style="width: 45%;"></td>
-                                <td style="width: 15%;">' . $precio . '</td>
-                            </tr>';
-
-
-                $cod_prod = $oCon->f('cod_prod');
-
-                $sql_i = "SELECT prod_nom_prod, prod_cod_cate from saeprod WHERE prod_cod_prod='$cod_prod'";
-                $nom_plan = consulta_string($sql_i, 'prod_nom_prod', $oIfx, '');
-                $tipo_categoria = consulta_string($sql_i, 'prod_cod_cate', $oIfx, '');
-                $planes_nam .= $nom_plan . ', ';
-
-                $sql_vel = "SELECT i.egress, i.ingress , tipo from isp.int_paquetes i WHERE i.prod_cod_prod = '$cod_prod' ";
-                $bajada_plan  = consulta_string_func($sql_vel, 'egress', $oCon1, '') . ',';
-                $subida_plan = consulta_string_func($sql_vel, 'ingress', $oCon1, '') . ',';
-                $tipo_plan  = consulta_string_func($sql_vel, 'tipo', $oCon1, '') . ',';
-
-
-                $bajada_plan = substr($bajada_plan, 0, strlen($bajada_plan) - 1);
-                $subida_plan = substr($subida_plan, 0, strlen($subida_plan) - 1);
-
-                $subida_plan_min = $subida_plan * 0.7;
-                $bajada_plan_min = $bajada_plan * 0.7;
-
-                $sql_n = "SELECT c.cate_nom_cate from saecate c WHERE c.cate_cod_cate = '$tipo_categoria'";
-                $tipo_categoria_txt = consulta_string($sql_n, 'cate_nom_cate', $oIfx, '');
-            } while ($oCon->SiguienteRegistro());
         }
-    }
-    $oCon->Free();
+        //////////////////////////////////////////////////////////////////////////////
 
-    $sqlInt = "SELECT sum(precio) as precio_fin
-                from isp.int_contrato_caja_pack 
-                WHERE id_contrato = $id and estado in ('A','P','C') and activo = 'S'";
-    if ($oCon->Query($sqlInt)) {
-        if ($oCon->NumFilas() > 0) {
-            do {
-                $precio_fin = $oCon->f('precio_fin');
-                $cuota1  = $precio_fin * 12;
-                $cuota2  = $precio_fin * 11;
-                $cuota3  = $precio_fin * 10;
-                $cuota4  = $precio_fin * 9;
-                $cuota5  = $precio_fin * 8;
-                $cuota6  = $precio_fin * 7;
-                $cuota7  = $precio_fin * 6;
-                $cuota8  = $precio_fin * 5;
-                $cuota9  = $precio_fin * 4;
-                $cuota10 = $precio_fin * 3;
-                $cuota11 = $precio_fin * 2;
-                $cuota12 = $precio_fin * 1;
-            } while ($oCon->SiguienteRegistro());
+        //IMAGENES CABLE SELVA
+        $img_base_path = DIR_FACTELEC . 'modulos/int_clientes/images/';
+
+        $img_cable_selva_header = $img_base_path . 'cable_selva/bg_header.png';
+        $img_cable_selva_body   = $img_base_path . 'cable_selva/bg_body.png';
+        $img_cable_selva_footer = $img_base_path . 'cable_selva/bg1_3.png';
+        $img_cable_selva_footer = $img_base_path . 'cable_selva/bg1_3.png';
+
+        $img_cable_vision_promo_parte1 = $img_base_path . 'cablevision/step1.jpg';
+        $img_cable_vision_promo_parte2 = $img_base_path . 'cablevision/step2.jpg';
+
+
+        //////////////////////////////////////////////////////////////////////////////
+
+        //IMAGENES PERU
+        $serv = DIR_FACTELEC . 'modulos/int_clientes/images/peru/serv.jpeg';
+        $serv_1 = $serv;
+
+        //LOGO ANEXO PERU
+        $img_logo_anexo = $path_logo_img;
+
+        //IMG1 PERU
+        $img_1 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/1.png';
+        //IMG2 PERU
+        $img_2 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/2.jpg';
+        //IMG3 PERU
+        $img_3 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/3.jpg';
+        //IMG4 PERU
+        $img_4 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/4.png';
+        //IMG5 PERU
+        $img_5 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/5.png';
+        //IMG6 PERU
+        $img_6 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/6.png';
+        //IMG7 PERU
+        $img_7 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/7.png';
+        //IMG8 PERU
+        $img_8 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/8.jpg';
+        //IMG9 PERU
+        $img_9 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/9.png';
+        //IMG10 PERU
+        $img_10 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/10.png';
+        //IMG11 PERU
+        $img_11 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/11.jpg';
+        //IMG12 PERU
+        $img_12 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/12.jpeg';
+        //IMG13 PERU
+        $img_13 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/13.png';
+        //IMG14 PERU
+        $img_14 = DIR_FACTELEC . 'modulos/int_clientes/images/peru/14.png';
+
+        $wsp_img = DIR_FACTELEC . 'modulos/int_clientes/images/peru/wsp.png';
+
+        $qr  =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/QR.jpg';
+
+        //CABLEVISION CONTRATO
+        $check_si   =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/checksi.jpg';
+        $check_no   =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/checkno.jpg';
+        $ncanalescv =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/canales.jpg';
+        $whatspe    =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/WS.jpg';
+        $canaleshd  =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/canaleshd.jpg';
+        $canalessd  =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/canalessd.jpg';
+        $imgoscip1  =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/O1.jpg';
+        $imgoscip2  =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/O2.jpg';
+        $sign       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/sign.jpg';
+        $cali       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/cali.jpg';
+        $not        =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/not.jpg';
+        $dual       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/dual.jpg';
+        $speed      =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/speed.jpg';
+        $home       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/home.jpg';
+        $heat       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/heat.jpg';
+        $clud       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/clud.jpg';
+        $play       =  DIR_FACTELEC . 'modulos/int_clientes/images/peru/play.jpg';
+
+        //PASAJETV CONTRATO
+        $pasaje_img  =  DIR_FACTELEC . 'modulos/int_clientes/images/latvcom/logocon.png';
+
+        //DATOS DEL CLIENTE
+        $sql = "select tipo_contrato,tipo_cliente,fecha_contrato, nom_clpv, direccion, ruc_clpv, email, telefono, celular, id_barrio, codigo, duracion, identificador, referencia, 
+        nomb_conjunto, departamento, monto_pago, vendedor, id_clpv, id_provincia, id_canton, id_ciudad, id_parroquia, fecha_corte, tipo_contrato_de_cobro, suscripcion, sobrenombre,
+        id_tipo_cont_serv, penalidad, fecha_cobro, num_conjunto, latitud, longitud, forma_pago from isp.contrato_clpv where id=$id";
+        $fecha_con          = consulta_string($sql, 'fecha_contrato', $oCon, '');
+        $nom_clpv           = consulta_string($sql, 'nom_clpv', $oCon, '');
+        $fecha_nacimiento   = consulta_string($sql, 'fecha_contrato', $oCon, '');
+        $direccion          = consulta_string($sql, 'direccion', $oCon, '');
+        $penalidad          = consulta_string($sql, 'penalidad', $oCon, '');
+
+        if (empty($direccion)) {
+            throw new Exception("SIN DIRECCION PARA IMPRIMIR EL CONTRATO");
         }
-    }
-    $oCon->Free();
+        $direccion_ref      = consulta_string($sql, 'referencia', $oCon, '');
+        $ruc_clpv           = consulta_string($sql, 'ruc_clpv', $oCon, '');
+        $email              = consulta_string($sql, 'email', $oCon, '');
+        $num_referencia     = consulta_string($sql, 'telefono', $oCon, '');
+        $num_celular        = empty(consulta_string($sql, 'celular', $oCon, '')) ? " no tiene" : consulta_string($sql, 'celular', $oCon, '');
+        $id_barrio          = consulta_string($sql, 'id_barrio', $oCon, '');
+        $codigo             = consulta_string($sql, 'codigo', $oCon, '');
+        $duracion           = consulta_string($sql, 'duracion', $oCon, '');
+        $codigo_contrato    = consulta_string($sql, 'codigo', $oCon, '');
+        $identificador      = consulta_string($sql, 'identificador', $oCon, '');
+        $tipo_cliente       = consulta_string($sql, 'tipo_cliente', $oCon, '');
+        $tipo_contrato      = consulta_string($sql, 'tipo_contrato', $oCon, '');
+        $referencia         = consulta_string($sql, 'referencia', $oCon, '');
+        $lugar              = consulta_string($sql, 'nomb_conjunto', $oCon, '');
+        $departamento       = consulta_string($sql, 'departamento', $oCon, '');
+        $mensualidad        = consulta_string($sql, 'monto_pago', $oCon, '');
+        $vendedor           = consulta_string($sql, 'vendedor', $oCon, '');
+        $id_clpv            = consulta_string($sql, 'id_clpv', $oCon, '');
+        $id_provincia_clpv  = consulta_string($sql, 'id_provincia', $oCon, '');
+        $id_canton_clpv     = consulta_string($sql, 'id_canton', $oCon, '');
+        $id_ciudad_clpv     = consulta_string($sql, 'id_ciudad', $oCon, '');
+        $id_parroquia_clpv  = consulta_string($sql, 'id_parroquia', $oCon, '');
+        $fecha_corte        = consulta_string($sql, 'fecha_corte', $oCon, '');
+        $tipo_de_cobro      = consulta_string($sql, 'tipo_contrato_de_cobro', $oCon, '');
+        $instalacionclpv    = consulta_string($sql, 'suscripcion', $oCon, '');
+        $sobrenombreclpv    = consulta_string($sql, 'sobrenombre', $oCon, '');
+        $tipo_cont_serv     = consulta_string($sql, 'id_tipo_cont_serv', $oCon, '');
+        $fecha_cobro        = consulta_string($sql, 'fecha_cobro', $oCon, '');
+        $num_conjunto       = consulta_string($sql, 'num_conjunto', $oCon, '');
+        $latitud            = consulta_string($sql, 'latitud', $oCon, '');
+        $lo9ngitud           = consulta_string($sql, 'longitud', $oCon, '');
+        $forma_pago         = consulta_string($sql, 'forma_pago', $oCon, '');
 
-    $array_fec  = explode('-', $fecha_con);
-    $anio       = $array_fec[0];
-    $mes        = $array_fec[1];
-    $dia        = $array_fec[2];
+        if(!empty($forma_pago)){
+            $sql_tipo_pago  = "SELECT fpag_cod_fpag,fpag_cot_fpag ,fpag_des_fpag from public.saefpag where fpag_cod_fpag = $forma_pago";
+            $idfpago = consulta_string($sql_tipo_pago, 'fpag_cod_fpag', $oCon, '');
+            $cotfpag = consulta_string($sql_tipo_pago, 'fpag_cot_fpag', $oCon, '');
+            $fpag_des_fpag = consulta_string($sql_tipo_pago, 'fpag_des_fpag', $oCon, '');
 
-    $anio1      = $array_fec[0];
-    $mes1       = $array_fec[1];
-    $dia1       = $array_fec[2];
+            $sql_forma_pago  = "SELECT deb_cash_sn,id_pago,id_tipo from isp.contrato_medio_pago where id_contrato = $id";
+            $debautomat = consulta_string($sql_forma_pago, 'deb_cash_sn', $oCon, '');
+            $idcontpago = consulta_string($sql_forma_pago, 'id_pago', $oCon, '');
+            $idtipopago = consulta_string($sql_forma_pago, 'id_tipo', $oCon, '');
 
-    list($ano, $mes, $dia)  = explode("-", $fecha_nacimiento);
-    $ano_diferencia         = date("Y") - $ano;
-    $mes_diferencia         = date("m") - $mes;
-    $dia_diferencia         = date("d") - $dia;
-    if ($dia_diferencia < 0 || $mes_diferencia < 0) {
-        $ano_diferencia--;
-    }
-
-    $sql_c = "SELECT contr_text_contr from isp.int_txt_contrato WHERE contr_cod_contr = $id_tip_contr";
-    $oCon->Query($sql_c);
-    $texto_contrato = $oCon->f('contr_text_contr', false);
-    $oCon->Free();
-
-    //NOMBRE CIUDAD
-    if (empty($id_ciudad_clpv)) {
-        $id_ciudad_clpv = '0';
-    }
-    $sql_c = "SELECT ciud_nom_ciud from saeciud where ciud_cod_ciud='$empr_cod_ciud'";
-    $name_city = consulta_string($sql_c, 'ciud_nom_ciud', $oIfx, 'SIN CIUDAD');
-
-    $sql_cclpv = "SELECT ciud_nom_ciud from saeciud where ciud_cod_ciud='$id_ciudad_clpv'";
-    $nombre_ciudad_clpv = consulta_string($sql_cclpv, 'ciud_nom_ciud', $oIfx, 'SIN CIUDAD');
-
-    //NOMBRE PROVINCIA
-    if (empty($id_provincia_clpv)) {
-        $id_provincia_clpv = '0';
-    }
-    $sql_p = "SELECT prov_des_prov from saeprov where prov_cod_prov='$empr_cod_prov'";
-    $nombre_provincia = consulta_string($sql_p, 'prov_des_prov', $oIfx, 'SIN PROVINCIA');
-
-    $sql_pclpv = "SELECT prov_des_prov from saeprov where prov_cod_prov='$id_provincia_clpv'";
-    $nombre_provincia_clpv = consulta_string($sql_pclpv, 'prov_des_prov', $oIfx, 'SIN PROVINCIA');
-
-    //NOMBRE PARROQUIA
-    if (empty($id_parroquia_clpv)) {
-        $id_parroquia_clpv = '0';
-    }
-    $sql_parrclpv = "SELECT parr_des_parr from saeparr where parr_cod_parr='$id_parroquia_clpv'";
-    $nombre_parroquia_clpv = consulta_string($sql_parrclpv, 'parr_des_parr', $oIfx, 'SIN PARROQUIA');
-
-    //NOMBRE CANTON
-    if (strlen($empr_cod_cant) == 0) {
-        $empr_cod_cant = 0;
-    }
-    $sql_ca = "SELECT cant_des_cant from saecant where cant_cod_cant='$empr_cod_cant'";
-    $nombre_canton = consulta_string($sql_ca, 'cant_des_cant', $oIfx, 'SIN CANTON');
-
-    $sql_caclpv = "SELECT cant_des_cant from saecant where cant_cod_cant='$id_canton_clpv'";
-    $nombre_canton_clpv = consulta_string($sql_caclpv, 'cant_des_cant', $oIfx, 'SIN CANTON');
-
-    $fecha_final = $dia1 . '/' . $mes1 . '/' . $anio1;
-
-    $emprhttp = explode(" ", $empr_nom_empr);
-    $emprhttp = $emprhttp[0];
-    $emprhttp = strtolower($emprhttp);
-
-    $today = date("Y-m-d");
-    $current_year = date("Y");
-
-    $date = date_create($fecha_nacimiento_cliente);
-    $fecha_nacimiento_cliente = date_format($date, "d-m-Y");
-
-
-    if ($tipo_contrato == 2) { //Internet
-
-        $contrato = "SELECT a.id as id_caja_pack, c.nombre, b.paquete, d.estado, a.precio, a.estado as id_estado, b.id_tipo_prod, d.color, b.egress as v_bajada, b.ingress as v_subida
-        FROM isp.int_contrato_caja_pack a INNER JOIN
-                isp.int_paquetes b ON a.id_prod = b.id INNER JOIN
-                isp.int_tipo_prod c ON b.id_tipo_prod = c.id INNER JOIN
-                isp.int_estados_equipo d ON a.estado = d.id
-        WHERE 
-                a.id_contrato = $id AND
-                a.id_clpv = $id_clpv AND
-                a.estado NOT IN ('E')";
-
-        // echo $contrato;exit;
-
-        if ($oCon3->Query($contrato)) {
-            if ($oCon3->NumFilas() > 0) {
-                do {
-                    $paquetes_internet = $oCon3->f('paquete');
-                    $precio_int = $oCon3->f('precio');
-                    $v_bajada = $oCon3->f('v_bajada');
-
-
-                    if (empty($v_bajada)) {
-
-                        $baja = '';
-                    } else {
-                        $baja = $v_bajada . ' Mb';
-                    }
-
-                    $infsuscr = '
-                        <tr>
-                            <td style="font-size: 73%; width: 90px;" align="center">' . $paquetes_internet . '</td>
-                            <td style="font-size: 80%; width: 88px;" align="center">' . $baja . '</td>
-                            <td style="font-size: 80%; width: 88px;" align="center">' . $precio_int . '</td>
-                        </tr>
-                    ';
-                } while ($oCon3->SiguienteRegistro());
+            // if($forma_pago == 1 || $forma_pago == 5 || $forma_pago == 6 || $cotfpag == 6 || $cotfpag == 6 || $cotfpag == 6){
+            if(($idfpago == $idcontpago && $cotfpag==$idtipopago) && ($fpag_des_fpag=="EFECTIVO" || $fpag_des_fpag=="CHEQUES" || $fpag_des_fpag=="DEPOSITO TRANSFERENCIAS" ) && $debautomat !='S'){
+                // debito no automatico
+                $pag_directo = '<b>X</b>';
+            } else if (($idfpago == $idcontpago && $cotfpag==$idtipopago) && ($fpag_des_fpag=="TARJETAS DE CREDITO" || $fpag_des_fpag=="DEPOSITO TRANSFERENCIAS") && $debautomat =='S'){
+                // debito automatico
+                $pag_tc = '<b>X</b>';
+            } else if (($idfpago == $idcontpago && $cotfpag==$idtipopago) && ($fpag_des_fpag=="TARJETAS DE CREDITO") && $debautomat !='S'){
+                // solo tarjeta de credito
+                $pag_debtar = '<b>X</b>';
             }
+            // else if ($debautomat == 'N'){
+            //     $npag_debtar = '<b>X</b>';
+            // } else {
+            //     $nformapag = '<b>X</b>';
+            // }
         }
-        $oCon3->Free();
 
-        $bnf_ctr .= '
-            <tr>
-                <td style="width:150px;"align="center">1</td>
-                <td style="width:150px;"align="center">ONT</td>
-                <td style="width:150px;"align="center">BUENO</td>
-                <td style="width:150px;"align="center">0.00</td>
-            </tr>
-        ';
-
-        $empaquetamiento = 'SI ___; NO _<b>X</b>_.';
-
-        $varservicios = 'Telefonia ___ Internet fijo _X_ Televisón ___';
-
-        $srv_int_tv = 'INTERNET';
-
-        $ctr_pck .= '
-                <tr>
-                    <td style="width:150px;"align="center">' . $paquetes_internet . '</td>
-                    <td style="width:150px;"align="center"></td>
-                    <td style="width:150px;"align="center">' . $precio_int . '</td>
-                </tr>
-            ';
-
-        $inter .= '<b>X</b>';
-    }
-
-
-
-    if ($tipo_contrato == 1 || $tipo_contrato == 4) { //TV
-
-        $contrato = "SELECT a.id as id_caja_pack, c.nombre, b.paquete, d.estado, a.precio, a.estado as id_estado, b.id_tipo_prod, d.color, b.egress as v_bajada, b.ingress as v_subida
-            FROM isp.int_contrato_caja_pack a INNER JOIN
-                    isp.int_paquetes b ON a.id_prod = b.id INNER JOIN
-                    isp.int_tipo_prod c ON b.id_tipo_prod = c.id INNER JOIN
-                    isp.int_estados_equipo d ON a.estado = d.id
-            WHERE 
-                    a.id_contrato = $id AND
-                    a.id_clpv = $id_clpv AND
-                    a.estado NOT IN ('E')";
-
-        //echo $contrato;exit;
-
-        if ($oCon3->Query($contrato)) {
-            if ($oCon3->NumFilas() > 0) {
-                do {
-                    $paquetes_tv = $oCon3->f('paquete');
-                    $precio_tv = $oCon3->f('precio');
-                    $v_bajada = $oCon3->f('v_bajada');
-
-
-                    if (empty($v_bajada)) {
-
-                        $baja = '';
-                    } else {
-                        $baja = $v_bajada . ' Mb';
-                    }
-
-                    $infsuscr = '
-                        <tr>
-                            <td style="font-size: 73%; width: 88px;" align="center">' . $paquetes_tv . '</td>
-                            <td style="font-size: 80%; width: 88px;" align="center">' . $baja . '</td>
-                            <td style="font-size: 80%; width: 88px;" align="center">' . $precio_tv . '</td>
-                        </tr>
-                    ';
-                } while ($oCon3->SiguienteRegistro());
-            }
+        if($departamento == 23 || $departamento == 16){
+            $conjunto = 'CONJUNTO/CASA: ' . $num_conjunto;
+        } else if ($departamento == 27){
+            $edificio = 'EDIFICIO: ' . $num_conjunto;
+        } else {
+            $conjunto = '';
+            $edificio = '';
         }
-        $oCon3->Free();
 
-        $bnf_ctr .= '
+        if ($tipo_de_cobro == 'POSTPAGO') {
+            //$checkpostpago = $check_si;
+            $checkpostpago = '<img class="left" src="' . $check_si . '" width="10"/>';
+            $checkprepago = '<img class="left" src="' . $check_no . '" width="10"/>';
+        } else if ($tipo_de_cobro == 'PREPAGO') {
+            //$checkprepago = $check_si;
+            $checkprepago = '<img class="left" src="' . $check_si . '" width="10"/>';
+            $checkpostpago = '<img class="left" src="' . $check_no . '" width="10"/>';
+        } else {
+            $checkpostpago = '<img class="left" src="' . $check_no . '" width="10"/>';
+            $checkprepago = '<img class="left" src="' . $check_no . '" width="10"/>';
+        }
+
+        $sql_inst_cuot = "SELECT count(id) as contador from isp.int_suscribir where id_contrato = $id and estado != 'AN' and  precio > 0";
+        $inst_cuot = intval(consulta_string($sql_inst_cuot, 'contador', $oCon, 0));
+
+        if ($inst_cuot > 1) {
+            $nocontado = '<img class="left" src="' . $check_si . '" width="10"/>';
+            $contado = '<img class="left" src="' . $check_no . '" width="10"/>';
+            $sininst = '<img class="left" src="' . $check_no . '" width="10"/>';
+            $sql_precioinst = "SELECT max(precio) AS precio from isp.int_suscribir where id_contrato = $id";
+            $precioinstdif  = consulta_string($sql_precioinst, 'precio', $oCon, '');
+        } else if ($inst_cuot == 1) {
+            $nocontado = '<img class="left" src="' . $check_no . '" width="10"/>';
+            $contado = '<img class="left" src="' . $check_si . '" width="10"/>';
+            $sininst = '<img class="left" src="' . $check_no . '" width="10"/>';
+            $sql_precioinst = "SELECT max(precio) AS precio from isp.int_suscribir where id_contrato = $id";
+            $precioinstcont  = consulta_string($sql_precioinst, 'precio', $oCon, '');
+        } else {
+            $nocontado = '<img class="left" src="' . $check_no . '" width="10"/>';
+            $contado = '<img class="left" src="' . $check_no . '" width="10"/>';
+            $sininst = '<img class="left" src="' . $check_si . '" width="10"/>';
+        }
+
+        $sql_referencias = "SELECT nombre from isp.contrato_referencia where id_contrato = $id";
+        $referencia_parient  = consulta_string($sql_referencias, 'nombre', $oCon, '');
+
+        if ($tipo_cont_serv == 1) {
+            $id_serv_empr = '<b>X</b>';
+            $nom_serv_empr = 'CORPORATIVO';
+        } else if ($tipo_cont_serv == 2) {
+            $id_serv_hog = '<b>X</b>';
+            $nom_serv_hog = 'RESIDENCIAL';
+        } else {
+            $id_serv_empr  = '';
+            $id_serv_hog   = '';
+            $nom_serv_empr = '';
+            $nom_serv_hog  = '';
+        }
+
+        $sql_tipo  = "SELECT clv_con_clpv, clpv_fec_naci from public.saeclpv where clpv_cod_clpv = $id_clpv";
+        $fecha_nacimientocon = consulta_string($sql_tipo, 'clpv_fec_naci', $oCon, '');
+        $tipo_iden = consulta_string($sql_tipo, 'clv_con_clpv', $oCon, '');
+        if ($tipo_iden == '01') {
+            $nat_jur =
+                '<table border="1" cellpadding ="1px">
                 <tr>
-                    <td style="width:150px;"align="center">1</td>
-                    <td style="width:150px;"align="center">CATV</td>
-                    <td style="width:150px;"align="center">BUENO</td>
-                    <td style="width:150px;"align="center">0.00</td>
+                    <td align="center" colspan="6"><b>Persona Jurídica</b></td>
                 </tr>
-            ';
-
-        $empaquetamiento = 'SI ___; NO _<b>X</b>_.';
-
-        $varservicios = 'Telefonia ___ Internet fijo ___ Televisón _X_';
-
-        $srv_int_tv = 'TV ANALOGA';
-
-        $ctr_pck .= '
                 <tr>
-                    <td style="width:150px;"align="center">' . $paquetes_tv . '</td>
-                    <td style="width:150px;"align="center"></td>
-                    <td style="width:150px;"align="center">' . $precio_tv . '</td>
+                    <td colspan="1" style="width: 100px; height: 20px;">Nombre Comercial</td>
+                    <td colspan="1" style="width: 100px; height: 20px;">nombreemplco</td>
+                    <td colspan="1" style="width: 100px; height: 20px;">R:T:N</td>
+                    <td colspan="1" style="width: 96px; height: 20px;"></td>
+                    <td colspan="1" style="width: 96px; height: 20px;">Registro mercantil</td>
+                    <td colspan="1" style="width: 96px; height: 20px;"></td>
                 </tr>
-            ';
+                <tr>
+                    <td colspan="1" style="width: 100px; height: 20px;">Fecha Mercantil</td>
+                    <td colspan="1" style="width: 100px; height: 20px;">diasco/mesco/anioco</td>
+                    <td colspan="1" style="width: 100px; height: 20px;">No.Tomo</td>
+                    <td colspan="1" style="width: 96px; height: 20px;"></td>
+                    <td colspan="1" style="width: 96px; height: 20px;">Actividad Económica</td>
+                    <td colspan="1" style="width: 96px; height: 20px;"></td>
+                </tr>
+                <tr>
+                    <td colspan="1" style="width: 100px; height: 20px;">Dirección Completa</td>
+                    <td colspan="5" style="width: 88px; height: 20px;">direemplco direrefemplco</td>
+                </tr>
+                <tr>
+                    <td colspan="1" style="width: 100px; height: 20px;">Teléfono</td>
+                    <td colspan="1" style="width: 100px; height: 20px;">teleemplco</td>
+                    <td colspan="1" style="width: 100px; height: 20px;">Fax</td>
+                    <td colspan="1" style="width: 96px; height: 20px;"></td>
+                    <td colspan="1" style="width: 96px; height: 20px;">Cel</td>
+                    <td colspan="1" style="width: 96px; height: 20px;"></td>
+                </tr>
+                <tr>
+                    <td colspan="1" style="width: 100px; height: 20px;">Nombre del Representante</td>
+                    <td colspan="2" style="width: 94px; height: 20px;">referenciabo</td>
+                    <td colspan="1" style="width: 100px; height: 20px;">Cargo Desempeñado</td>
+                    <td colspan="2" style="width: 94px; height: 20px;"></td>
+                </tr>
+            </table>
+            <br>';
 
-        $audi_vid .= '<b>X</b>';
-    }
+            $espacios = '<br><br><br><br><br><br><br>';
+        } else if ($tipo_iden == '02' || $tipo_iden == '03') {
+            $nat_jur =
+                '<table border="1" cellpadding ="1px">
+                <tr>
+                    <td align="center" colspan="6"><b>Persona Individual</b></td>
+                </tr>
+                <tr>
+                    <td colspan="1" style="width: 99px; height: 20px;">Nombre Completo</td>
+                    <td colspan="1" style="width: 99px; height: 20px;">nombreemplco</td>
+                    <td colspan="1" style="width: 99px; height: 20px;">R:T:N</td>
+                    <td colspan="1" style="width: 98px; height: 20px;"></td>
+                    <td colspan="1" style="width: 98px; height: 20px;">Estado Civil</td>
+                    <td colspan="1" style="width: 98px; height: 20px;"></td>
+                </tr>
+                <tr>
+                    <td colspan="1" style="width: 99px; height: 20px;">Número de Identidad</td>
+                    <td colspan="1" style="width: 99px; height: 20px;">idenco</td>
+                    <td colspan="1" style="width: 99px; height: 20px;">Nacionalidad</td>
+                    <td colspan="1" style="width: 98px; height: 20px;"></td>
+                    <td colspan="1" style="width: 98px; height: 20px;">Fecha Nacimiento </td>
+                    <td colspan="1" style="width: 98px; height: 20px;">nacimientoco</td>
+                </tr>
+                <tr>
+                    <td colspan="1" style="width: 99px; height: 20px;">Profesión u Oficio </td>
+                    <td colspan="1" style="width: 99px; height: 20px;"></td>
+                    <td colspan="1" style="width: 99px; height: 20px;">Ocupación</td>
+                    <td colspan="1" style="width: 98px; height: 20px;"></td>
+                    <td colspan="1" style="width: 98px; height: 20px;">Edad</td>
+                    <td colspan="1" style="width: 98px; height: 20px;"></td>
+                </tr>
+                <tr>
+                    <td colspan="1" style="width:  97px; height: 20px;">Dirección Completa</td>
+                    <td colspan="5" style="width: 494px; height: 20px;">direemplco direrefemplco</td>
+                </tr>
+                <tr>
+                    <td colspan="1" style="width: 99px; height: 20px;">Teléfono</td>
+                    <td colspan="1" style="width: 99px; height: 20px;">teleemplco</td>
+                    <td colspan="1" style="width: 99px; height: 20px;">Fax</td>
+                    <td colspan="1" style="width: 98px; height: 20px;"></td>
+                    <td colspan="1" style="width: 98px; height: 20px;">Cel</td>
+                    <td colspan="1" style="width: 98px; height: 20px;"></td>
+                </tr>
+                <tr>
+                    <td colspan="1" style="width: 99px; height: 20px;">Casa Propia</td>
+                    <td colspan="1" style="width: 99px; height: 20px;">Si___ No___ </td>
+                    <td colspan="1" style="width: 99px; height: 20px;">Propietario del Inmueble</td>
+                    <td colspan="1" style="width: 98px; height: 20px;"></td>
+                    <td colspan="1" style="width: 98px; height: 20px;">Renta Mensual</td>
+                    <td colspan="1" style="width: 98px; height: 20px;"></td>
+                </tr>
+                <tr>
+                    <td colspan="1" style="width: 99px; height: 20px;">Tiempo de Ocupar el Inmueble</td>
+                    <td colspan="1" style="width: 99px; height: 20px;">Si___ No___</td>
+                    <td colspan="1" style="width: 99px; height: 20px;">Tiene familia en USA</td>
+                    <td colspan="1" style="width: 98px; height: 20px;">Si___No___</td>
+                    <td colspan="1" style="width: 98px; height: 20px;">Ingresos Mensuales</td>
+                    <td colspan="1" style="width: 98px; height: 20px;"></td>
+                </tr>
+                <tr>
+                    <td colspan="1" style="width:  97px; height: 20px;">Referencia laboral dentro de la empresa</td>
+                    <td colspan="5" style="width: 494px; height: 20px;"></td>
+                </tr>
+                <tr>
+                    <td colspan="1" style="width: 99px; height: 20px;">Nombre del Conyuge</td>
+                    <td colspan="1" style="width: 99px; height: 20px;">referenciabo</td>
+                    <td colspan="1" style="width: 99px; height: 20px;">Ingresos del Cónyuge</td>
+                    <td colspan="1" style="width: 98px; height: 20px;"></td>
+                    <td colspan="1" style="width: 98px; height: 20px;">Donde Labora</td>
+                    <td colspan="1" style="width: 98px; height: 20px;"></td>
+                </tr>
+            </table>
+            <br>';
 
-    if ($tipo_contrato == 3 || $tipo_contrato == 7) { //TV+int 
+            $espacios = '<br>';
+        }
 
-        $contrato = "select a.id as id_caja_pack, c.nombre, b.paquete, d.estado, a.precio, a.estado as id_estado, b.id_tipo_prod, d.color, b.egress as v_bajada, b.ingress as v_subida
+        $sql_nom_iden = "SELECT identificacion from comercial.tipo_iden_clpv where tipo = '$tipo_iden'";
+        $iden_con_clpv = consulta_string($sql_nom_iden, 'identificacion', $oCon, '');
+
+        // echo $sql;exit;
+        $id_caja           = consulta_string($sql, 'id', $oCon, '');
+
+        $sql_tipo_contrato = "select tipo from isp.int_tipo_contrato tc  where tc.id = $tipo_contrato";
+        $tipo_contrato_nombre   = consulta_string($sql_tipo_contrato, 'tipo', $oCon, '');
+
+        $sql_plan = "select a.id as id_caja_pack, c.nombre, b.paquete, d.estado, a.precio, a.estado as id_estado, b.id_tipo_prod, d.color, b.egress as v_bajada, b.ingress as v_subida
                     FROM isp.int_contrato_caja_pack a INNER JOIN
                             isp.int_paquetes b ON a.id_prod = b.id INNER JOIN
                             isp.int_tipo_prod c ON b.id_tipo_prod = c.id INNER JOIN
@@ -8167,635 +8483,1136 @@ function imprimirContrato($aForm = '', $id_tip_contr, $formato)
                             a.id_clpv = $id_clpv AND
                             a.estado NOT IN ('E')";
 
-        //echo $contrato;exit;
-        $paqunidos = '';
-        $planes_precio = '';
-        $servicioscheck = '';
-        if ($oCon3->Query($contrato)) {
-            if ($oCon3->NumFilas() > 0) {
+        $lista_planes_html = '';
+
+        // echo $sql_plan;exit;
+        $altura_tipo_plan  = 0;
+        $altura_tipo_plan_base  = 33;
+        $altura_tipo_plan_base_2  = -45.5;
+
+        $img_pie_altura = -155;
+        $rubrico_altura = -165;
+        $firma_contrato_altura = -165;
+        $datos_clpv_altura = -115;
+
+        if ($oIplan->Query($sql_plan)) {
+            if ($oIplan->NumFilas() > 0) {
                 do {
-                    $paquetes_internet = $oCon3->f('paquete');
-                    $paqunidos .= $oCon3->f('paquete');
-                    $precio_int = $oCon3->f('precio');
-                    $v_bajada = $oCon3->f('v_bajada');
+                    $paquetes   = $oIplan->f('paquete');
+                    $precio     = $oIplan->f('precio');
 
+                    $lista_planes_html .= '<li style="width: 30px; height: 20px; border: 1px solid rgb(0,32,96);">
+                                            <pre>        ' . $paquetes . ' ----&gt; s/. ' . $precio . '</pre>
+                                            <span class="checkmark">
+                                                <div class="checkmark_stem"></div>
+                                                <div class="checkmark_kick"></div>
+                                            </span>
+                                        </li><br>';
 
-                    if (empty($v_bajada)) {
-
-                        $baja = '';
-                    } else {
-                        $baja = $v_bajada . ' Mb';
-                    }
-
-                    $servicioscheck .= '
-                    <tr>
-                        <td style="vertical-align: middle;"><img class="left" src="' . $check_si . '" width="11"/></td>
-                        <td style="font-size: 95%; vertical-align: middle; "><b>' . $paquetes_internet . '</b></td>
-                    </tr>
-                    '; 
-
-
-                    $planes_precio .= '
-                        <tr style="background-color: #dcede4;">
-                            <td style="font-size: 75%; width: 140px; vertical-align: middle;"><b>' . $paquetes_internet . '</b></td>
-                            <td style="font-size: 75%; width: 140px; vertical-align: middle;">' . $precio_int . '</td>
-                        </tr>
-                    ';
-
-                    $infsuscr .= '
-                        <tr>
-                            <td style="font-size: 73%; width: 88px;" align="center">' . $paquetes_internet . '</td>
-                            <td style="font-size: 80%; width: 88px;" align="center">' . $baja . '</td>
-                            <td style="font-size: 80%; width: 88px;" align="center">' . $precio_int . '</td>
-                        </tr>
-                    ';
-                } while ($oCon3->SiguienteRegistro());
+                    $altura_tipo_plan = $altura_tipo_plan + 10;
+                } while ($oIplan->SiguienteRegistro());
             }
+        }
+        $oIplan->Free();
+
+        $titulo_plan = $tipo_contrato_nombre;
+        $lista_planes_contenedor_html = '';
+
+        if ($tipo_contrato == 2) {
+            $titulo_plan = 'PLANES DE INTERNET';
+        }
+        if ($tipo_contrato == 7) {
+            $titulo_plan = 'PLANES DE INTERNET + CABLE (DÚO)';
+        }
+
+        $lista_planes_contenedor_html = '<td>
+                                            <ul style="font-weight: normal; color: rgb(0,32,96); list-style-type:none; font-family: Arial; font-size: 9.5px; text-align: center; width: 550px;">
+                                                <li style="text-align: center;"><strong>' . $titulo_plan . '</strong></li>
+                                                <br>' . $lista_planes_html . '
+                                            </ul>
+                                        </td>';
+
+
+
+
+        // echo $lista_planes_html;exit;
+
+        // CONSULTA CONTRATO INTERNET
+        $sql_int = "SELECT a.id as id_caja_pack, c.nombre, b.paquete, d.estado, a.precio, a.estado as id_estado, b.id_tipo_prod, d.color
+                                        FROM isp.int_contrato_caja_pack a INNER JOIN
+                                                isp.int_paquetes b ON a.id_prod = b.id INNER JOIN
+                                                isp.int_tipo_prod c ON b.id_tipo_prod = c.id INNER JOIN
+                                                isp.int_estados_equipo d ON a.estado = d.id
+                                        WHERE a.id_caja = $id AND 
+                                                a.id_contrato = $id_contrato AND 
+                                                a.id_clpv = $id_clpv AND
+                                                a.estado NOT IN ('E')";
+
+        if (empty($vendedor)) {
+            $vendedor = 0;
+        }
+        $sql = "SELECT vend_nom_vend from saevend where vend_cod_vend = '$vendedor'";
+        $vendedoremp       = consulta_string($sql, 'vend_nom_vend', $oCon, 'No especifica');
+
+        if (empty($id_clpv)) {
+            $id_clpv = 0;
+        }
+        $sql_clpv_nacimi = "SELECT clpv_fec_naci from saeclpv where clpv_cod_clpv = $id_clpv";
+        $fecha_nacimiento_cliente   = consulta_string($sql_clpv_nacimi, 'clpv_fec_naci', $oCon, 'SIN REGISTRAR');
+
+        if (empty($departamento)) {
+            $departamento = 0;
+        }
+        $sql = "SELECT nombre from comercial.dire_siglas where id=$departamento";
+        $calleprincipal     = consulta_string($sql, 'nombre', $oCon, 'No especifica');
+
+
+        if (empty($tipo_cliente)) {
+            $tipo_cliente = 1;
+        }
+
+        if ($tipo_cliente == 1) {
+            $si_t_e = '____';
+            $si_dis = '____';
+            $no_t_e = '__<b>X</b>__';
+            $no_dis = '__<b>X</b>__';
+        }
+        if ($tipo_cliente == 2) { //discapac
+            $si_t_e = '';
+            $si_dis = '__<b>X</b>__';
+            $no_t_e = '__<b>X</b>__';
+            $no_dis = '';
+        }
+
+        if ($tipo_cliente == 3) { //tercera edad
+            $si_t_e = '__<b>X</b>__';
+            $si_dis = '____';
+            $no_t_e = '____';
+            $no_dis = '__<b>X</b>__';
         }
 
 
-        $oCon3->Free();
+        $dia_con = substr($fecha_con, 8, 2);
+        $mes_con = substr($fecha_con, 5, 2);
+        $año_con = substr($fecha_con, 0, 4);
+        //echo $fecha_con;exit;
 
-        $bnf_ctr .= '
+        //echo $dia_con.'---'.$mes_con.'----',$año_con;exit;
+
+
+        $sql = "SELECT imagen from contrato_firmas where id_contrato = $id";
+        $imagen_firma       = consulta_string($sql, 'imagen', $oCon, '');
+
+        $exister_firma = 'N';
+        if (!empty($imagen_firma)) {
+            $identificador     = '<img width="200px;" height="100px;" src="data:image/png;base64,' . $imagen_firma . '">';
+            $identificadorcv     = '<img width="100px;" height="100px;" src="data:image/png;base64,' . $imagen_firma . '">';
+
+            $exister_firma = 'S';
+        } else {
+        }
+        if ($exister_firma == 'N') {
+            $identificador = '<br>
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+                            <br>';
+
+            $identificadorcv = '<br>
+                                <br>
+                                <br>
+                                <br>
+                                <br>
+                                <br>
+                                <br>
+                                <br>';
+        }
+
+        //var_dump($identificadorcv);exit;
+
+        $sqlInt = "SELECT a.id
+                from isp.int_contrato_caja_pack a, isp.int_paquetes b 
+                WHERE a.cod_prod = b.prod_cod_prod and a.id_contrato = $id and a.estado in ('A','P','C') and a.activo = 'S'";
+        if ($oCon->Query($sqlInt)) {
+            if ($oCon->NumFilas() > 0) {
+                do {
+                    $id_valida = $oCon->f('id');
+                } while ($oCon->SiguienteRegistro());
+            }else{
+                throw new Exception("SIN PLANES PARA IMPRIMIR EL CONTRATO");
+            }
+        }
+        $oCon->Free();
+
+        $paquetes = '';
+        //DATOS DE PAQUETE
+        $sqlInt = "SELECT b.paquete, a.precio, a.cod_prod, a.codigo_cid 
+                    from isp.int_contrato_caja_pack a, isp.int_paquetes b 
+                    WHERE a.cod_prod = b.prod_cod_prod and a.id_contrato = $id and a.estado in ('A','P','C') and a.activo = 'S' AND b.id_tipo_prod in (2)";
+        if ($oCon->Query($sqlInt)) {
+            if ($oCon->NumFilas() > 0) {
+                do {
+                    $id_paquete = $oCon->f('paquete');
+                    $precio     = $oCon->f('precio');
+                    $codigo_cid = $oCon->f('codigo_cid');
+
+                    $paquetes .= '<tr>
+                                    <td style="width: 40%;">' . $id_paquete . '</td>
+                                    <td style="width: 45%;"></td>
+                                    <td style="width: 15%;">' . $precio . '</td>
+                                </tr>';
+
+
+                    $cod_prod = $oCon->f('cod_prod');
+
+                    $sql_i = "SELECT prod_nom_prod, prod_cod_cate from saeprod WHERE prod_cod_prod='$cod_prod'";
+                    $nom_plan = consulta_string($sql_i, 'prod_nom_prod', $oIfx, '');
+                    $tipo_categoria = consulta_string($sql_i, 'prod_cod_cate', $oIfx, '');
+                    $planes_nam .= $nom_plan . ', ';
+
+                    $sql_vel = "SELECT i.egress, i.ingress, i.tipo, i.id_sistema from isp.int_paquetes i WHERE i.prod_cod_prod = '$cod_prod' ";
+                    $bajada_plan  = consulta_string_func($sql_vel, 'egress', $oCon1, '') . ',';
+                    $subida_plan  = consulta_string_func($sql_vel, 'ingress', $oCon1, '') . ',';
+                    $tipo_plan    = consulta_string_func($sql_vel, 'tipo', $oCon1, '') . ',';
+
+                    $bajada_plan = substr($bajada_plan, 0, strlen($bajada_plan) - 1);
+                    $subida_plan = substr($subida_plan, 0, strlen($subida_plan) - 1);
+
+                    $subida_plan_min = $subida_plan * 0.7;
+                    $bajada_plan_min = $bajada_plan * 0.7;
+
+                    $sql_n = "SELECT c.cate_nom_cate from saecate c WHERE c.cate_cod_cate = '$tipo_categoria'";
+                    $tipo_categoria_txt = consulta_string($sql_n, 'cate_nom_cate', $oIfx, '');
+                } while ($oCon->SiguienteRegistro());
+            }
+        }
+        $oCon->Free();
+
+        $sqlInt = "SELECT sum(precio) as precio_fin
+                    from isp.int_contrato_caja_pack 
+                    WHERE id_contrato = $id and estado in ('A','P','C') and activo = 'S'";
+        if ($oCon->Query($sqlInt)) {
+            if ($oCon->NumFilas() > 0) {
+                do {
+                    $precio_fin = $oCon->f('precio_fin');
+                    $cuota1  = $precio_fin * 12;
+                    $cuota2  = $precio_fin * 11;
+                    $cuota3  = $precio_fin * 10;
+                    $cuota4  = $precio_fin * 9;
+                    $cuota5  = $precio_fin * 8;
+                    $cuota6  = $precio_fin * 7;
+                    $cuota7  = $precio_fin * 6;
+                    $cuota8  = $precio_fin * 5;
+                    $cuota9  = $precio_fin * 4;
+                    $cuota10 = $precio_fin * 3;
+                    $cuota11 = $precio_fin * 2;
+                    $cuota12 = $precio_fin * 1;
+                } while ($oCon->SiguienteRegistro());
+            }
+        }
+        $oCon->Free();
+
+        $array_fec  = explode('-', $fecha_con);
+        $anio       = $array_fec[0];
+        $mes        = $array_fec[1];
+        $dia        = $array_fec[2];
+
+        $anio1      = $array_fec[0];
+        $mes1       = $array_fec[1];
+        $dia1       = $array_fec[2];
+
+        list($ano, $mes, $dia)  = explode("-", $fecha_nacimiento);
+        $ano_diferencia         = date("Y") - $ano;
+        $mes_diferencia         = date("m") - $mes;
+        $dia_diferencia         = date("d") - $dia;
+        if ($dia_diferencia < 0 || $mes_diferencia < 0) {
+            $ano_diferencia--;
+        }
+
+        $sql_c = "SELECT contr_text_contr from isp.int_txt_contrato WHERE contr_cod_contr = $id_tip_contr";
+        $oCon->Query($sql_c);
+        $texto_contrato = $oCon->f('contr_text_contr', false);
+        $oCon->Free();
+
+        //NOMBRE CIUDAD
+        if (empty($id_ciudad_clpv)) {
+            $id_ciudad_clpv = '0';
+        }
+        $sql_c = "SELECT ciud_nom_ciud from saeciud where ciud_cod_ciud='$empr_cod_ciud'";
+        $name_city = consulta_string($sql_c, 'ciud_nom_ciud', $oIfx, 'SIN CIUDAD');
+
+        $sql_cclpv = "SELECT ciud_nom_ciud from saeciud where ciud_cod_ciud='$id_ciudad_clpv'";
+        $nombre_ciudad_clpv = consulta_string($sql_cclpv, 'ciud_nom_ciud', $oIfx, 'SIN CIUDAD');
+
+        //NOMBRE PROVINCIA
+        if (empty($id_provincia_clpv)) {
+            $id_provincia_clpv = '0';
+        }
+        $sql_p = "SELECT prov_des_prov from saeprov where prov_cod_prov='$empr_cod_prov'";
+        $nombre_provincia = consulta_string($sql_p, 'prov_des_prov', $oIfx, 'SIN PROVINCIA');
+
+        $sql_pclpv = "SELECT prov_des_prov from saeprov where prov_cod_prov='$id_provincia_clpv'";
+        $nombre_provincia_clpv = consulta_string($sql_pclpv, 'prov_des_prov', $oIfx, 'SIN PROVINCIA');
+
+        //NOMBRE PARROQUIA
+        if (empty($id_parroquia_clpv)) {
+            $id_parroquia_clpv = '0';
+        }
+        $sql_pa = "SELECT parr_des_parr from saeparr where parr_cod_parr='$empr_cod_parr'";
+        $nombre_parroquia = consulta_string($sql_pa, 'parr_des_parr', $oIfx, 'SIN PARROQUIA');
+        $sql_parrclpv = "SELECT parr_des_parr from saeparr where parr_cod_parr='$id_parroquia_clpv'";
+        $nombre_parroquia_clpv = consulta_string($sql_parrclpv, 'parr_des_parr', $oIfx, 'SIN PARROQUIA');
+
+        //NOMBRE CANTON
+        if (strlen($empr_cod_cant) == 0) {
+            $empr_cod_cant = 0;
+        }
+        $sql_ca = "SELECT cant_des_cant from saecant where cant_cod_cant='$empr_cod_cant'";
+        $nombre_canton = consulta_string($sql_ca, 'cant_des_cant', $oIfx, 'SIN CANTON');
+
+        $sql_caclpv = "SELECT cant_des_cant from saecant where cant_cod_cant='$id_canton_clpv'";
+        $nombre_canton_clpv = consulta_string($sql_caclpv, 'cant_des_cant', $oIfx, 'SIN CANTON');
+
+        $fecha_final = $dia1 . '/' . $mes1 . '/' . $anio1;
+
+        $emprhttp = explode(" ", $empr_nom_empr);
+        $emprhttp = $emprhttp[0];
+        $emprhttp = strtolower($emprhttp);
+
+        $today = date("Y-m-d");
+        $current_year = date("Y");
+
+        $date = date_create($fecha_nacimiento_cliente);
+        $fecha_nacimiento_cliente = date_format($date, "d-m-Y");
+
+
+        if ($tipo_contrato == 2) { //Internet
+
+            $contrato = "SELECT a.id as id_caja_pack, c.nombre, b.paquete, d.estado, a.precio,
+            b.id_sistema, a.estado as id_estado, b.id_tipo_prod, d.color, b.egress as v_bajada, b.ingress as v_subida
+            FROM isp.int_contrato_caja_pack a INNER JOIN
+                    isp.int_paquetes b ON a.id_prod = b.id INNER JOIN
+                    isp.int_tipo_prod c ON b.id_tipo_prod = c.id INNER JOIN
+                    isp.int_estados_equipo d ON a.estado = d.id
+            WHERE 
+                    a.id_contrato = $id AND
+                    a.id_clpv = $id_clpv AND
+                    a.estado NOT IN ('E')";
+
+            // echo $contrato;exit;
+
+            if ($oCon3->Query($contrato)) {
+                if ($oCon3->NumFilas() > 0) {
+                    do {
+                        $paquetes_internet = $oCon3->f('paquete');
+                        $precio_int = $oCon3->f('precio');
+                        $v_bajada = $oCon3->f('v_bajada');
+                        $tip_sistema = $oCon3->f('id_sistema');
+
+                        if (empty($tip_sistema)) {
+                            $tip_sistema = 0;
+                        }
+
+                        $sql_tip_sist = "SELECT sistema from isp.int_sistemas where id = $tip_sistema";
+                        $nomb_tecno  = consulta_string($sql_tip_sist, 'sistema', $oCon, '');
+
+
+                        if (empty($v_bajada)) {
+
+                            $baja = '';
+                        } else {
+                            $baja = $v_bajada . ' Mb';
+                        }
+
+                        $infsuscr = '
+                            <tr>
+                                <td style="font-size: 73%; width: 90px;" align="center">' . $paquetes_internet . '</td>
+                                <td style="font-size: 80%; width: 88px;" align="center">' . $baja . '</td>
+                                <td style="font-size: 80%; width: 88px;" align="center">' . $precio_int . '</td>
+                            </tr>
+                        ';
+                    } while ($oCon3->SiguienteRegistro());
+                }
+            }
+            $oCon3->Free();
+
+            $bnf_ctr .= '
                 <tr>
                     <td style="width:150px;"align="center">1</td>
                     <td style="width:150px;"align="center">ONT</td>
                     <td style="width:150px;"align="center">BUENO</td>
                     <td style="width:150px;"align="center">0.00</td>
                 </tr>
-
-                <tr>
-                    <td style="width:150px;"align="center">2</td>
-                    <td style="width:150px;"align="center">CATV</td>
-                    <td style="width:150px;"align="center">BUENO</td>
-                    <td style="width:150px;"align="center">0.00</td>
-                </tr>
-
             ';
 
-        $empaquetamiento = 'SI _<b>X</b>_; NO ____';
+            $empaquetamiento = 'SI ___; NO _<b>X</b>_.';
 
-        $varservicios = 'Telefonia ___ Internet fijo _X_ Televisón _X_';
+            $varservicios = 'Telefonia ___ Internet fijo _X_ Televisón ___';
 
+            $srv_int_tv = 'INTERNET';
 
+            $ctr_pck .= '
+                    <tr>
+                        <td style="width:150px;"align="center">' . $paquetes_internet . '</td>
+                        <td style="width:150px;"align="center"></td>
+                        <td style="width:150px;"align="center">' . $precio_int . '</td>
+                    </tr>
+                ';
 
-        $srv_int_tv = 'TV ANALOGA + INTERNET';
-
-        $ctr_pck .= '
-                <tr>
-                    <td style="width:150px;"align="center">' . $paquetes_internet . '</td>
-                    <td style="width:150px;"align="center"></td>
-                    <td style="width:150px;"align="center">' . $precio_int . '</td>
-                </tr>
-                
-                <tr>
-                    <td style="width:150px;"align="center">' . $paquetes_tv . '</td>
-                    <td style="width:150px;"align="center"></td>
-                    <td style="width:150px;"align="center">' . $precio_tv . '</td>
-                </tr>
-
-            ';
-
-        $inter .= '<b>X</b>';
-        $audi_vid .= '<b>X</b>';
-    }
-
-    $texto_contrato = preg_replace("/intercon/", $inter, $texto_contrato);
-    $texto_contrato = preg_replace("/videcon/", $audi_vid, $texto_contrato);
-    $texto_contrato = preg_replace("/si_no_empaqco/", $empaquetamiento, $texto_contrato);
-    $texto_contrato = preg_replace("/siterc/", $si_t_e, $texto_contrato);
-    $texto_contrato = preg_replace("/noterc/", $no_t_e, $texto_contrato);
-    $texto_contrato = preg_replace("/sidisc/", $si_dis, $texto_contrato);
-    $texto_contrato = preg_replace("/nodisc /", $no_dis, $texto_contrato);
-
-    $texto_contrato = preg_replace("/referenciaco/", $referencia, $texto_contrato);
-    $texto_contrato = preg_replace("/viviendaco/", $lugar, $texto_contrato);
-    $texto_contrato = preg_replace("/principalco/", $calleprincipal, $texto_contrato);
-    $texto_contrato = preg_replace("/mensualco/", $mensualidad, $texto_contrato);
-    $texto_contrato = preg_replace("/vendedorco/", $vendedoremp, $texto_contrato);
-    $texto_contrato = preg_replace("/fechanaco/", $fecha_nacimiento_cliente, $texto_contrato);
-    $texto_contrato = preg_replace("/planintco/", $paquetes_internet, $texto_contrato);
-    $texto_contrato = preg_replace("/plantvco/", $paquetes_tv, $texto_contrato);
-    $texto_contrato = preg_replace("/paquetetv_int/", $bnf_ctr, $texto_contrato);
-    $texto_contrato = preg_replace("/serv_preco/", $ctr_pck, $texto_contrato);
-    $texto_contrato = preg_replace("/tipo_servco/", $srv_int_tv, $texto_contrato);
-    $texto_contrato = preg_replace("/direccionsucu/", $sucu_dir_sucu, $texto_contrato);
-    $texto_contrato = preg_replace("/telefonosucu/", $sucu_telf_secu, $texto_contrato);
-    $texto_contrato = preg_replace("/faxsucu/", $sucu_fax_secu, $texto_contrato);
-    $texto_contrato = preg_replace("/corresucu/", $sucu_email_secu, $texto_contrato);
-    $texto_contrato = preg_replace("/nomsucu/", $sucu_nom_secu, $texto_contrato);
-    $texto_contrato = preg_replace("/contratoco/", $codigo, $texto_contrato);
-    $texto_contrato = preg_replace("/rubco/", $empr_rub, $texto_contrato); //rubrica contrato/firma de la empresa     
-    $texto_contrato = preg_replace("/rubcvco/", $empr_rub_cv, $texto_contrato); //rubrica contrato/firma de la empresa
-    $texto_contrato = preg_replace("/preciofin/", $precio_fin, $texto_contrato);
-    $texto_contrato = preg_replace("/precioint/", $precio_int, $texto_contrato);
-    $texto_contrato = preg_replace("/preciotv/", $precio_tv, $texto_contrato);
-    $texto_contrato = preg_replace("/provinciaclpv/", $nombre_provincia_clpv, $texto_contrato);
-    $texto_contrato = preg_replace("/cantonclpv/", $nombre_canton_clpv, $texto_contrato);
-    $texto_contrato = preg_replace("/ciudadclpv/", $nombre_ciudad_clpv, $texto_contrato);
-    $texto_contrato = preg_replace("/parroqiuiaclpv/", $nombre_parroquia_clpv, $texto_contrato);
-    $texto_contrato = preg_replace("/natjurco/", $nat_jur, $texto_contrato);
-    $texto_contrato = preg_replace("/espacioscontr/", $espacios, $texto_contrato);
-    $texto_contrato = preg_replace("/referenciabo/", $referencia_parient, $texto_contrato);
-    $texto_contrato = preg_replace("/nacimientoco/", $fecha_nacimientocon, $texto_contrato);
-    $texto_contrato = preg_replace("/QRIMG/", $qr, $texto_contrato);
-    $texto_contrato = preg_replace("/varservicios/", $varservicios, $texto_contrato);
-    $texto_contrato = preg_replace("/infsuscr/", $infsuscr, $texto_contrato);
-    $texto_contrato = preg_replace("/cortecontr/", $fecha_corte, $texto_contrato);
-    $texto_contrato = preg_replace("/planes_precio/", $planes_precio, $texto_contrato);
-
-    $texto_contrato = preg_replace("/firmacontratoimg/", $identificador, $texto_contrato);
-    $texto_contrato = preg_replace("/celularemprco/", $empr_cel_empr, $texto_contrato);
-    $texto_contrato = preg_replace("/paquetesco/", $paquetes, $texto_contrato);
-    $texto_contrato = preg_replace("/contratocodco /", $codigo_contrato, $texto_contrato);
-    $texto_contrato = preg_replace("/mesesco/", $duracion, $texto_contrato);
-    $texto_contrato = preg_replace("/ciudadco/", $name_city, $texto_contrato);
-    $texto_contrato = preg_replace("/empresaco/", $empr_nom_empr, $texto_contrato);
-    $texto_contrato = preg_replace("/comercialco/", $empr_nomcome_empr, $texto_contrato);
-    $texto_contrato = preg_replace("/idenco/", $empr_ruc_empr, $texto_contrato);
-    $texto_contrato = preg_replace("/provinciaco/", $nombre_provincia, $texto_contrato);
-    $texto_contrato = preg_replace("/cantonco/", $nombre_canton, $texto_contrato);
-    $texto_contrato = preg_replace("/representanteco/", $empr_repres, $texto_contrato);
-    $texto_contrato = preg_replace("/direccionemprco/", $direccionempr, $texto_contrato);
-    $texto_contrato = preg_replace("/telefonoco/", $empr_tel_resp, $texto_contrato);
-    $texto_contrato = preg_replace("/correoco/", $empr_mai_empr, $texto_contrato);
-    $texto_contrato = preg_replace("/empresahttpco/", $emprhttp, $texto_contrato);
-    $texto_contrato = preg_replace("/diasco/", $dia_con, $texto_contrato);
-    $texto_contrato = preg_replace("/mesco/", $mes_con, $texto_contrato);
-    $texto_contrato = preg_replace("/anioco/", $año_con, $texto_contrato);
-    $texto_contrato = preg_replace("/siterc/", $año_con, $texto_contrato);
-    $texto_contrato = preg_replace("/nombreemplco/", $nom_clpv, $texto_contrato);
-    $texto_contrato = preg_replace("/dniemplco/", $ruc_clpv, $texto_contrato);
-    $texto_contrato = preg_replace("/direemplco/", $direccion, $texto_contrato);
-    $texto_contrato = preg_replace("/direrefemplco/", $direccion_ref, $texto_contrato);
-    $texto_contrato = preg_replace("/teleemplco/", $num_referencia, $texto_contrato);
-    $texto_contrato = preg_replace("/emialemplco/", $email, $texto_contrato);
-    $texto_contrato = preg_replace("/CLAUSULA/", 'CLÁUSULA', $texto_contrato);
-    $texto_contrato = preg_replace("/PRESTACION/", 'PRESTACIÓN', $texto_contrato);
-    $texto_contrato = preg_replace("/Ri­os,/", 'Rí­os', $texto_contrato);
-    $texto_contrato = preg_replace("/Bucaran/", 'Bucarán', $texto_contrato);
-    $texto_contrato = preg_replace("/numeros/", 'números', $texto_contrato);
-    $texto_contrato = preg_replace("/telefono/", 'teléfono', $texto_contrato);
-    $texto_contrato = preg_replace("/electronico/", 'electrónico', $texto_contrato);
-    $texto_contrato = preg_replace("/denominara/", 'denominará', $texto_contrato);
-    $texto_contrato = preg_replace("/cedula/", 'cédula', $texto_contrato);
-    $texto_contrato = preg_replace("/canton/", 'cantón', $texto_contrato);
-    $texto_contrato = preg_replace("/direccion/", 'dirección', $texto_contrato);
-    $texto_contrato = preg_replace("/clausulas/", 'cláusulas', $texto_contrato);
-    $texto_contrato = preg_replace("/ano/", 'año', $texto_contrato);
-    $texto_contrato = preg_replace("/continuacion/", 'continuación', $texto_contrato);
-    $texto_contrato = preg_replace("/prestacion/", 'prestación', $texto_contrato);
-    $texto_contrato = preg_replace("/sera/", 'será', $texto_contrato);
-    $texto_contrato = preg_replace("/titulos/", 'títulos', $texto_contrato);
-    $texto_contrato = preg_replace("/juridico/", 'jurídico', $texto_contrato);
-    $texto_contrato = preg_replace("/Movil/", 'Móvil', $texto_contrato);
-    $texto_contrato = preg_replace("/traves/", 'través', $texto_contrato);
-    $texto_contrato = preg_replace("/Telefonia/", 'Telefonía', $texto_contrato);
-    $texto_contrato = preg_replace("/satelite/", 'satélite', $texto_contrato);
-    $texto_contrato = preg_replace("/suscripción/", 'suscripción', $texto_contrato);
-    $texto_contrato = preg_replace("/modificacion/", 'modificación', $texto_contrato);
-    $texto_contrato = preg_replace("/duracion/", 'duración', $texto_contrato);
-    $texto_contrato = preg_replace("/anticipacion/", 'anticipación', $texto_contrato);
-    $texto_contrato = preg_replace("/renovara/", 'renovará', $texto_contrato);
-    $texto_contrato = preg_replace("/automaticamente/", 'automáticamente', $texto_contrato);
-    $texto_contrato = preg_replace("/terminos/", 'términos', $texto_contrato);
-    $texto_contrato = preg_replace("/comun/", 'común', $texto_contrato);
-    $texto_contrato = preg_replace("/adhesion/", 'adhesión', $texto_contrato);
-    $texto_contrato = preg_replace("/debera/", 'deberá', $texto_contrato);
-    $texto_contrato = preg_replace("/notificacion/", 'notificación', $texto_contrato);
-    $texto_contrato = preg_replace("/Organica/", 'Orgánica', $texto_contrato);
-    $texto_contrato = preg_replace("/estara/", 'estará', $texto_contrato);
-    $texto_contrato = preg_replace("/reciproca/", 'recíproca', $texto_contrato);
-    $texto_contrato = preg_replace("/demas/", 'demás', $texto_contrato);
-    $texto_contrato = preg_replace("/asi/", 'así', $texto_contrato);
-    $texto_contrato = preg_replace("/finalizacion/", 'finalización', $texto_contrato);
-    $texto_contrato = preg_replace("/periodo/", 'período', $texto_contrato);
-    $texto_contrato = preg_replace("/obligacion/", 'obligación', $texto_contrato);
-    $texto_contrato = preg_replace("/unicamente/", 'únicamente', $texto_contrato);
-    $texto_contrato = preg_replace("/terminacion/", 'terminación', $texto_contrato);
-    $texto_contrato = preg_replace("/adquisicion/", 'adquisición', $texto_contrato);
-    $texto_contrato = preg_replace("/practicas/", 'prácticas', $texto_contrato);
-    $texto_contrato = preg_replace("/dane/", 'dañe', $texto_contrato);
-    $texto_contrato = preg_replace("/disolucion/", 'disolución', $texto_contrato);
-    $texto_contrato = preg_replace("/liquidacion/", 'liquidación', $texto_contrato);
-    $texto_contrato = preg_replace("/minima/", 'mínima', $texto_contrato);
-    $texto_contrato = preg_replace("/fisicos/", 'físicos', $texto_contrato);
-    $texto_contrato = preg_replace("/electronicos/", 'electrónicos', $texto_contrato);
-    $texto_contrato = preg_replace("/asumira/", 'asumirá', $texto_contrato);
-    $texto_contrato = preg_replace("/FACTURACION/", 'FACTURACIÓN', $texto_contrato);
-    $texto_contrato = preg_replace("/via/", 'vía', $texto_contrato);
-    $texto_contrato = preg_replace("/eleccion/", 'elección', $texto_contrato);
-    $texto_contrato = preg_replace("/procedera/", 'procederá', $texto_contrato);
-    $texto_contrato = preg_replace("/cobraran/", 'cobrarán', $texto_contrato);
-    $texto_contrato = preg_replace("/aritmeticos/", 'aritméticos', $texto_contrato);
-    $texto_contrato = preg_replace("/conciliara/", 'conciliará', $texto_contrato);
-    $texto_contrato = preg_replace("/razon/", 'razón', $texto_contrato);
-    $texto_contrato = preg_replace("/tramite/", 'trámite', $texto_contrato);
-    $texto_contrato = preg_replace("/originara/", 'originará', $texto_contrato);
-    $texto_contrato = preg_replace("/incorporara/", 'incorporará', $texto_contrato);
-    $texto_contrato = preg_replace("/reflejara/", 'reflejará', $texto_contrato);
-    $texto_contrato = preg_replace("/economicas/", 'económicas', $texto_contrato);
-    $texto_contrato = preg_replace("/ocasion/", 'ocasión', $texto_contrato);
-    $texto_contrato = preg_replace("/senor/", 'señor', $texto_contrato);
-    $texto_contrato = preg_replace("/senalado/", 'señalado', $texto_contrato);
-    $texto_contrato = preg_replace("/senalar/", 'señalar', $texto_contrato);
-    $texto_contrato = preg_replace("/ADHESION/", 'ADHESIÓN', $texto_contrato);
-    $texto_contrato = preg_replace("/pagina/", 'página', $texto_contrato);
-    $texto_contrato = preg_replace("/suscripcion/", 'suscripción', $texto_contrato);
-    $texto_contrato = preg_replace("/realizara/", 'realizará', $texto_contrato);
-    $texto_contrato = preg_replace("/RENOVACION/", 'RENOVACIÓN', $texto_contrato);
-    $texto_contrato = preg_replace("/INSTALACION/", 'INSTALACIÓN', $texto_contrato);
-    $texto_contrato = preg_replace("/ACTIVACION/", 'ACTIVACIÓN', $texto_contrato);
-    $texto_contrato = preg_replace("/desee/", 'deseé', $texto_contrato);
-    $texto_contrato = preg_replace("/TERMINACION/", 'TERMINACIÓN', $texto_contrato);
-    $texto_contrato = preg_replace("/podra/", 'podrá', $texto_contrato);
-    $texto_contrato = preg_replace("/tendra/", 'tendrá', $texto_contrato);
-    $texto_contrato = preg_replace("/segun/", 'según', $texto_contrato);
-    $texto_contrato = preg_replace("/MINIMA/", 'MÍNIMA', $texto_contrato);
-    $texto_contrato = preg_replace("/pagara/", 'pagará', $texto_contrato);
-    $texto_contrato = preg_replace("/remitiran/", 'remitirán', $texto_contrato);
-    $texto_contrato = preg_replace("/electronica/", 'electrónica', $texto_contrato);
-    $texto_contrato = preg_replace("/aprobacion/", 'aprobación', $texto_contrato);
-    $texto_contrato = preg_replace("/fisica/", 'física', $texto_contrato);
-    $texto_contrato = preg_replace("/emitio/", 'emitió', $texto_contrato);
-    $texto_contrato = preg_replace("/seguira/", 'seguirá', $texto_contrato);
-    $texto_contrato = preg_replace("/facturacion/", 'facturación', $texto_contrato);
-    $texto_contrato = preg_replace("/conciliacion/", 'conciliación', $texto_contrato);
-    $texto_contrato = preg_replace("/remitira/", 'remitirá', $texto_contrato);
-    $texto_contrato = preg_replace("/credito/", 'crédito', $texto_contrato);
-    $texto_contrato = preg_replace("/conexion/", 'conexión', $texto_contrato);
-    $texto_contrato = preg_replace("/Debito/", 'Débito', $texto_contrato);
-    $texto_contrato = preg_replace("/visitaran/", 'visitarán', $texto_contrato);
-    $texto_contrato = preg_replace("/SEPTIMA/", 'SÉPTIMA', $texto_contrato);
-    $texto_contrato = preg_replace("/CONEXION/", 'CONEXIÓN', $texto_contrato);
-    $texto_contrato = preg_replace("/activacion/", 'activación', $texto_contrato);
-    $texto_contrato = preg_replace("/electricas/", 'eléctricas', $texto_contrato);
-    $texto_contrato = preg_replace("/verificacion/", 'verificación', $texto_contrato);
-    $texto_contrato = preg_replace("/tecnica/", 'técnica', $texto_contrato);
-    $texto_contrato = preg_replace("/verificaran/", 'verificarán', $texto_contrato);
-    $texto_contrato = preg_replace("/RECEPCION/", 'RECEPCIÓN', $texto_contrato);
-    $texto_contrato = preg_replace("/instalo/", 'instaló', $texto_contrato);
-    $texto_contrato = preg_replace("/exigira/", 'exigirá', $texto_contrato);
-    $texto_contrato = preg_replace("/calculo/", 'cálculo', $texto_contrato);
-    $texto_contrato = preg_replace("/autorizacion/", 'autorización', $texto_contrato);
-    $texto_contrato = preg_replace("/operacion/", 'operación', $texto_contrato);
-    $texto_contrato = preg_replace("/explotacion/", 'explotación', $texto_contrato);
-    $texto_contrato = preg_replace("/Regulacion/", 'Regulación', $texto_contrato);
-    $texto_contrato = preg_replace("/configuracion/", 'configuración', $texto_contrato);
-    $texto_contrato = preg_replace("/tecnico/", 'técnico', $texto_contrato);
-    $texto_contrato = preg_replace("/sancion/", 'sanción', $texto_contrato);
-    $texto_contrato = preg_replace("/informacion/", 'información', $texto_contrato);
-    $texto_contrato = preg_replace("/proteccion/", 'protección', $texto_contrato);
-    $texto_contrato = preg_replace("/interrupcion/", 'interrupción', $texto_contrato);
-    $texto_contrato = preg_replace("/funcion/", 'función', $texto_contrato);
-    $texto_contrato = preg_replace("/suspension/", 'suspensión', $texto_contrato);
-    $texto_contrato = preg_replace("/relacion/", 'relación', $texto_contrato);
-    $texto_contrato = preg_replace("/Atencion/", 'Atención', $texto_contrato);
-    $texto_contrato = preg_replace("/Radiodifusion/", 'Radiodifusión', $texto_contrato);
-    $texto_contrato = preg_replace("/Suscripcion/", 'Suscripción', $texto_contrato);
-    $texto_contrato = preg_replace("/titulo/", 'título', $texto_contrato);
-    $texto_contrato = preg_replace("/juridica/", 'jurídica', $texto_contrato);
-    $texto_contrato = preg_replace("/DECIMA/", 'DÉCIMA', $texto_contrato);
-    $texto_contrato = preg_replace("/indices/", 'índices', $texto_contrato);
-    $texto_contrato = preg_replace("/telefonica/", 'telefónica', $texto_contrato);
-    $texto_contrato = preg_replace("/tecnicos/", 'técnicos', $texto_contrato);
-    $texto_contrato = preg_replace("/economico/", 'económico', $texto_contrato);
-    $texto_contrato = preg_replace("/calculos/", 'cálculos', $texto_contrato);
-    $texto_contrato = preg_replace("/Garantizaran/", 'Garantizarán', $texto_contrato);
-    $texto_contrato = preg_replace("/implementacion/", 'implementación', $texto_contrato);
-    $texto_contrato = preg_replace("/recibiran/", 'recibirán', $texto_contrato);
-    $texto_contrato = preg_replace("/tarifarios/", 'tarifários', $texto_contrato);
-    $texto_contrato = preg_replace("/UNDECIMA/", 'UNDÉCIMA', $texto_contrato);
-    $texto_contrato = preg_replace("/reactivacion/", 'reactivación', $texto_contrato);
-    $texto_contrato = preg_replace("/telefonico/", 'telefónico', $texto_contrato);
-    $texto_contrato = preg_replace("/inspeccion/", 'inspección', $texto_contrato);
-    $texto_contrato = preg_replace("/instalara/", 'instalará', $texto_contrato);
-    $texto_contrato = preg_replace("/senal/", 'señal', $texto_contrato);
-    $texto_contrato = preg_replace("/energia/", 'energía', $texto_contrato);
-    $texto_contrato = preg_replace("/electrica/", 'eléctrica', $texto_contrato);
-    $texto_contrato = preg_replace("/publica/", 'pública', $texto_contrato);
-    $texto_contrato = preg_replace("/TECNICO.-/", 'TÉCNICO.-', $texto_contrato);
-    $texto_contrato = preg_replace("/atencion/", 'atención', $texto_contrato);
-    $texto_contrato = preg_replace("/Telefono/", 'Teléfono', $texto_contrato);
-    $texto_contrato = preg_replace("/Tecnicas/", 'Técnicas', $texto_contrato);
-    $texto_contrato = preg_replace("/reparacion/", 'reparación', $texto_contrato);
-    $texto_contrato = preg_replace("/SEPTIMA/", 'SÉPTIMA', $texto_contrato);
-    $texto_contrato = preg_replace("/jurisdiccion/", 'jurisdicción', $texto_contrato);
-    $texto_contrato = preg_replace("/Aceptacion/", 'Aceptación', $texto_contrato);
-    $texto_contrato = preg_replace("/Clausula/", 'Cláusula', $texto_contrato);
-    $texto_contrato = preg_replace("/VIGESIMA/", 'VIGÉSIMA', $texto_contrato);
-    $texto_contrato = preg_replace("/clausula/", 'cláusula', $texto_contrato);
-    $texto_contrato = preg_replace("/Seran/", 'Serán', $texto_contrato);
-    $texto_contrato = preg_replace("/INFORMACION/", 'INFORMACIÓN', $texto_contrato);
-    $texto_contrato = preg_replace("/promocion/", 'promoción', $texto_contrato);
-    $texto_contrato = preg_replace("/AUTORIZACION/", 'AUTORIZACIÓN', $texto_contrato);
-    $texto_contrato = preg_replace("/accion/", 'acción', $texto_contrato);
-    $texto_contrato = preg_replace("/Institucion/", 'Institución', $texto_contrato);
-    $texto_contrato = preg_replace("/valida/", 'válida', $texto_contrato);
-    $texto_contrato = preg_replace("/numreference_cli/", $num_referencia, $texto_contrato);
-    $texto_contrato = preg_replace("/numcelular_cli/", $num_celular, $texto_contrato);
-    $texto_contrato = preg_replace("/ciudad_remp/", $name_city, $texto_contrato);
-    $texto_contrato = preg_replace("/dia_remp/", $dia1, $texto_contrato);
-    $texto_contrato = preg_replace("/mes_remp/", $mes1, $texto_contrato);
-    $texto_contrato = preg_replace("/anio_remp/", $anio1, $texto_contrato);
-    $texto_contrato = preg_replace("/fima_remp/", $fima_remp, $texto_contrato);
-    $texto_contrato = preg_replace("/{codigo_remp}/", $codigo, $texto_contrato);
-    $texto_contrato = preg_replace("/lugarco/", $name_city, $texto_contrato);
-    $texto_contrato = preg_replace("/br1/", '<br>', $texto_contrato);
-    $texto_contrato = preg_replace("/fechaco/", $fecha_final, $texto_contrato);
-    $texto_contrato = preg_replace("/constemprco/", $empr_fec_resu, $texto_contrato);
-    $texto_contrato = preg_replace("/emprlogo/", $empr_logo, $texto_contrato);
-    $texto_contrato = preg_replace("/today/", $today, $texto_contrato);
-    $texto_contrato = preg_replace("/serv1/", $serv_1, $texto_contrato);
-    $texto_contrato = preg_replace("/imglogoanexo/", $img_logo_anexo, $texto_contrato);
-    $texto_contrato = preg_replace("/img_1/", $img_1, $texto_contrato);
-    $texto_contrato = preg_replace("/img_2/", $img_2, $texto_contrato);
-    $texto_contrato = preg_replace("/img_3/", $img_3, $texto_contrato);
-    $texto_contrato = preg_replace("/img_4/", $img_4, $texto_contrato);
-    $texto_contrato = preg_replace("/img_5/", $img_5, $texto_contrato);
-    $texto_contrato = preg_replace("/img_6/", $img_6, $texto_contrato);
-    $texto_contrato = preg_replace("/img_7/", $img_7, $texto_contrato);
-    $texto_contrato = preg_replace("/img_8/", $img_8, $texto_contrato);
-    $texto_contrato = preg_replace("/img_9/", $img_9, $texto_contrato);
-    $texto_contrato = preg_replace("/imagen_10/", $img_10, $texto_contrato);
-    $texto_contrato = preg_replace("/imagen_11/", $img_11, $texto_contrato);
-    $texto_contrato = preg_replace("/imagen_12/", $img_12, $texto_contrato);
-    $texto_contrato = preg_replace("/imagen_13/", $img_13, $texto_contrato);
-    $texto_contrato = preg_replace("/imagen_14/", $img_14, $texto_contrato);
-    $texto_contrato = preg_replace("/wsp_img/", $wsp_img, $texto_contrato);
-    $texto_contrato = preg_replace("/sello_img/", $sell, $texto_contrato);
-
-    // parametros cable selva
-    $texto_contrato = preg_replace("/bg_header.png/", convertir_png_a_base64($img_cable_selva_header), $texto_contrato);
-    $texto_contrato = preg_replace("/bg_body.png/", convertir_png_a_base64($img_cable_selva_body), $texto_contrato);
-    $texto_contrato = preg_replace("/bg1_3.png/", convertir_png_a_base64($img_cable_selva_footer), $texto_contrato);
-
-    $texto_contrato = preg_replace("/step1.jpg/", convertir_png_a_base64($img_cable_vision_promo_parte1), $texto_contrato);
-    $texto_contrato = preg_replace("/step2.jpg/", convertir_png_a_base64($img_cable_vision_promo_parte2), $texto_contrato);
-
-    $texto_contrato = preg_replace("/val_mesuealidad/", $mensualidad, $texto_contrato);
-    $texto_contrato = preg_replace("/val_cuota_en_palabra/", numero_a_palabra($mensualidad), $texto_contrato);
-    $texto_contrato = preg_replace("/val_instalacion/", $instalacionclpv, $texto_contrato);
-    $texto_contrato = preg_replace("/val_instal_en_palabra/", numero_a_palabra($instalacionclpv), $texto_contrato);
-
-
-    // Valor a pagar KALU
-    $texto_contrato = preg_replace("/cuoton/", $cuota1, $texto_contrato);
-    $texto_contrato = preg_replace("/cuotto/", $cuota2, $texto_contrato);
-    $texto_contrato = preg_replace("/cuotth/", $cuota3, $texto_contrato);
-    $texto_contrato = preg_replace("/cuotfo/", $cuota4, $texto_contrato);
-    $texto_contrato = preg_replace("/cuotfi/", $cuota5, $texto_contrato);
-    $texto_contrato = preg_replace("/cuotsi/", $cuota6, $texto_contrato);
-    $texto_contrato = preg_replace("/cuotse/", $cuota7, $texto_contrato);
-    $texto_contrato = preg_replace("/cuotei/", $cuota8, $texto_contrato);
-    $texto_contrato = preg_replace("/cuotni/", $cuota9, $texto_contrato);
-    $texto_contrato = preg_replace("/cuotte/", $cuota10, $texto_contrato);
-    $texto_contrato = preg_replace("/cuotel/", $cuota11, $texto_contrato);
-    $texto_contrato = preg_replace("/cuottw/", $cuota12, $texto_contrato);
-    
-    // Contrato Visionmagica
-    $texto_contrato = preg_replace("/check_si/", $check_si, $texto_contrato);
-    $texto_contrato = preg_replace("/check_no/", $check_no, $texto_contrato);
-    $texto_contrato = preg_replace("/checkpostpago/", $checkpostpago, $texto_contrato);
-    $texto_contrato = preg_replace("/checkprepago/", $checkprepago, $texto_contrato);
-    $texto_contrato = preg_replace("/instalacion/", $instalacionclpv, $texto_contrato);
-    $texto_contrato = preg_replace("/nocontado/", $nocontado, $texto_contrato);
-    $texto_contrato = preg_replace("/sicontado/", $contado, $texto_contrato);
-    $texto_contrato = preg_replace("/sininst/", $sininst, $texto_contrato);
-    $texto_contrato = preg_replace("/coutas_inst/", $inst_cuot, $texto_contrato);
-    $texto_contrato = preg_replace("/precioinstdif/", $precioinstdif, $texto_contrato);
-    $texto_contrato = preg_replace("/precioinstcont/", $precioinstcont, $texto_contrato);
-    $texto_contrato = preg_replace("/sobrenombreclpv/", $sobrenombreclpv, $texto_contrato);
-    $texto_contrato = preg_replace("/ncanalescv/", $ncanalescv, $texto_contrato);
-    $texto_contrato = preg_replace("/whatspe/", $whatspe, $texto_contrato);
-    $texto_contrato = preg_replace("/canaleshd/", $canaleshd, $texto_contrato);
-    $texto_contrato = preg_replace("/canalessd/", $canalessd, $texto_contrato);
-    $texto_contrato = preg_replace("/frmacvision/", $identificadorcv, $texto_contrato);
-    $texto_contrato = preg_replace("/imgoscip1/", $imgoscip1, $texto_contrato);
-    $texto_contrato = preg_replace("/imgoscip2/", $imgoscip2, $texto_contrato);
-    $texto_contrato = preg_replace("/iden_con_clpv/", $iden_con_clpv, $texto_contrato);
-    $texto_contrato = preg_replace("/segp2/", $sign, $texto_contrato);
-    $texto_contrato = preg_replace("/trofp2/", $cali, $texto_contrato);
-    $texto_contrato = preg_replace("/prohip2/", $not , $texto_contrato);
-    $texto_contrato = preg_replace("/simep2/", $dual, $texto_contrato);
-    $texto_contrato = preg_replace("/velop2/", $speed, $texto_contrato);
-    $texto_contrato = preg_replace("/tcasp1/", $home, $texto_contrato);
-    $texto_contrato = preg_replace("/audfp1/", $heat, $texto_contrato);
-    $texto_contrato = preg_replace("/nubudp1/", $clud, $texto_contrato);
-    $texto_contrato = preg_replace("/jugplp1/", $play, $texto_contrato);
-    $texto_contrato = preg_replace("/paqunidos/", $paqunidos, $texto_contrato);
-    $texto_contrato = preg_replace("/listserv/", $servicioscheck, $texto_contrato);
-
-    // Contrato Accessnet
-    $texto_contrato = preg_replace("/id_serv_empr/", $id_serv_empr, $texto_contrato);
-    $texto_contrato = preg_replace("/id_serv_hog/", $id_serv_hog, $texto_contrato);
-    /*  Este seccion de codigo remplaza las imagenes por su equivalente en base64 de acuerdo a un patro string en el formato html
-        img::<carpetaPadre>_<carpetaHijo>_<nombreImagen>::<formatoImagen>::img
-        ejm: img::cablevision_step2::jpg::img
-        ejm html: <img src="img::cablevision_step2::jpg::img" style="width: 92%;object-fit:contain;text-align: center;">
-    */
-
-    /*
-    $pattern = '/(img)::(\w+)::(\w+)::(img)/i';
-    preg_match_all($pattern,$texto_contrato,$out, PREG_PATTERN_ORDER);
-    foreach($out[2] as $x => $val) {
-        $imgpath = explode('_',$val);
-        $new_path='';
-        foreach($imgpath as $i => $value) {
-            
-            if($i<(sizeof($imgpath)-1)){
-                $new_path.=$value.'/';
-            }else{
-                $new_path.=$value;
-            }
-            
+            $inter .= '<b>X</b>';
         }
-        $img_base64 = '';
-        $img_base64 = convertir_png_a_base64($img_base_path.$new_path.'.'.$out[3][$x]);
-        $texto_contrato = preg_replace($pattern, $img_base64, $texto_contrato);
-    }
+
+
+
+        if ($tipo_contrato == 1 || $tipo_contrato == 4) { //TV
+
+            $contrato = "SELECT a.id as id_caja_pack, c.nombre, b.paquete, d.estado, a.precio, b.id_sistema,
+            a.cod_prod, a.estado as id_estado, b.id_tipo_prod, d.color, b.egress as v_bajada, b.ingress as v_subida
+                FROM isp.int_contrato_caja_pack a INNER JOIN
+                        isp.int_paquetes b ON a.id_prod = b.id INNER JOIN
+                        isp.int_tipo_prod c ON b.id_tipo_prod = c.id INNER JOIN
+                        isp.int_estados_equipo d ON a.estado = d.id
+                WHERE 
+                        a.id_contrato = $id AND
+                        a.id_clpv = $id_clpv AND
+                        a.estado NOT IN ('E')";
+
+            //echo $contrato;exit;
+
+            if ($oCon3->Query($contrato)) {
+                if ($oCon3->NumFilas() > 0) {
+                    do {
+                        $paquetes_tv = $oCon3->f('paquete');
+                        $precio_tv = $oCon3->f('precio');
+                        $v_bajada = $oCon3->f('v_bajada');
+                        $tip_sistema = $oCon3->f('id_sistema');
+
+                        if (empty($tip_sistema)) {
+                            $tip_sistema = 0;
+                        }
+
+                        $sql_tip_sist = "SELECT sistema from isp.int_sistemas where id = $tip_sistema";
+                        $nomb_tecno  = consulta_string($sql_tip_sist, 'sistema', $oCon, '');
+
+                        if (empty($v_bajada)) {
+                            $baja = '';
+                        } else {
+                            $baja = $v_bajada . ' Mb';
+                        }
+
+                        $infsuscr = '
+                            <tr>
+                                <td style="font-size: 73%; width: 88px;" align="center">' . $paquetes_tv . '</td>
+                                <td style="font-size: 80%; width: 88px;" align="center">' . $baja . '</td>
+                                <td style="font-size: 80%; width: 88px;" align="center">' . $precio_tv . '</td>
+                            </tr>
+                        ';
+                    } while ($oCon3->SiguienteRegistro());
+                }
+            }
+            $oCon3->Free();
+
+            $bnf_ctr .= '
+                    <tr>
+                        <td style="width:150px;"align="center">1</td>
+                        <td style="width:150px;"align="center">CATV</td>
+                        <td style="width:150px;"align="center">BUENO</td>
+                        <td style="width:150px;"align="center">0.00</td>
+                    </tr>
+                ';
+
+            $empaquetamiento = 'SI ___; NO _<b>X</b>_.';
+
+            $varservicios = 'Telefonia ___ Internet fijo ___ Televisón _X_';
+
+            $srv_int_tv = 'TV ANALOGA';
+
+            $ctr_pck .= '
+                    <tr>
+                        <td style="width:150px;"align="center">' . $paquetes_tv . '</td>
+                        <td style="width:150px;"align="center"></td>
+                        <td style="width:150px;"align="center">' . $precio_tv . '</td>
+                    </tr>
+                ';
+
+            $audi_vid .= '<b>X</b>';
+        }
+
+        if ($tipo_contrato == 3 || $tipo_contrato == 7) { //TV+int
+
+            $contrato = "select a.id as id_caja_pack, c.nombre, b.paquete, d.estado, a.precio, 
+            b.id_sistema, a.estado as id_estado, b.id_tipo_prod, d.color, b.egress as v_bajada, b.ingress as v_subida
+                        FROM isp.int_contrato_caja_pack a INNER JOIN
+                                isp.int_paquetes b ON a.id_prod = b.id INNER JOIN
+                                isp.int_tipo_prod c ON b.id_tipo_prod = c.id INNER JOIN
+                                isp.int_estados_equipo d ON a.estado = d.id
+                        WHERE 
+                                a.id_contrato = $id AND
+                                a.id_clpv = $id_clpv AND
+                                a.estado NOT IN ('E')";
+
+            //echo $contrato;exit;
+            $paqunidos = '';
+            $planes_precio = '';
+            $servicioscheck = '';
+            if ($oCon3->Query($contrato)) {
+                if ($oCon3->NumFilas() > 0) {
+                    do {
+                        $paquetes_internet = $oCon3->f('paquete');
+                        $paqunidos .= $oCon3->f('paquete');
+                        $precio_int = $oCon3->f('precio');
+                        $v_bajada = $oCon3->f('v_bajada');
+                        $tip_sistema = $oCon3->f('id_sistema');
+
+                        if (empty($tip_sistema)) {
+                            $tip_sistema = 0;
+                        }
+
+                        $sql_tip_sist = "SELECT sistema from isp.int_sistemas where id = $tip_sistema";
+                        $nomb_tecno  = consulta_string($sql_tip_sist, 'sistema', $oCon, '');
+
+
+                        if (empty($v_bajada)) {
+
+                            $baja = '';
+                        } else {
+                            $baja = $v_bajada . ' Mb';
+                        }
+
+                        $servicioscheck .= '
+                        <tr>
+                            <td style="vertical-align: middle;"><img class="left" src="' . $check_si . '" width="11"/></td>
+                            <td style="font-size: 95%; vertical-align: middle; "><b>' . $paquetes_internet . '</b></td>
+                        </tr>
+                        ';
+
+
+                        $planes_precio .= '
+                            <tr style="background-color: #dcede4;">
+                                <td style="font-size: 75%; width: 140px; vertical-align: middle;"><b>' . $paquetes_internet . '</b></td>
+                                <td style="font-size: 75%; width: 140px; vertical-align: middle;">' . $precio_int . '</td>
+                            </tr>
+                        ';
+
+                        $infsuscr .= '
+                            <tr>
+                                <td style="font-size: 73%; width: 88px;" align="center">' . $paquetes_internet . '</td>
+                                <td style="font-size: 80%; width: 88px;" align="center">' . $baja . '</td>
+                                <td style="font-size: 80%; width: 88px;" align="center">' . $precio_int . '</td>
+                            </tr>
+                        ';
+                    } while ($oCon3->SiguienteRegistro());
+                }
+            }
+
+
+            $oCon3->Free();
+
+            $bnf_ctr .= '
+                    <tr>
+                        <td style="width:150px;"align="center">1</td>
+                        <td style="width:150px;"align="center">ONT</td>
+                        <td style="width:150px;"align="center">BUENO</td>
+                        <td style="width:150px;"align="center">0.00</td>
+                    </tr>
+
+                    <tr>
+                        <td style="width:150px;"align="center">2</td>
+                        <td style="width:150px;"align="center">CATV</td>
+                        <td style="width:150px;"align="center">BUENO</td>
+                        <td style="width:150px;"align="center">0.00</td>
+                    </tr>
+
+                ';
+
+            $empaquetamiento = 'SI _<b>X</b>_; NO ____';
+
+            $varservicios = 'Telefonia ___ Internet fijo _X_ Televisón _X_';
+
+
+
+            $srv_int_tv = 'TV ANALOGA + INTERNET';
+
+            $ctr_pck .= '
+                    <tr>
+                        <td style="width:150px;"align="center">' . $paquetes_internet . '</td>
+                        <td style="width:150px;"align="center"></td>
+                        <td style="width:150px;"align="center">' . $precio_int . '</td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="width:150px;"align="center">' . $paquetes_tv . '</td>
+                        <td style="width:150px;"align="center"></td>
+                        <td style="width:150px;"align="center">' . $precio_tv . '</td>
+                    </tr>
+
+                ';
+
+            $inter .= '<b>X</b>';
+            $audi_vid .= '<b>X</b>';
+        }
+
+        $texto_contrato = preg_replace("/intercon/", $inter, $texto_contrato);
+        $texto_contrato = preg_replace("/videcon/", $audi_vid, $texto_contrato);
+        $texto_contrato = preg_replace("/si_no_empaqco/", $empaquetamiento, $texto_contrato);
+        $texto_contrato = preg_replace("/siterc/", $si_t_e, $texto_contrato);
+        $texto_contrato = preg_replace("/noterc/", $no_t_e, $texto_contrato);
+        $texto_contrato = preg_replace("/sidisc/", $si_dis, $texto_contrato);
+        $texto_contrato = preg_replace("/nodisc /", $no_dis, $texto_contrato);
+
+        $texto_contrato = preg_replace("/referenciaco/", $referencia, $texto_contrato);
+        $texto_contrato = preg_replace("/viviendaco/", $lugar, $texto_contrato);
+        $texto_contrato = preg_replace("/principalco/", $calleprincipal, $texto_contrato);
+        $texto_contrato = preg_replace("/mensualco/", $mensualidad, $texto_contrato);
+        $texto_contrato = preg_replace("/vendedorco/", $vendedoremp, $texto_contrato);
+        $texto_contrato = preg_replace("/fechanaco/", $fecha_nacimiento_cliente, $texto_contrato);
+        $texto_contrato = preg_replace("/planintco/", $paquetes_internet, $texto_contrato);
+        $texto_contrato = preg_replace("/plantvco/", $paquetes_tv, $texto_contrato);
+        $texto_contrato = preg_replace("/paquetetv_int/", $bnf_ctr, $texto_contrato);
+        $texto_contrato = preg_replace("/serv_preco/", $ctr_pck, $texto_contrato);
+        $texto_contrato = preg_replace("/tipo_servco/", $srv_int_tv, $texto_contrato);
+        $texto_contrato = preg_replace("/direccionsucu/", $sucu_dir_sucu, $texto_contrato);
+        $texto_contrato = preg_replace("/telefonosucu/", $sucu_telf_secu, $texto_contrato);
+        $texto_contrato = preg_replace("/faxsucu/", $sucu_fax_secu, $texto_contrato);
+        $texto_contrato = preg_replace("/corresucu/", $sucu_email_secu, $texto_contrato);
+        $texto_contrato = preg_replace("/nomsucu/", $sucu_nom_secu, $texto_contrato);
+        $texto_contrato = preg_replace("/contratoco/", $codigo, $texto_contrato);
+        $texto_contrato = preg_replace("/rubco/", $empr_rub, $texto_contrato); //rubrica contrato/firma de la empresa
+        $texto_contrato = preg_replace("/rubcvco/", $empr_rub_cv, $texto_contrato); //rubrica contrato/firma de la empresa
+        $texto_contrato = preg_replace("/preciofin/", $precio_fin, $texto_contrato);
+        $texto_contrato = preg_replace("/precioint/", $precio_int, $texto_contrato);
+        $texto_contrato = preg_replace("/preciotv/", $precio_tv, $texto_contrato);
+        $texto_contrato = preg_replace("/provinciaclpv/", $nombre_provincia_clpv, $texto_contrato);
+        $texto_contrato = preg_replace("/cantonclpv/", $nombre_canton_clpv, $texto_contrato);
+        $texto_contrato = preg_replace("/ciudadclpv/", $nombre_ciudad_clpv, $texto_contrato);
+        $texto_contrato = preg_replace("/parroqiuiaclpv/", $nombre_parroquia_clpv, $texto_contrato);
+        $texto_contrato = preg_replace("/parroqco/", $nombre_parroquia, $texto_contrato);
+        $texto_contrato = preg_replace("/natjurco/", $nat_jur, $texto_contrato);
+        $texto_contrato = preg_replace("/espacioscontr/", $espacios, $texto_contrato);
+        $texto_contrato = preg_replace("/referenciabo/", $referencia_parient, $texto_contrato);
+        $texto_contrato = preg_replace("/nacimientoco/", $fecha_nacimientocon, $texto_contrato);
+        $texto_contrato = preg_replace("/QRIMG/", $qr, $texto_contrato);
+        $texto_contrato = preg_replace("/varservicios/", $varservicios, $texto_contrato);
+        $texto_contrato = preg_replace("/infsuscr/", $infsuscr, $texto_contrato);
+        $texto_contrato = preg_replace("/cortecontr/", $fecha_corte, $texto_contrato);
+        $texto_contrato = preg_replace("/cobrocontr/", $fecha_cobro, $texto_contrato);
+        $texto_contrato = preg_replace("/planes_precio/", $planes_precio, $texto_contrato);
+        $texto_contrato = preg_replace("/referenciaco/", $referencia, $texto_contrato);
+        $texto_contrato = preg_replace("/penalidadco/", $penalidad, $texto_contrato);
+
+        $texto_contrato = preg_replace("/firmacontratoimg/", $identificador, $texto_contrato);
+        $texto_contrato = preg_replace("/celularemprco/", $empr_cel_empr, $texto_contrato);
+        $texto_contrato = preg_replace("/paquetesco/", $paquetes, $texto_contrato);
+        $texto_contrato = preg_replace("/contratocodco /", $codigo_contrato, $texto_contrato);
+        $texto_contrato = preg_replace("/mesesco/", $duracion, $texto_contrato);
+        $texto_contrato = preg_replace("/ciudadco/", $name_city, $texto_contrato);
+        $texto_contrato = preg_replace("/empresaco/", $empr_nom_empr, $texto_contrato);
+        $texto_contrato = preg_replace("/comercialco/", $empr_nomcome_empr, $texto_contrato);
+        $texto_contrato = preg_replace("/idenco/", $empr_ruc_empr, $texto_contrato);
+        $texto_contrato = preg_replace("/ceduco/", $empr_ced_repr, $texto_contrato);
+        $texto_contrato = preg_replace("/provinciaco/", $nombre_provincia, $texto_contrato);
+        $texto_contrato = preg_replace("/cantonco/", $nombre_canton, $texto_contrato);
+        $texto_contrato = preg_replace("/representanteco/", $empr_repres, $texto_contrato);
+        $texto_contrato = preg_replace("/direccionemprco/", $direccionempr, $texto_contrato);
+        $texto_contrato = preg_replace("/telefonoco/", $empr_tel_resp, $texto_contrato);
+        $texto_contrato = preg_replace("/correoco/", $empr_mai_empr, $texto_contrato);
+        $texto_contrato = preg_replace("/empresahttpco/", $emprhttp, $texto_contrato);
+        $texto_contrato = preg_replace("/diasco/", $dia_con, $texto_contrato);
+        $texto_contrato = preg_replace("/mesco/", $mes_con, $texto_contrato);
+        $texto_contrato = preg_replace("/anioco/", $año_con, $texto_contrato);
+        $texto_contrato = preg_replace("/siterc/", $año_con, $texto_contrato);
+        $texto_contrato = preg_replace("/nombreemplco/", $nom_clpv, $texto_contrato);
+        $texto_contrato = preg_replace("/dniemplco/", $ruc_clpv, $texto_contrato);
+        $texto_contrato = preg_replace("/direemplco/", $direccion, $texto_contrato);
+        $texto_contrato = preg_replace("/direrefemplco/", $direccion_ref, $texto_contrato);
+        $texto_contrato = preg_replace("/teleemplco/", $num_referencia, $texto_contrato);
+        $texto_contrato = preg_replace("/emialemplco/", $email, $texto_contrato);
+        $texto_contrato = preg_replace("/CLAUSULA/", 'CLÁUSULA', $texto_contrato);
+        $texto_contrato = preg_replace("/PRESTACION/", 'PRESTACIÓN', $texto_contrato);
+        $texto_contrato = preg_replace("/Ri­os,/", 'Rí­os', $texto_contrato);
+        $texto_contrato = preg_replace("/Bucaran/", 'Bucarán', $texto_contrato);
+        $texto_contrato = preg_replace("/numeros/", 'números', $texto_contrato);
+        $texto_contrato = preg_replace("/telefono/", 'teléfono', $texto_contrato);
+        $texto_contrato = preg_replace("/electronico/", 'electrónico', $texto_contrato);
+        $texto_contrato = preg_replace("/denominara/", 'denominará', $texto_contrato);
+        $texto_contrato = preg_replace("/cedula/", 'cédula', $texto_contrato);
+        $texto_contrato = preg_replace("/canton/", 'cantón', $texto_contrato);
+        $texto_contrato = preg_replace("/direccion/", 'dirección', $texto_contrato);
+        $texto_contrato = preg_replace("/clausulas/", 'cláusulas', $texto_contrato);
+        $texto_contrato = preg_replace("/ano/", 'año', $texto_contrato);
+        $texto_contrato = preg_replace("/continuacion/", 'continuación', $texto_contrato);
+        $texto_contrato = preg_replace("/prestacion/", 'prestación', $texto_contrato);
+        $texto_contrato = preg_replace("/sera/", 'será', $texto_contrato);
+        $texto_contrato = preg_replace("/titulos/", 'títulos', $texto_contrato);
+        $texto_contrato = preg_replace("/juridico/", 'jurídico', $texto_contrato);
+        $texto_contrato = preg_replace("/Movil/", 'Móvil', $texto_contrato);
+        $texto_contrato = preg_replace("/traves/", 'través', $texto_contrato);
+        $texto_contrato = preg_replace("/Telefonia/", 'Telefonía', $texto_contrato);
+        $texto_contrato = preg_replace("/satelite/", 'satélite', $texto_contrato);
+        $texto_contrato = preg_replace("/suscripción/", 'suscripción', $texto_contrato);
+        $texto_contrato = preg_replace("/modificacion/", 'modificación', $texto_contrato);
+        $texto_contrato = preg_replace("/duracion/", 'duración', $texto_contrato);
+        $texto_contrato = preg_replace("/anticipacion/", 'anticipación', $texto_contrato);
+        $texto_contrato = preg_replace("/renovara/", 'renovará', $texto_contrato);
+        $texto_contrato = preg_replace("/automaticamente/", 'automáticamente', $texto_contrato);
+        $texto_contrato = preg_replace("/terminos/", 'términos', $texto_contrato);
+        $texto_contrato = preg_replace("/comun/", 'común', $texto_contrato);
+        $texto_contrato = preg_replace("/adhesion/", 'adhesión', $texto_contrato);
+        $texto_contrato = preg_replace("/debera/", 'deberá', $texto_contrato);
+        $texto_contrato = preg_replace("/notificacion/", 'notificación', $texto_contrato);
+        $texto_contrato = preg_replace("/Organica/", 'Orgánica', $texto_contrato);
+        $texto_contrato = preg_replace("/estara/", 'estará', $texto_contrato);
+        $texto_contrato = preg_replace("/reciproca/", 'recíproca', $texto_contrato);
+        $texto_contrato = preg_replace("/demas/", 'demás', $texto_contrato);
+        $texto_contrato = preg_replace("/asi/", 'así', $texto_contrato);
+        $texto_contrato = preg_replace("/finalizacion/", 'finalización', $texto_contrato);
+        $texto_contrato = preg_replace("/periodo/", 'período', $texto_contrato);
+        $texto_contrato = preg_replace("/obligacion/", 'obligación', $texto_contrato);
+        $texto_contrato = preg_replace("/unicamente/", 'únicamente', $texto_contrato);
+        $texto_contrato = preg_replace("/terminacion/", 'terminación', $texto_contrato);
+        $texto_contrato = preg_replace("/adquisicion/", 'adquisición', $texto_contrato);
+        $texto_contrato = preg_replace("/practicas/", 'prácticas', $texto_contrato);
+        $texto_contrato = preg_replace("/dane/", 'dañe', $texto_contrato);
+        $texto_contrato = preg_replace("/disolucion/", 'disolución', $texto_contrato);
+        $texto_contrato = preg_replace("/liquidacion/", 'liquidación', $texto_contrato);
+        $texto_contrato = preg_replace("/minima/", 'mínima', $texto_contrato);
+        $texto_contrato = preg_replace("/fisicos/", 'físicos', $texto_contrato);
+        $texto_contrato = preg_replace("/electronicos/", 'electrónicos', $texto_contrato);
+        $texto_contrato = preg_replace("/asumira/", 'asumirá', $texto_contrato);
+        $texto_contrato = preg_replace("/FACTURACION/", 'FACTURACIÓN', $texto_contrato);
+        $texto_contrato = preg_replace("/via/", 'vía', $texto_contrato);
+        $texto_contrato = preg_replace("/eleccion/", 'elección', $texto_contrato);
+        $texto_contrato = preg_replace("/procedera/", 'procederá', $texto_contrato);
+        $texto_contrato = preg_replace("/cobraran/", 'cobrarán', $texto_contrato);
+        $texto_contrato = preg_replace("/aritmeticos/", 'aritméticos', $texto_contrato);
+        $texto_contrato = preg_replace("/conciliara/", 'conciliará', $texto_contrato);
+        $texto_contrato = preg_replace("/razon/", 'razón', $texto_contrato);
+        $texto_contrato = preg_replace("/tramite/", 'trámite', $texto_contrato);
+        $texto_contrato = preg_replace("/originara/", 'originará', $texto_contrato);
+        $texto_contrato = preg_replace("/incorporara/", 'incorporará', $texto_contrato);
+        $texto_contrato = preg_replace("/reflejara/", 'reflejará', $texto_contrato);
+        $texto_contrato = preg_replace("/economicas/", 'económicas', $texto_contrato);
+        $texto_contrato = preg_replace("/ocasion/", 'ocasión', $texto_contrato);
+        $texto_contrato = preg_replace("/senor/", 'señor', $texto_contrato);
+        $texto_contrato = preg_replace("/senalado/", 'señalado', $texto_contrato);
+        $texto_contrato = preg_replace("/senalar/", 'señalar', $texto_contrato);
+        $texto_contrato = preg_replace("/ADHESION/", 'ADHESIÓN', $texto_contrato);
+        $texto_contrato = preg_replace("/pagina/", 'página', $texto_contrato);
+        $texto_contrato = preg_replace("/suscripcion/", 'suscripción', $texto_contrato);
+        $texto_contrato = preg_replace("/realizara/", 'realizará', $texto_contrato);
+        $texto_contrato = preg_replace("/RENOVACION/", 'RENOVACIÓN', $texto_contrato);
+        $texto_contrato = preg_replace("/INSTALACION/", 'INSTALACIÓN', $texto_contrato);
+        $texto_contrato = preg_replace("/ACTIVACION/", 'ACTIVACIÓN', $texto_contrato);
+        $texto_contrato = preg_replace("/desee/", 'deseé', $texto_contrato);
+        $texto_contrato = preg_replace("/TERMINACION/", 'TERMINACIÓN', $texto_contrato);
+        $texto_contrato = preg_replace("/podra/", 'podrá', $texto_contrato);
+        $texto_contrato = preg_replace("/tendra/", 'tendrá', $texto_contrato);
+        $texto_contrato = preg_replace("/segun/", 'según', $texto_contrato);
+        $texto_contrato = preg_replace("/MINIMA/", 'MÍNIMA', $texto_contrato);
+        $texto_contrato = preg_replace("/pagara/", 'pagará', $texto_contrato);
+        $texto_contrato = preg_replace("/remitiran/", 'remitirán', $texto_contrato);
+        $texto_contrato = preg_replace("/electronica/", 'electrónica', $texto_contrato);
+        $texto_contrato = preg_replace("/aprobacion/", 'aprobación', $texto_contrato);
+        $texto_contrato = preg_replace("/fisica/", 'física', $texto_contrato);
+        $texto_contrato = preg_replace("/emitio/", 'emitió', $texto_contrato);
+        $texto_contrato = preg_replace("/seguira/", 'seguirá', $texto_contrato);
+        $texto_contrato = preg_replace("/facturacion/", 'facturación', $texto_contrato);
+        $texto_contrato = preg_replace("/conciliacion/", 'conciliación', $texto_contrato);
+        $texto_contrato = preg_replace("/remitira/", 'remitirá', $texto_contrato);
+        $texto_contrato = preg_replace("/credito/", 'crédito', $texto_contrato);
+        $texto_contrato = preg_replace("/conexion/", 'conexión', $texto_contrato);
+        $texto_contrato = preg_replace("/Debito/", 'Débito', $texto_contrato);
+        $texto_contrato = preg_replace("/visitaran/", 'visitarán', $texto_contrato);
+        $texto_contrato = preg_replace("/SEPTIMA/", 'SÉPTIMA', $texto_contrato);
+        $texto_contrato = preg_replace("/CONEXION/", 'CONEXIÓN', $texto_contrato);
+        $texto_contrato = preg_replace("/activacion/", 'activación', $texto_contrato);
+        $texto_contrato = preg_replace("/electricas/", 'eléctricas', $texto_contrato);
+        $texto_contrato = preg_replace("/verificacion/", 'verificación', $texto_contrato);
+        $texto_contrato = preg_replace("/tecnica/", 'técnica', $texto_contrato);
+        $texto_contrato = preg_replace("/verificaran/", 'verificarán', $texto_contrato);
+        $texto_contrato = preg_replace("/RECEPCION/", 'RECEPCIÓN', $texto_contrato);
+        $texto_contrato = preg_replace("/instalo/", 'instaló', $texto_contrato);
+        $texto_contrato = preg_replace("/exigira/", 'exigirá', $texto_contrato);
+        $texto_contrato = preg_replace("/calculo/", 'cálculo', $texto_contrato);
+        $texto_contrato = preg_replace("/autorizacion/", 'autorización', $texto_contrato);
+        $texto_contrato = preg_replace("/operacion/", 'operación', $texto_contrato);
+        $texto_contrato = preg_replace("/explotacion/", 'explotación', $texto_contrato);
+        $texto_contrato = preg_replace("/Regulacion/", 'Regulación', $texto_contrato);
+        $texto_contrato = preg_replace("/configuracion/", 'configuración', $texto_contrato);
+        $texto_contrato = preg_replace("/tecnico/", 'técnico', $texto_contrato);
+        $texto_contrato = preg_replace("/sancion/", 'sanción', $texto_contrato);
+        $texto_contrato = preg_replace("/informacion/", 'información', $texto_contrato);
+        $texto_contrato = preg_replace("/proteccion/", 'protección', $texto_contrato);
+        $texto_contrato = preg_replace("/interrupcion/", 'interrupción', $texto_contrato);
+        $texto_contrato = preg_replace("/funcion/", 'función', $texto_contrato);
+        $texto_contrato = preg_replace("/suspension/", 'suspensión', $texto_contrato);
+        $texto_contrato = preg_replace("/relacion/", 'relación', $texto_contrato);
+        $texto_contrato = preg_replace("/Atencion/", 'Atención', $texto_contrato);
+        $texto_contrato = preg_replace("/Radiodifusion/", 'Radiodifusión', $texto_contrato);
+        $texto_contrato = preg_replace("/Suscripcion/", 'Suscripción', $texto_contrato);
+        $texto_contrato = preg_replace("/titulo/", 'título', $texto_contrato);
+        $texto_contrato = preg_replace("/juridica/", 'jurídica', $texto_contrato);
+        $texto_contrato = preg_replace("/DECIMA/", 'DÉCIMA', $texto_contrato);
+        $texto_contrato = preg_replace("/indices/", 'índices', $texto_contrato);
+        $texto_contrato = preg_replace("/telefonica/", 'telefónica', $texto_contrato);
+        $texto_contrato = preg_replace("/tecnicos/", 'técnicos', $texto_contrato);
+        $texto_contrato = preg_replace("/economico/", 'económico', $texto_contrato);
+        $texto_contrato = preg_replace("/calculos/", 'cálculos', $texto_contrato);
+        $texto_contrato = preg_replace("/Garantizaran/", 'Garantizarán', $texto_contrato);
+        $texto_contrato = preg_replace("/implementacion/", 'implementación', $texto_contrato);
+        $texto_contrato = preg_replace("/recibiran/", 'recibirán', $texto_contrato);
+        $texto_contrato = preg_replace("/tarifarios/", 'tarifários', $texto_contrato);
+        $texto_contrato = preg_replace("/UNDECIMA/", 'UNDÉCIMA', $texto_contrato);
+        $texto_contrato = preg_replace("/reactivacion/", 'reactivación', $texto_contrato);
+        $texto_contrato = preg_replace("/telefonico/", 'telefónico', $texto_contrato);
+        $texto_contrato = preg_replace("/inspeccion/", 'inspección', $texto_contrato);
+        $texto_contrato = preg_replace("/instalara/", 'instalará', $texto_contrato);
+        $texto_contrato = preg_replace("/senal/", 'señal', $texto_contrato);
+        $texto_contrato = preg_replace("/energia/", 'energía', $texto_contrato);
+        $texto_contrato = preg_replace("/electrica/", 'eléctrica', $texto_contrato);
+        $texto_contrato = preg_replace("/publica/", 'pública', $texto_contrato);
+        $texto_contrato = preg_replace("/TECNICO.-/", 'TÉCNICO.-', $texto_contrato);
+        $texto_contrato = preg_replace("/atencion/", 'atención', $texto_contrato);
+        $texto_contrato = preg_replace("/Telefono/", 'Teléfono', $texto_contrato);
+        $texto_contrato = preg_replace("/Tecnicas/", 'Técnicas', $texto_contrato);
+        $texto_contrato = preg_replace("/reparacion/", 'reparación', $texto_contrato);
+        $texto_contrato = preg_replace("/SEPTIMA/", 'SÉPTIMA', $texto_contrato);
+        $texto_contrato = preg_replace("/jurisdiccion/", 'jurisdicción', $texto_contrato);
+        $texto_contrato = preg_replace("/Aceptacion/", 'Aceptación', $texto_contrato);
+        $texto_contrato = preg_replace("/Clausula/", 'Cláusula', $texto_contrato);
+        $texto_contrato = preg_replace("/VIGESIMA/", 'VIGÉSIMA', $texto_contrato);
+        $texto_contrato = preg_replace("/clausula/", 'cláusula', $texto_contrato);
+        $texto_contrato = preg_replace("/Seran/", 'Serán', $texto_contrato);
+        $texto_contrato = preg_replace("/INFORMACION/", 'INFORMACIÓN', $texto_contrato);
+        $texto_contrato = preg_replace("/promocion/", 'promoción', $texto_contrato);
+        $texto_contrato = preg_replace("/AUTORIZACION/", 'AUTORIZACIÓN', $texto_contrato);
+        $texto_contrato = preg_replace("/accion/", 'acción', $texto_contrato);
+        $texto_contrato = preg_replace("/Institucion/", 'Institución', $texto_contrato);
+        $texto_contrato = preg_replace("/valida/", 'válida', $texto_contrato);
+        $texto_contrato = preg_replace("/numreference_cli/", $num_referencia, $texto_contrato);
+        $texto_contrato = preg_replace("/numcelular_cli/", $num_celular, $texto_contrato);
+        $texto_contrato = preg_replace("/ciudad_remp/", $name_city, $texto_contrato);
+        $texto_contrato = preg_replace("/dia_remp/", $dia1, $texto_contrato);
+        $texto_contrato = preg_replace("/mes_remp/", $mes1, $texto_contrato);
+        $texto_contrato = preg_replace("/anio_remp/", $anio1, $texto_contrato);
+        $texto_contrato = preg_replace("/fima_remp/", $fima_remp, $texto_contrato);
+        $texto_contrato = preg_replace("/{codigo_remp}/", $codigo, $texto_contrato);
+        $texto_contrato = preg_replace("/lugarco/", $name_city, $texto_contrato);
+        $texto_contrato = preg_replace("/br1/", '<br>', $texto_contrato);
+        $texto_contrato = preg_replace("/fechaco/", $fecha_final, $texto_contrato);
+        $texto_contrato = preg_replace("/constemprco/", $empr_fec_resu, $texto_contrato);
+        $texto_contrato = preg_replace("/emprlogo/", $empr_logo, $texto_contrato);
+        $texto_contrato = preg_replace("/today/", $today, $texto_contrato);
+        $texto_contrato = preg_replace("/serv1/", $serv_1, $texto_contrato);
+        $texto_contrato = preg_replace("/imglogoanexo/", $img_logo_anexo, $texto_contrato);
+        $texto_contrato = preg_replace("/img_1/", $img_1, $texto_contrato);
+        $texto_contrato = preg_replace("/img_2/", $img_2, $texto_contrato);
+        $texto_contrato = preg_replace("/img_3/", $img_3, $texto_contrato);
+        $texto_contrato = preg_replace("/img_4/", $img_4, $texto_contrato);
+        $texto_contrato = preg_replace("/img_5/", $img_5, $texto_contrato);
+        $texto_contrato = preg_replace("/img_6/", $img_6, $texto_contrato);
+        $texto_contrato = preg_replace("/img_7/", $img_7, $texto_contrato);
+        $texto_contrato = preg_replace("/img_8/", $img_8, $texto_contrato);
+        $texto_contrato = preg_replace("/img_9/", $img_9, $texto_contrato);
+        $texto_contrato = preg_replace("/imagen_10/", $img_10, $texto_contrato);
+        $texto_contrato = preg_replace("/imagen_11/", $img_11, $texto_contrato);
+        $texto_contrato = preg_replace("/imagen_12/", $img_12, $texto_contrato);
+        $texto_contrato = preg_replace("/imagen_13/", $img_13, $texto_contrato);
+        $texto_contrato = preg_replace("/imagen_14/", $img_14, $texto_contrato);
+        $texto_contrato = preg_replace("/wsp_img/", $wsp_img, $texto_contrato);
+        $texto_contrato = preg_replace("/sello_img/", $sell, $texto_contrato);
+        $texto_contrato = preg_replace("/conjuntoclpv/", $conjunto, $texto_contrato);
+        $texto_contrato = preg_replace("/edificioclpv/", $edificio, $texto_contrato);
+        $texto_contrato = preg_replace("/latitudclpv/", $latitud, $texto_contrato);
+        $texto_contrato = preg_replace("/longitudclpv/", $longitud, $texto_contrato);
+
+        // parametros cable selva
+        $texto_contrato = preg_replace("/bg_header.png/", convertir_png_a_base64($img_cable_selva_header), $texto_contrato);
+        $texto_contrato = preg_replace("/bg_body.png/", convertir_png_a_base64($img_cable_selva_body), $texto_contrato);
+        $texto_contrato = preg_replace("/bg1_3.png/", convertir_png_a_base64($img_cable_selva_footer), $texto_contrato);
+
+        $texto_contrato = preg_replace("/step1.jpg/", convertir_png_a_base64($img_cable_vision_promo_parte1), $texto_contrato);
+        $texto_contrato = preg_replace("/step2.jpg/", convertir_png_a_base64($img_cable_vision_promo_parte2), $texto_contrato);
+
+        $texto_contrato = preg_replace("/val_mesuealidad/", $mensualidad, $texto_contrato);
+        $texto_contrato = preg_replace("/val_cuota_en_palabra/", numero_a_palabra($mensualidad), $texto_contrato);
+        $texto_contrato = preg_replace("/val_instalacion/", $instalacionclpv, $texto_contrato);
+        $texto_contrato = preg_replace("/val_instal_en_palabra/", numero_a_palabra($instalacionclpv), $texto_contrato);
+
+
+        // Valor a pagar KALU
+        $texto_contrato = preg_replace("/cuoton/", $cuota1, $texto_contrato);
+        $texto_contrato = preg_replace("/cuotto/", $cuota2, $texto_contrato);
+        $texto_contrato = preg_replace("/cuotth/", $cuota3, $texto_contrato);
+        $texto_contrato = preg_replace("/cuotfo/", $cuota4, $texto_contrato);
+        $texto_contrato = preg_replace("/cuotfi/", $cuota5, $texto_contrato);
+        $texto_contrato = preg_replace("/cuotsi/", $cuota6, $texto_contrato);
+        $texto_contrato = preg_replace("/cuotse/", $cuota7, $texto_contrato);
+        $texto_contrato = preg_replace("/cuotei/", $cuota8, $texto_contrato);
+        $texto_contrato = preg_replace("/cuotni/", $cuota9, $texto_contrato);
+        $texto_contrato = preg_replace("/cuotte/", $cuota10, $texto_contrato);
+        $texto_contrato = preg_replace("/cuotel/", $cuota11, $texto_contrato);
+        $texto_contrato = preg_replace("/cuottw/", $cuota12, $texto_contrato);
+
+        // Contrato Visionmagica
+        $texto_contrato = preg_replace("/check_si/", $check_si, $texto_contrato);
+        $texto_contrato = preg_replace("/check_no/", $check_no, $texto_contrato);
+        $texto_contrato = preg_replace("/checkpostpago/", $checkpostpago, $texto_contrato);
+        $texto_contrato = preg_replace("/checkprepago/", $checkprepago, $texto_contrato);
+        $texto_contrato = preg_replace("/valinstalacion/", $instalacionclpv, $texto_contrato);
+        $texto_contrato = preg_replace("/nocontado/", $nocontado, $texto_contrato);
+        $texto_contrato = preg_replace("/sicontado/", $contado, $texto_contrato);
+        $texto_contrato = preg_replace("/sininst/", $sininst, $texto_contrato);
+        $texto_contrato = preg_replace("/coutas_inst/", $inst_cuot, $texto_contrato);
+        $texto_contrato = preg_replace("/precioinstdif/", $precioinstdif, $texto_contrato);
+        $texto_contrato = preg_replace("/precioinstcont/", $precioinstcont, $texto_contrato);
+        $texto_contrato = preg_replace("/sobrenombreclpv/", $sobrenombreclpv, $texto_contrato);
+        $texto_contrato = preg_replace("/ncanalescv/", $ncanalescv, $texto_contrato);
+        $texto_contrato = preg_replace("/whatspe/", $whatspe, $texto_contrato);
+        $texto_contrato = preg_replace("/canaleshd/", $canaleshd, $texto_contrato);
+        $texto_contrato = preg_replace("/canalessd/", $canalessd, $texto_contrato);
+        $texto_contrato = preg_replace("/frmacvision/", $identificadorcv, $texto_contrato);
+        $texto_contrato = preg_replace("/imgoscip1/", $imgoscip1, $texto_contrato);
+        $texto_contrato = preg_replace("/imgoscip2/", $imgoscip2, $texto_contrato);
+        $texto_contrato = preg_replace("/iden_con_clpv/", $iden_con_clpv, $texto_contrato);
+        $texto_contrato = preg_replace("/segp2/", $sign, $texto_contrato);
+        $texto_contrato = preg_replace("/trofp2/", $cali, $texto_contrato);
+        $texto_contrato = preg_replace("/prohip2/", $not, $texto_contrato);
+        $texto_contrato = preg_replace("/simep2/", $dual, $texto_contrato);
+        $texto_contrato = preg_replace("/velop2/", $speed, $texto_contrato);
+        $texto_contrato = preg_replace("/tcasp1/", $home, $texto_contrato);
+        $texto_contrato = preg_replace("/audfp1/", $heat, $texto_contrato);
+        $texto_contrato = preg_replace("/nubudp1/", $clud, $texto_contrato);
+        $texto_contrato = preg_replace("/jugplp1/", $play, $texto_contrato);
+        $texto_contrato = preg_replace("/paqunidos/", $paqunidos, $texto_contrato);
+        $texto_contrato = preg_replace("/listserv/", $servicioscheck, $texto_contrato);
+
+        // Contrato Accessnet
+        $texto_contrato = preg_replace("/id_serv_empr/", $id_serv_empr, $texto_contrato);
+        $texto_contrato = preg_replace("/id_serv_hog/", $id_serv_hog, $texto_contrato);
+        $texto_contrato = preg_replace("/nom_serv_empr/", $nom_serv_empr, $texto_contrato);
+        $texto_contrato = preg_replace("/nom_serv_hog/", $nom_serv_hog, $texto_contrato);
+
+        //Contrato Blik
+        $texto_contrato = preg_replace("/pag_directo/", $pag_directo, $texto_contrato);
+        $texto_contrato = preg_replace("/pag_tc/", $pag_tc, $texto_contrato);
+        $texto_contrato = preg_replace("/pag_debtar/", $pag_debtar, $texto_contrato);
+
+        //Contrato Pasajetv
+        $texto_contrato = preg_replace("/pasaje_img/", $pasaje_img, $texto_contrato);
+        /*  Este seccion de codigo remplaza las imagenes por su equivalente en base64 de acuerdo a un patro string en el formato html
+            img::<carpetaPadre>_<carpetaHijo>_<nombreImagen>::<formatoImagen>::img
+            ejm: img::cablevision_step2::jpg::img
+            ejm html: <img src="img::cablevision_step2::jpg::img" style="width: 92%;object-fit:contain;text-align: center;">
+        */
+
+        /*
+        $pattern = '/(img)::(\w+)::(\w+)::(img)/i';
+        preg_match_all($pattern,$texto_contrato,$out, PREG_PATTERN_ORDER);
+        foreach($out[2] as $x => $val) {
+            $imgpath = explode('_',$val);
+            $new_path='';
+            foreach($imgpath as $i => $value) {
+
+                if($i<(sizeof($imgpath)-1)){
+                    $new_path.=$value.'/';
+                }else{
+                    $new_path.=$value;
+                }
+
+            }
+            $img_base64 = '';
+            $img_base64 = convertir_png_a_base64($img_base_path.$new_path.'.'.$out[3][$x]);
+            $texto_contrato = preg_replace($pattern, $img_base64, $texto_contrato);
+        }
+        */
+
+        /* Fin de seccion de remplazo de imagenes */
+
+
+        $texto_contrato = preg_replace("/{nom_empr}/", $empr_nom_empr, $texto_contrato);
+        $texto_contrato = preg_replace("/{ruc_empr}/", $empr_ruc_empr, $texto_contrato);
+        $texto_contrato = preg_replace("/{anio_actual}/", substr($current_year, 0, 3), $texto_contrato);
+
+
+
+        $texto_contrato = preg_replace("/siteco/", 'aaaassasasassa', $texto_contrato);
+
+
+
+        $texto_contrato = preg_replace("/nombreclienteco/", $nom_clpv, $texto_contrato);
+        $texto_contrato = preg_replace("/identificacionco/", $ruc_clpv, $texto_contrato);
+        $texto_contrato = preg_replace("/emailco/", $email, $texto_contrato);
+
+        $texto_contrato = preg_replace("/direccionco/", $direccion, $texto_contrato);
+
+        $texto_contrato = preg_replace("/CLAUSULA/", 'CLÁUSULA', $texto_contrato);
+        $texto_contrato = preg_replace("/optica/", 'óptica', $texto_contrato);
+        $texto_contrato = preg_replace("/Inalambrico/", 'Inalámbrico', $texto_contrato);
+        $texto_contrato = preg_replace("/Cibercafe/", 'Cibercafé', $texto_contrato);
+        $texto_contrato = preg_replace("/maxima/", 'máxima', $texto_contrato);
+        $texto_contrato = preg_replace("/Minima/", 'Mí­nima', $texto_contrato);
+        $texto_contrato = preg_replace("/Comparticion/", 'Compartición', $texto_contrato);
+        $texto_contrato = preg_replace("/minima/", 'mí­nima', $texto_contrato);
+        $texto_contrato = preg_replace("/Electronico/", 'Electrónico', $texto_contrato);
+        $texto_contrato = preg_replace("/Descripcion/", 'Descripción', $texto_contrato);
+        $texto_contrato = preg_replace("/instalacion/", 'instalación', $texto_contrato);
+        $texto_contrato = preg_replace("/dias/", 'días', $texto_contrato);
+        $texto_contrato = preg_replace("/{fecha_ins}/", $fecha_final, $texto_contrato);
+        $texto_contrato = preg_replace("/{nom_plan}/", $planes_nam, $texto_contrato);
+        $texto_contrato = preg_replace("/{cod_cid}/", $codigo_cid, $texto_contrato);
+
+        $texto_contrato = preg_replace("/{cliente}/", $nom_clpv, $texto_contrato);
+        $texto_contrato = preg_replace("/{beneficio_permanencia}/", '&nbsp;' . $observacion, $texto_contrato);
+        $texto_contrato = preg_replace("/{valor_instala}/", $suscripcion, $texto_contrato);
+        $texto_contrato = preg_replace("/{plazo_instala}/", '', $texto_contrato);
+        $texto_contrato = preg_replace("/{codigo_remp}/", $codigo, $texto_contrato);
+
+        $texto_contrato = preg_replace("/{max_subida}/", $subida_plan, $texto_contrato);
+        $texto_contrato = preg_replace("/{max_bajada}/", $bajada_plan, $texto_contrato);
+
+        $texto_contrato = preg_replace("/{min_subida}/", $subida_plan_min, $texto_contrato);
+        $texto_contrato = preg_replace("/{min_bajada}/", $bajada_plan_min, $texto_contrato);
+
+        $texto_contrato = preg_replace("/{valor_mensual}/", round($tarifa_sin_iva, 2), $texto_contrato);
+        $texto_contrato = preg_replace("/{valor_otros}/", '0.00', $texto_contrato);
+        $texto_contrato = preg_replace("/{valor_total}/", round($tarifa, 2), $texto_contrato);
+        $texto_contrato = preg_replace("/{cliente_dni}/", $ruc_clpv, $texto_contrato);
+        $texto_contrato = preg_replace("/{dni_vendedor}/", '1309105235', $texto_contrato);
+        $texto_contrato = preg_replace("/{fima_remp}/", $fima_remp, $texto_contrato);
+        $texto_contrato = preg_replace("/{duracion_contrato}/", $duracion, $texto_contrato);
+
+        if ($tipo_categoria_txt == 'COORPORATIVO') {
+            $texto_contrato = preg_replace("/{corporativo_select}/", 'X', $texto_contrato);
+            $texto_contrato = preg_replace("/{residencial_select}/", '', $texto_contrato);
+        } elseif ($tipo_categoria_txt == 'RESIDENCIAL') {
+            $texto_contrato = preg_replace("/{residencial_select}/", 'X', $texto_contrato);
+            $texto_contrato = preg_replace("/{corporativo_select}/", '', $texto_contrato);
+        } else {
+            $texto_contrato = preg_replace("/{corporativo_select}/", '', $texto_contrato);
+            $texto_contrato = preg_replace("/{residencial_select}/", '', $texto_contrato);
+        }
+
+        $texto_contrato = preg_replace("/espacioco/", '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $texto_contrato);
+        $texto_contrato = preg_replace("/dias/", 'dí­as', $texto_contrato);
+        $texto_contrato = preg_replace("/planes_por_contrato/", $lista_planes_contenedor_html, $texto_contrato);
+        $texto_contrato = preg_replace("/titulo_plan/", $titulo_plan, $texto_contrato);
+
+        $texto_contrato = preg_replace("/porcentaje_altura_plan/", ($altura_tipo_plan_base + $altura_tipo_plan), $texto_contrato);
+        $texto_contrato = preg_replace("/porcentaje_altura_p2/", ($altura_tipo_plan_base_2 + $altura_tipo_plan), $texto_contrato);
+
+
+        $texto_contrato = preg_replace("/img_pie_altura/", ($img_pie_altura + $altura_tipo_plan), $texto_contrato);
+        $texto_contrato = preg_replace("/datos_clpv_altura/", ($datos_clpv_altura + $altura_tipo_plan), $texto_contrato);
+        $texto_contrato = preg_replace("/rubrico_altura/", ($rubrico_altura + $altura_tipo_plan), $texto_contrato);
+        $texto_contrato = preg_replace("/firma_contrato_altura/", ($firma_contrato_altura + $altura_tipo_plan), $texto_contrato);
+
+
+
+
+        if (!empty($id_barrio)) {
+            $sql_b = "SELECT barrio from isp.int_barrio WHERE id=$id_barrio";
+            $name_barrio = consulta_string($sql_b, 'barrio', $oCon, ' ');
+            $texto_contrato = preg_replace("/barrio_remp/", $name_barrio, $texto_contrato);
+        }
+
+        $tipo = 2;
+        ////////////////////////////FACTURACION PDF////////////////////////////
+        /*
+        $texto_contrato = base64_encode($texto_contrato);
+
+        $headers = array(
+            "Content-Type:application/json"
+        );
+
+        $data_html = array(
+            "contenido" => $texto_contrato,
+            "opciones" => array(
+                "tamano_pagina" => array(
+                    "tamano" => 'Letter'
+                )
+            ));
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_URL, URL_JIREH_DOCUMENTOS . "/core/reporte/convertir/html2pdf");
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data_html));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $data_pdf = curl_exec($ch);
+
+        $ruta_pdf = DIR_FACTELEC . 'Include/archivos/aviso.pdf';
+        header('Content-Type: application/pdf');
+        file_put_contents($ruta_pdf, $data_pdf);
+
+        $sHtml .= '<a href="' . $_COOKIE["JIREH_INCLUDE"] . '/archivos/aviso.pdf" download="aviso.pdf" id="txt">';
+        $sHtml .= '<button type="button" class="btn btn-success btn-sm" style="width: 100%" title="">';
+        $sHtml .= '<i class="fa fa-download" aria-hidden="true"></i> ';
+        $sHtml .= 'Pulse aqui para descargar';
+        $sHtml .= '</button>';
+        $sHtml .= '</a>';
+
+        $oReturn->script("Swal.fire({
+                            type: 'success',
+                            title: 'Aviso generado correctamente',
+                            html: '$sHtml'
+                        })");
     */
-
-    /* Fin de seccion de remplazo de imagenes */
-
-
-    $texto_contrato = preg_replace("/{nom_empr}/", $empr_nom_empr, $texto_contrato);
-    $texto_contrato = preg_replace("/{ruc_empr}/", $empr_ruc_empr, $texto_contrato);
-    $texto_contrato = preg_replace("/{anio_actual}/", substr($current_year, 0, 3), $texto_contrato);
+        ////////////////////////////FIN////////////////////////////
+        ////////////////////////////FACTURACION NORMAL////////////////////////////
 
 
+        $html = "";
+        $html .= '<br>';
+        $html .= '<p style=" text-align: justify;">' . $texto_contrato . '</p>';
+        $html1 = "";
 
-    $texto_contrato = preg_replace("/siteco/", 'aaaassasasassa', $texto_contrato);
+        $logo_desenfonque = $logo . "_desenfoque.jpg";
+
+        if ($id_tip_contr == 1 || $id_tip_contr == 2) {
+            $documento .= '<page backtop="10mm" backbottom="15mm" backleft="15mm" backright="15mm" backimgx="right" backimgy="bottom" backimgw="15%" >';
+            $documento .= $html;
+            $documento .= '</page>';
+        } else {
+            $documento .= '<page backtop="10mm" backbottom="15mm" backleft="15mm" backright="15mm" backimgx="right" backimgy="bottom" backimgw="15%" >';
+            $documento .= $html;
+            $documento .= '</page>';
+        }
 
 
+        // echo ($documento);
+        // exit;
 
-    $texto_contrato = preg_replace("/nombreclienteco/", $nom_clpv, $texto_contrato);
-    $texto_contrato = preg_replace("/identificacionco/", $ruc_clpv, $texto_contrato);
-    $texto_contrato = preg_replace("/emailco/", $email, $texto_contrato);
+        $_SESSION['pdf'] = $documento;
 
-    $texto_contrato = preg_replace("/direccionco/", $direccion, $texto_contrato);
+        if (strpos($documento, 'oversize_cable_selva') !== false) {
+            // $oReturn->script('processHTML2PDF(`' . $documento . '`)');
+            $oReturn->script('print_as_document(`' . $documento . '`)');
+            // $oReturn->script('print_as_document2(`' . $documento . '`)');
+        } else {
+            $oReturn->script('generar_pdf3(\'' . $formato . '\')');
+        }
 
-    $texto_contrato = preg_replace("/CLAUSULA/", 'CLÁUSULA', $texto_contrato);
-    $texto_contrato = preg_replace("/optica/", 'óptica', $texto_contrato);
-    $texto_contrato = preg_replace("/Inalambrico/", 'Inalámbrico', $texto_contrato);
-    $texto_contrato = preg_replace("/Cibercafe/", 'Cibercafé', $texto_contrato);
-    $texto_contrato = preg_replace("/maxima/", 'máxima', $texto_contrato);
-    $texto_contrato = preg_replace("/Minima/", 'Mí­nima', $texto_contrato);
-    $texto_contrato = preg_replace("/Comparticion/", 'Compartición', $texto_contrato);
-    $texto_contrato = preg_replace("/minima/", 'mí­nima', $texto_contrato);
-    $texto_contrato = preg_replace("/Electronico/", 'Electrónico', $texto_contrato);
-    $texto_contrato = preg_replace("/Descripcion/", 'Descripción', $texto_contrato);
-    $texto_contrato = preg_replace("/instalacion/", 'instalación', $texto_contrato);
-    $texto_contrato = preg_replace("/dias/", 'días', $texto_contrato);
-    $texto_contrato = preg_replace("/{fecha_ins}/", $fecha_final, $texto_contrato);
-    $texto_contrato = preg_replace("/{nom_plan}/", $planes_nam, $texto_contrato);
-    $texto_contrato = preg_replace("/{cod_cid}/", $codigo_cid, $texto_contrato);
-
-    $texto_contrato = preg_replace("/{cliente}/", $nom_clpv, $texto_contrato);
-    $texto_contrato = preg_replace("/{beneficio_permanencia}/", '&nbsp;' . $observacion, $texto_contrato);
-    $texto_contrato = preg_replace("/{valor_instala}/", $suscripcion, $texto_contrato);
-    $texto_contrato = preg_replace("/{plazo_instala}/", '', $texto_contrato);
-    $texto_contrato = preg_replace("/{codigo_remp}/", $codigo, $texto_contrato);
-
-    $texto_contrato = preg_replace("/{max_subida}/", $subida_plan, $texto_contrato);
-    $texto_contrato = preg_replace("/{max_bajada}/", $bajada_plan, $texto_contrato);
-
-    $texto_contrato = preg_replace("/{min_subida}/", $subida_plan_min, $texto_contrato);
-    $texto_contrato = preg_replace("/{min_bajada}/", $bajada_plan_min, $texto_contrato);
-
-    $texto_contrato = preg_replace("/{valor_mensual}/", round($tarifa_sin_iva, 2), $texto_contrato);
-    $texto_contrato = preg_replace("/{valor_otros}/", '0.00', $texto_contrato);
-    $texto_contrato = preg_replace("/{valor_total}/", round($tarifa, 2), $texto_contrato);
-    $texto_contrato = preg_replace("/{cliente_dni}/", $ruc_clpv, $texto_contrato);
-    $texto_contrato = preg_replace("/{dni_vendedor}/", '1309105235', $texto_contrato);
-    $texto_contrato = preg_replace("/{fima_remp}/", $fima_remp, $texto_contrato);
-    $texto_contrato = preg_replace("/{duracion_contrato}/", $duracion, $texto_contrato);
-
-    if ($tipo_categoria_txt == 'COORPORATIVO') {
-        $texto_contrato = preg_replace("/{corporativo_select}/", 'X', $texto_contrato);
-        $texto_contrato = preg_replace("/{residencial_select}/", '', $texto_contrato);
-    } elseif ($tipo_categoria_txt == 'RESIDENCIAL') {
-        $texto_contrato = preg_replace("/{residencial_select}/", 'X', $texto_contrato);
-        $texto_contrato = preg_replace("/{corporativo_select}/", '', $texto_contrato);
-    } else {
-        $texto_contrato = preg_replace("/{corporativo_select}/", '', $texto_contrato);
-        $texto_contrato = preg_replace("/{residencial_select}/", '', $texto_contrato);
+        $oReturn->assign('detalle_paquetes', 'innerHTML', $paquetes);
+    } catch (Exception $e) {
+        $oReturn->alert($e->getMessage());
     }
-
-    $texto_contrato = preg_replace("/espacioco/", '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $texto_contrato);
-    $texto_contrato = preg_replace("/dias/", 'dí­as', $texto_contrato);
-    $texto_contrato = preg_replace("/planes_por_contrato/", $lista_planes_contenedor_html, $texto_contrato);
-
-    $texto_contrato = preg_replace("/porcentaje_altura_plan/", ($altura_tipo_plan_base + $altura_tipo_plan), $texto_contrato);
-    $texto_contrato = preg_replace("/porcentaje_altura_p2/", ($altura_tipo_plan_base_2 + $altura_tipo_plan), $texto_contrato);
-
-
-    $texto_contrato = preg_replace("/img_pie_altura/", ($img_pie_altura + $altura_tipo_plan), $texto_contrato);
-    $texto_contrato = preg_replace("/datos_clpv_altura/", ($datos_clpv_altura + $altura_tipo_plan), $texto_contrato);
-    $texto_contrato = preg_replace("/rubrico_altura/", ($rubrico_altura + $altura_tipo_plan), $texto_contrato);
-    $texto_contrato = preg_replace("/firma_contrato_altura/", ($firma_contrato_altura + $altura_tipo_plan), $texto_contrato);
-
-
-
-
-    if (!empty($id_barrio)) {
-        $sql_b = "SELECT barrio from isp.int_barrio WHERE id=$id_barrio";
-        $name_barrio = consulta_string($sql_b, 'barrio', $oCon, ' ');
-        $texto_contrato = preg_replace("/barrio_remp/", $name_barrio, $texto_contrato);
-    }
-
-    $tipo = 2;
-    ////////////////////////////FACTURACION PDF////////////////////////////
-    /*
-    $texto_contrato = base64_encode($texto_contrato);
-
-    $headers = array(
-        "Content-Type:application/json"
-    );
-
-    $data_html = array(
-        "contenido" => $texto_contrato,
-        "opciones" => array(
-            "tamano_pagina" => array(
-                "tamano" => 'Letter'
-            )
-        ));
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_URL, URL_JIREH_DOCUMENTOS . "/core/reporte/convertir/html2pdf");
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data_html));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $data_pdf = curl_exec($ch);
-
-    $ruta_pdf = DIR_FACTELEC . 'Include/archivos/aviso.pdf';
-    header('Content-Type: application/pdf');
-    file_put_contents($ruta_pdf, $data_pdf);
-
-    $sHtml .= '<a href="' . $_COOKIE["JIREH_INCLUDE"] . '/archivos/aviso.pdf" download="aviso.pdf" id="txt">';
-    $sHtml .= '<button type="button" class="btn btn-success btn-sm" style="width: 100%" title="">';
-    $sHtml .= '<i class="fa fa-download" aria-hidden="true"></i> ';
-    $sHtml .= 'Pulse aqui para descargar';
-    $sHtml .= '</button>';
-    $sHtml .= '</a>';
-
-    $oReturn->script("Swal.fire({
-                        type: 'success',
-                        title: 'Aviso generado correctamente',
-                        html: '$sHtml'
-                    })");
-*/
-    ////////////////////////////FIN////////////////////////////
-    ////////////////////////////FACTURACION NORMAL////////////////////////////
-
-
-    $html = "";
-    $html .= '<br>';
-    $html .= '<p style=" text-align: justify;">' . $texto_contrato . '</p>';
-    $html1 = "";
-
-    $logo_desenfonque = $logo . "_desenfoque.jpg";
-
-    if ($id_tip_contr == 1 || $id_tip_contr == 2) {
-        $documento .= '<page backtop="10mm" backbottom="15mm" backleft="15mm" backright="15mm" backimgx="right" backimgy="bottom" backimgw="15%" >';
-        $documento .= $html;
-        $documento .= '</page>';
-    } else {
-        $documento .= '<page backtop="10mm" backbottom="15mm" backleft="15mm" backright="15mm" backimgx="right" backimgy="bottom" backimgw="15%" >';
-        $documento .= $html;
-        $documento .= '</page>';
-    }
-
-
-    // echo ($documento);
-    // exit;
-
-    $_SESSION['pdf'] = $documento;
-
-    if (strpos($documento, 'oversize_cable_selva') !== false) {
-        // $oReturn->script('processHTML2PDF(`' . $documento . '`)');
-        $oReturn->script('print_as_document(`' . $documento . '`)');
-        // $oReturn->script('print_as_document2(`' . $documento . '`)');
-    } else {
-        $oReturn->script('generar_pdf3(\'' . $formato . '\')');
-    }
-
-    $oReturn->assign('detalle_paquetes', 'innerHTML', $paquetes);
-
-
     ////////////////////////////FIN////////////////////////////
     return $oReturn;
 }
 
-function numero_a_palabra($n){
+function numero_a_palabra($n)
+{
 
 
     $formatterES = new NumberFormatter("es-ES", NumberFormatter::SPELLOUT);
     $izquierda = intval(floor($n));
     $derecha = intval(($n - floor($n)) * 100);
-    
-    return ($derecha>0)?$formatterES->format($izquierda) . " coma " . $formatterES->format($derecha):$formatterES->format($izquierda);
+
+    return ($derecha > 0) ? $formatterES->format($izquierda) . " coma " . $formatterES->format($derecha) : $formatterES->format($izquierda);
 }
 
 function imprimirAnexo()
@@ -9767,41 +10584,6 @@ function guardarTrazado($aForm = '', $codigo)
         // commit
         $oCon->QueryT('BEGIN;');
 
-        $sql = "SELECT table_name FROM information_schema.columns 
-                WHERE table_name='contrato_firmas' 
-                AND table_schema = 'public'";
-        if ($oCon->Query($sql)) {
-            if ($oCon->NumFilas() > 0) {
-                $table_name    = $oCon->f('table_name');
-            }
-        }
-        $oCon->Free();
-
-        if (empty($table_name)) {
-
-            $oCon1->QueryT('BEGIN;');
-
-            $sqlCreateTable = 'CREATE TABLE "public"."contrato_firmas" (
-                                "id" int4 NOT NULL GENERATED BY DEFAULT AS IDENTITY (
-                                INCREMENT 1
-                                MINVALUE  1
-                                MAXVALUE 2147483647
-                                START 1
-                                CACHE 1
-                                ),
-                                "id_contrato" int4 NOT NULL,
-                                "imagen" text COLLATE "pg_catalog"."default" NOT NULL,
-                                "created_at" timestamp(0),
-                                "updated_at" timestamp(0)
-                                );';
-            $oCon1->QueryT($sqlCreateTable);
-
-            $sqlClavePrimaria = 'ALTER TABLE "public"."contrato_firmas" ADD CONSTRAINT "contrato_firmas_pkey" PRIMARY KEY ("id");';
-            $oCon1->QueryT($sqlClavePrimaria);
-
-            $oCon1->QueryT('COMMIT;');
-        }
-
         $imagen = preg_replace('#^data:image/\w+;base64,#i', '', $base64);
 
         $sql = "DELETE FROM contrato_firmas WHERE id_contrato = $idContrato";
@@ -9891,6 +10673,253 @@ function continuarContrato($aForm = '', $id)
     return $oReturn;
 }
 
+// Función para verificar si un valor está en una lista de valores separados por comas
+function valorEnLista($valor, $lista) {
+    if (empty($lista)) {
+        return true; // Considera válido si la lista está vacía
+    }
+    $valores = explode(',', $lista);
+
+    return in_array($valor, $valores);
+}
+
+function validaScore($puntaje_score, $tipos_score){
+    global $DSN;
+
+    $oConS = new Dbo;
+    $oConS->DSN = $DSN;
+    $oConS->Conectar();
+
+    $validacion = false;
+
+    try {
+        if (count((array) $tipos_score) > 0) {
+            $id_scores = array();
+            foreach ($tipos_score as $tipo_score) {
+                $id_score_indi = $tipo_score->id_score;
+                array_push($id_scores, $id_score_indi);
+            }
+
+            $id_scores = implode(",",$id_scores);
+
+            $sql = "SELECT id FROM isp.int_promociones_score WHERE id in ($id_scores) AND $puntaje_score >= puntos_ini and $puntaje_score <= puntos_fin";
+            $valida_aplica_score = consulta_string_func($sql, 'id', $oConS, 0);
+
+            if($valida_aplica_score > 0){
+                $validacion = true;
+            }
+        }
+    } catch (Exception $e) {
+        echo $e->getMessage();
+    }
+
+    return $validacion;
+}
+
+// Función para verificar si una promoción aplica según los parámetros
+function aplicaPromocion($promocion, $params) {
+    $aplica = true;
+    $aplica = $aplica && valorEnLista($params["id_provincia"], $promocion["id_provincia"]);
+    $aplica = $aplica && valorEnLista($params["id_canton"], $promocion["id_canton"]);
+    $aplica = $aplica && valorEnLista($params["id_parroquia"], $promocion["id_parroquia"]);
+    $aplica = $aplica && valorEnLista($params["id_sector"], $promocion["id_sector"]);
+    $aplica = $aplica && valorEnLista($params["id_fpag"], $promocion["id_fpag"]);
+    $aplica = $aplica && valorEnLista($params["tipo_vivienda"], $promocion["id_tipo_vivienda"]);
+    $aplica = $aplica && valorEnLista($params["tipo_cliente"], $promocion["tipo_cliente"]);
+    $aplica = $aplica && ($params["cambio_operador"] == $promocion["cambio_operador_sn"]);
+    $aplica = $aplica && ($params["vivienda_propia"] == $promocion["vivienda_propia_sn"]);
+    $aplica = $aplica && ($params["con_empleo"] == $promocion["con_empleo_sn"]);
+    $aplica = $aplica && ($params["es_cliente"] == $promocion["es_cliente_sn"]);
+    if($promocion["aplica_score_sn"] == 'S'){
+        $aplica = $aplica && validaScore($params["puntaje_score"], $promocion["tipos_score"]);
+    }
+    return $aplica;
+}
+
+function valida_aplica_promo($idContrato)
+{
+    global $DSN;
+
+    session_start();
+
+    $oConP = new Dbo;
+    $oConP->DSN = $DSN;
+    $oConP->Conectar();
+
+    $oReturn = new xajaxResponse();
+
+    $idempresa  = $_SESSION['U_EMPRESA'];
+    $idsucursal = $_SESSION['U_SUCURSAL'];
+
+    try {
+
+        if(!isset($_SESSION['U_EMPRESA'])){
+            throw new Exception("Sesión finalizada, vuelva a ingresar");
+        }
+
+        $sql = "SELECT tipo_contrato, estado, id_sucursal, id_provincia, id_canton, id_parroquia, id_sector, 
+                        puntaje_score, departamento, cambio_operador_sn, vivienda_propia_sn, con_empleo_sn, id_clpv,
+                        fecha_contrato, id_tipo_cont_serv
+                FROM isp.contrato_clpv 
+                WHERE id = $idContrato";
+        if ($oConP->Query($sql)) {
+            if ($oConP->NumFilas() > 0) {
+                do {
+                    $tipo_contrato      = $oConP->f('tipo_contrato');
+                    $estado             = $oConP->f('estado');
+                    $id_sucursal        = $oConP->f('id_sucursal');
+                    $id_provincia       = $oConP->f('id_provincia');
+                    $id_canton          = $oConP->f('id_canton');
+                    $id_parroquia       = $oConP->f('id_parroquia');
+                    $id_sector          = $oConP->f('id_sector');
+                    $puntaje_score      = $oConP->f('puntaje_score');
+                    $tipo_casa          = $oConP->f('departamento');
+                    $cambio_operador_sn = $oConP->f('cambio_operador_sn');
+                    $vivienda_propia_sn = $oConP->f('vivienda_propia_sn');
+                    $con_empleo_sn      = $oConP->f('con_empleo_sn');
+                    $id_clpv            = $oConP->f('id_clpv');
+                    $fecha_contrato     = $oConP->f('fecha_contrato');
+                    $id_tipo_cont_serv  = $oConP->f('id_tipo_cont_serv');
+                } while ($oConP->SiguienteRegistro());
+            }
+        }
+        $oConP->Free();
+
+        if(empty($fecha_contrato)){
+            throw new Exception("Sin fecha de contrato para validar promoción.");
+        }
+
+        $v_es_cliente = 0;
+        $sql = "SELECT COUNT(id) as v_es_cliente
+                FROM isp.contrato_clpv 
+                WHERE id_clpv = $id_clpv AND estado IN ('AP','PI','PE')";
+        if ($oConP->Query($sql)) {
+            if ($oConP->NumFilas() > 0) {
+                do {
+                    $v_es_cliente      = $oConP->f('v_es_cliente');
+                } while ($oConP->SiguienteRegistro());
+            }
+        }
+        $oConP->Free();
+
+        $es_cliente = 'N';
+        if($v_es_cliente > 1){
+            $es_cliente = 'S';
+        }
+
+        $id_tipo = "";
+        $sql = "SELECT id_tipo from isp.contrato_medio_pago where id_contrato = $idContrato order by id DESC LIMIT 1";
+        if ($oConP->Query($sql)) {
+            if ($oConP->NumFilas() > 0) {
+                do {
+                    $id_tipo  = $oConP->f('id_tipo');
+                } while ($oConP->SiguienteRegistro());
+            }
+        }
+        $oConP->Free();
+
+        $array_parametros = array(
+            "id_provincia" => $id_provincia,
+            "id_canton" => $id_canton,
+            "id_parroquia" => $id_parroquia,
+            "id_sector" => $id_sector,
+            "id_fpag" => $id_tipo,
+            "tipo_vivienda" => $tipo_casa,
+            "cambio_operador" => $cambio_operador_sn,
+            "vivienda_propia" => $vivienda_propia_sn,
+            "con_empleo" => $con_empleo_sn,
+            "es_cliente" => $es_cliente,
+            "puntaje_score" => $puntaje_score,
+            "fecha_contrato" => $fecha_contrato,
+            "id_sucursal" => $id_sucursal,
+            "tipo_cliente" => $id_tipo_cont_serv
+        );
+
+        $promociones = array();
+        $sql = "SELECT *
+                FROM isp.int_promociones 
+                WHERE id_sucursal = $idsucursal 
+                    AND id_empresa = $idempresa 
+                    AND estado = 'A' 
+                    AND '$fecha_contrato' BETWEEN fecha_desde AND fecha_hasta";
+        if ($oConP->Query($sql)) {
+            if ($oConP->NumFilas() > 0) {
+                do {
+                    $id                         = $oConP->f('id');
+                    $id_empresa                 = $oConP->f('id_empresa');
+                    $nombre                     = $oConP->f('nombre');
+                    $descripcion                = $oConP->f('descripcion');
+                    $id_sucursal                = $oConP->f('id_sucursal');
+                    $id_provincia               = $oConP->f('id_provincia');
+                    $id_canton                  = $oConP->f('id_canton');
+                    $id_parroquia               = $oConP->f('id_parroquia');
+                    $id_sector                  = $oConP->f('id_sector');
+                    $id_fpag                    = $oConP->f('id_fpag');
+                    $id_tipo_vivienda           = $oConP->f('id_tipo_vivienda');
+                    $cambio_operador_sn         = $oConP->f('cambio_operador_sn');
+                    $vivienda_propia_sn         = $oConP->f('vivienda_propia_sn');
+                    $con_empleo_sn              = $oConP->f('con_empleo_sn');
+                    $es_cliente_sn              = $oConP->f('es_cliente_sn');
+                    $aplica_score_sn            = $oConP->f('aplica_score_sn');
+                    $tipo_cliente               = $oConP->f('tipo_cliente');
+                    $tipos_score                = $oConP->f('tipos_score', false);
+                    $tipos_score                = json_decode($tipos_score);
+
+                    $info_promo = array(
+                        "id" => $id,
+                        "id_empresa" => $id_empresa,
+                        "nombre" => $nombre,
+                        "descripcion" => $descripcion,
+                        "id_sucursal" => $id_sucursal,
+                        "id_provincia" => $id_provincia,
+                        "id_canton" => $id_canton,
+                        "id_parroquia" => $id_parroquia,
+                        "id_sector" => $id_sector,
+                        "id_fpag" => $id_fpag,
+                        "id_tipo_vivienda" => $id_tipo_vivienda,
+                        "cambio_operador_sn" => $cambio_operador_sn,
+                        "vivienda_propia_sn" => $vivienda_propia_sn,
+                        "con_empleo_sn" => $con_empleo_sn,
+                        "es_cliente_sn" => $es_cliente_sn,
+                        "aplica_score_sn" => $aplica_score_sn,
+                        "tipos_score" => $tipos_score,
+                        "tipo_cliente" => $tipo_cliente
+                    );
+
+                    array_push($promociones, $info_promo);
+                } while ($oConP->SiguienteRegistro());
+            }
+        }
+        $oConP->Free();
+
+        // Buscar promoción que aplica
+        $idPromocionAplicable = 0;
+        $arrayPromos = array();
+        if(count($promociones) > 0){
+            foreach ($promociones as $promocion) {
+                if (aplicaPromocion($promocion, $array_parametros)) {
+                    $idPromocionAplicable = $promocion["id"];
+                    array_push($arrayPromos, $idPromocionAplicable);
+                }
+            }
+        }
+
+        $codigo = 200;
+        $resp = $arrayPromos;
+
+    } catch (Exception $e) {
+        $codigo = 500;
+        $resp = $e->getMessage();
+    }
+
+    $respuesta = array(
+        "status" => $codigo,
+        "respuesta" => $resp
+    );
+
+    return $respuesta;
+}
+
 function mirarPlanes($aForm, $int_tipo_serv_con)
 {
     global $DSN;
@@ -9917,13 +10946,152 @@ function mirarPlanes($aForm, $int_tipo_serv_con)
         $estado_api         = $_SESSION['estado_api'];
         $gestion_bqn_sn     = $_SESSION['gestion_bqn_sn'];
 
+        $sql = "SELECT usa_promo_sn from isp.int_parametros WHERE id_sucursal = $idsucursal";
+        $usa_promo_sn = consulta_string_func($sql, 'usa_promo_sn', $oCon, 0);
+
         //variables del formulario
         $idContrato = $aForm['idContrato'];
 
         //tipo contrato
-        $sql = "SELECT tipo_contrato, estado from isp.contrato_clpv WHERE id = $idContrato";
-        $tipo_contrato = consulta_string_func($sql, 'tipo_contrato', $oCon, 0);
-        $estado = consulta_string_func($sql, 'estado', $oCon, 0);
+        $sql = "SELECT tipo_contrato, estado, id_sucursal, id_provincia, id_canton, id_parroquia, id_sector, 
+                        puntaje_score, departamento, cambio_operador_sn, vivienda_propia_sn, con_empleo_sn, id_clpv,
+                        fecha_contrato
+                FROM isp.contrato_clpv 
+                WHERE id = $idContrato";
+        if ($oCon->Query($sql)) {
+            if ($oCon->NumFilas() > 0) {
+                do {
+                    $tipo_contrato      = $oCon->f('tipo_contrato');
+                    $estado             = $oCon->f('estado');
+                    $id_sucursal        = $oCon->f('id_sucursal');
+                    $id_provincia       = $oCon->f('id_provincia');
+                    $id_canton          = $oCon->f('id_canton');
+                    $id_parroquia       = $oCon->f('id_parroquia');
+                    $id_sector          = $oCon->f('id_sector');
+                    $puntaje_score      = $oCon->f('puntaje_score');
+                    $tipo_casa          = $oCon->f('departamento');
+                    $cambio_operador_sn = $oCon->f('cambio_operador_sn');
+                    $vivienda_propia_sn = $oCon->f('vivienda_propia_sn');
+                    $con_empleo_sn      = $oCon->f('con_empleo_sn');
+                    $id_clpv            = $oCon->f('id_clpv');
+                    $fecha_contrato     = $oCon->f('fecha_contrato');
+                } while ($oCon->SiguienteRegistro());
+            }
+        }
+        $oCon->Free();
+
+        $id_promocion_aplica = 0;
+        $sHtmlPromo = '';
+        if($usa_promo_sn == 'S'){
+            $id_promocion_aplica = valida_aplica_promo($idContrato);
+
+            if($id_promocion_aplica['status'] == 500){
+                throw new Exception($id_promocion_aplica["respuesta"]);
+            }
+
+            $array_promo = $id_promocion_aplica["respuesta"];
+
+            if(count($array_promo) > 0){
+                $id_promocion_aplica = implode(",",$array_promo);
+
+                if(count($array_promo) == 1){
+                    $sHtmlPromo .= '<div class="table-responsive">
+                                        <table  class="table table-condensed table-striped table-hover table-bordered" style="width: 100%;" align="center">
+                                        <thead>
+                                        <tr>
+                                            <td></td>
+                                            <td align="center"><h5 class="text-success">Aplicar</h5></td>
+                                        </tr>
+                                        </thead>
+                                        <tbody>';
+                                        $sql = "SELECT id, nombre, descripcion from isp.int_promociones WHERE id in ($id_promocion_aplica)";
+                                        if ($oCon->Query($sql)) {
+                                            if ($oCon->NumFilas() > 0) {
+                                                do {
+                                                    $nombre_promo       = $oCon->f('nombre');
+                                                    $descripcion_promo  = $oCon->f('descripcion');
+                                                    $id_promo_ini       = $oCon->f('id');
+
+                                                    $sHtmlPromo .= '<tr>
+                                                                        <td>
+                                                                            <div class="alert alert-success" role="alert">
+                                                                                Contrato aplica a promoción: <b>'.$nombre_promo.'</b> 
+                                                                                <button class="btn btn-info btn-xs" onclick="detalles_promo('.$id_promocion_aplica.')">
+                                                                                    <i class="fa-solid fa-eye"></i> Detalles
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div align="center"> 
+                                                                                <label class="switch"> 
+                                                                                <input type="checkbox" class="classEquipoCantidadModem checkValidaPromo" onclick="seleccionaPromo(this,'.$id_promo_ini.')"  name="checkPromos'.$id_promo_ini.'" checked> 
+                                                                                <span class="slider round"></span> 
+                                                                                </label> 
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>';
+
+                                                    //$sHtmlPromo .= '<div class="alert alert-success" role="alert">Contrato aplica a promoción: <b>'.$nombre_promo.'</b> <button class="btn btn-info btn-xs" onclick="detalles_promo('.$id_promocion_aplica.')"><i class="fa-solid fa-eye"></i> Detalles</button></div>';
+                                                } while ($oCon->SiguienteRegistro());
+                                            }
+                                        }
+                                        $oCon->Free();
+                        $sHtmlPromo .= '</tbody>
+                                    </table></div>';
+
+                    $oReturn->assign('id_promocion_aplica_select', 'value', $id_promocion_aplica);
+                }else{
+                    $sHtmlPromo .= '<div class="table-responsive" style="height: 180px; overflow-y: scroll;">
+                                        <table  class="table table-condensed table-striped table-hover table-bordered" style="width: 100%;" align="center">
+                                        <thead>
+                                        <tr>
+                                            <td colspan="2"> <h4 class="text-warning">! CONTRATO APLICA A VARIAS PROMOCIONES, PUEDE SELECCIONAR UNA !</h4></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td align="center"><h5 class="text-success">Aplicar</h5></td>
+                                        </tr>
+                                        </thead>
+                                        <tbody>';
+                                        $sql = "SELECT id, nombre, descripcion from isp.int_promociones WHERE id in ($id_promocion_aplica)";
+                                        if ($oCon->Query($sql)) {
+                                            if ($oCon->NumFilas() > 0) {
+                                                do {
+                                                    $nombre_promo       = $oCon->f('nombre');
+                                                    $descripcion_promo  = $oCon->f('descripcion');
+                                                    $id_promo_ini       = $oCon->f('id');
+
+                                                    $sHtmlPromo .= '<tr>
+                                                                        <td>
+                                                                            <div class="alert alert-success" role="alert">
+                                                                                Contrato aplica a promoción: <b>'.$nombre_promo.'</b> 
+                                                                                <button class="btn btn-info btn-xs" onclick="detalles_promo('.$id_promocion_aplica.')">
+                                                                                    <i class="fa-solid fa-eye"></i> Detalles
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div align="center"> 
+                                                                                <label class="switch"> 
+                                                                                <input type="checkbox" class="classEquipoCantidadModem checkValidaPromo" onclick="seleccionaPromo(this,'.$id_promo_ini.')"  name="checkPromos'.$id_promo_ini.'"> 
+                                                                                <span class="slider round"></span> 
+                                                                                </label> 
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>';
+                                                } while ($oCon->SiguienteRegistro());
+                                            }
+                                        }
+                                        $oCon->Free();
+                        $sHtmlPromo .= '</tbody>
+                                    </table></div>';
+                }
+            }
+        }
+
+        if($estado == 'AP' || $estado == 'CO'){
+            throw new Exception("No puede seleccionar servicios en esta sección, si desea modificarlos debe realizardo desde el modulo: 'Modificar servicios contrato'. \n\nSi no lo tiene habilitado ponerse en contacto con el administrador del sistema");
+        }
 
         //servicios de cada tipo
         $sql = "SELECT servicios from isp.int_tipo_contrato WHERE id = $tipo_contrato";
@@ -9933,217 +11101,331 @@ function mirarPlanes($aForm, $int_tipo_serv_con)
         $sql = "SELECT aplica_servicios from isp.estado_contrato WHERE id = '$estado'";
         $aplica_servicios = consulta_string_func($sql, 'aplica_servicios', $oCon, 'N');
 
-        if ($aplica_servicios == 'S') {
+        if ($aplica_servicios != 'S') {
+            throw new Exception("Contrato no habilitado para agregar servicios");
+        }
 
-            $sql = "SELECT tipo, valor, equipo FROM isp.int_config_inst";
-            $array_config_inst = array_dato($oCon, $sql, 'equipo', 'valor');
+        $sql = "SELECT tipo, valor, equipo FROM isp.int_config_inst";
+        $array_config_inst = array_dato($oCon, $sql, 'equipo', 'valor');
 
-            $modal_contenido = '<div class="modal-dialog modal-lg" role="document" style="width:98%;">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                            <h5 class="modal-title" id="myModalLabel"><h3 class="text-primary"  align="center"> Selección de planes </h3><small></small></h5>
+        $modal_contenido = '<div class="modal-dialog modal-lg" role="document" style="width:98%;">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <h5 class="modal-title" id="myModalLabel"><h3 class="text-primary"  align="center"> Selección de planes </h3><small></small></h5>
+                                    </div>
+                                    <div class="modal-body" style="margin-top:0xp;">
+
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            '.$sHtmlPromo.'
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <ul class="nav nav-tabs" role="tablist">';
+
+        if ($id_api == 4 && $estado_api == 'A' && $gestion_bqn_sn == 'S') {
+            $Webservice = new Webservice($oCon);
+
+            $parametros = $Webservice->parametrosWS();
+
+            $tipo_comando   = "LISTADO_ROUTERS";
+            $tipo_sistema   = 1;
+            $envio_get      = "";
+            $envio_post     = "";
+            array_push($parametros, $id_api, $tipo_comando, $tipo_sistema);
+
+            $listado_routers  = $Webservice->enviaComando($parametros, $envio_get, $envio_post);
+
+            $router_1 = '';
+            if (count($listado_routers) > 0) {
+                $optionRouter = '<option value="0">Seleccione una opcion..</option>';
+                for ($i = 0; $i < count($listado_routers); $i++) {
+                    $id             = $listado_routers[$i]["id"];
+                    $id_olt_r       = $listado_routers[$i]["id_olt"];
+                    $nombre         = $listado_routers[$i]["nombre"];
+
+                    $selected = "";
+
+                    if ($id_router == $id) {
+                        $selected = "selected";
+                    }
+
+                    $optionRouter .= '<option value="' . $id . '" ' . $selected . '>' . $nombre . '</option>';
+                }
+            }
+
+            $modal_contenido .= '<div class="row">
+                                    <div class="col-md-6">
+                                        <div class="list-group">
+                                            <a href="#" class="list-group-item list-group-item-action active">Servidor</a>
+                                            <div class="list-group-item">
+                                                <select id="id_server_bqn" name="id_server_bqn" class="form-control input-sm" style="width:100%" onchange="cargarListasRouter()">
+                                                    ' . $optionRouter . '
+                                                </select>
+                                            </div>
                                         </div>
-                                        <div class="modal-body" style="margin-top:0xp;">
-                                            <div class="col-md-12">
-                                                    <ul class="nav nav-tabs" role="tablist"><br>';
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="list-group">
+                                            <a href="#" class="list-group-item list-group-item-action active">Politica</a>
+                                            <div class="list-group-item">
+                                                <select id="politica_bqn" name="politica_bqn" class="form-control input-sm" style="width:100%">
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>';
+        }
+        $data_tipo_servicio = explode(",", $servicios_tipo);
 
-            if ($id_api == 4 && $estado_api == 'A' && $gestion_bqn_sn == 'S') {
-                $Webservice = new Webservice($oCon);
+        //PESTAÑAS
+        for ($i = 0; $i < count($data_tipo_servicio); $i++) {
 
-                $parametros = $Webservice->parametrosWS();
+            $id_tipo = $data_tipo_servicio[$i];
 
-                $tipo_comando   = "LISTADO_ROUTERS";
-                $tipo_sistema   = 1;
-                $envio_get      = "";
-                $envio_post     = "";
-                array_push($parametros, $id_api, $tipo_comando, $tipo_sistema);
+            $sql = "SELECT nombre
+                        from isp.int_tipo_prod 
+                        where id = $id_tipo";
+            if ($oCon->Query($sql)) {
+                if ($oCon->NumFilas() > 0) {
+                    do {
+                        $nom_tipo_contrato = $oCon->f('nombre');
 
-                $listado_routers  = $Webservice->enviaComando($parametros, $envio_get, $envio_post);
-
-                $router_1 = '';
-                if (count($listado_routers) > 0) {
-                    $optionRouter = '<option value="0">Seleccione una opcion..</option>';
-                    for ($i = 0; $i < count($listado_routers); $i++) {
-                        $id             = $listado_routers[$i]["id"];
-                        $id_olt_r       = $listado_routers[$i]["id_olt"];
-                        $nombre         = $listado_routers[$i]["nombre"];
-
-                        $selected = "";
-
-                        if ($id_router == $id) {
-                            $selected = "selected";
+                        $op_active_c = '';
+                        if ($i == 0) {
+                            $op_active_c = 'active';
                         }
-
-                        $optionRouter .= '<option value="' . $id . '" ' . $selected . '>' . $nombre . '</option>';
-                    }
+                        $modal_contenido .= '<li role="presentation" id="tabId' . $id_tipo . '" class="' . $op_active_c . '"><a href="#tab' . $id_tipo . '" aria-controls="tab' . $id_tipo . '" role="tab" data-toggle="tab">' . $nom_tipo_contrato . '</a></li>';
+                    } while ($oCon->SiguienteRegistro());
                 }
-
-                $modal_contenido .= '<div class="row">
-                                        <div class="col-md-6">
-                                            <div class="list-group">
-                                                <a href="#" class="list-group-item list-group-item-action active">Servidor</a>
-                                                <div class="list-group-item">
-                                                    <select id="id_server_bqn" name="id_server_bqn" class="form-control input-sm" style="width:100%" onchange="cargarListasRouter()">
-                                                        ' . $optionRouter . '
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="list-group">
-                                                <a href="#" class="list-group-item list-group-item-action active">Politica</a>
-                                                <div class="list-group-item">
-                                                    <select id="politica_bqn" name="politica_bqn" class="form-control input-sm" style="width:100%">
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>';
             }
-            $data_tipo_servicio = explode(",", $servicios_tipo);
+            $oCon->Free();
+        }
 
-            //PESTAÑAS
-            for ($i = 0; $i < count($data_tipo_servicio); $i++) {
+        //VENTANAS
+        $modal_contenido .= '</ul><div class="tab-content">';
+        for ($i = 0; $i < count($data_tipo_servicio); $i++) {
 
-                $id_tipo = $data_tipo_servicio[$i];
+            $id_tipo = $data_tipo_servicio[$i];
 
-                $sql = "SELECT nombre
-                            from isp.int_tipo_prod 
-                            where id = $id_tipo";
-                if ($oCon->Query($sql)) {
-                    if ($oCon->NumFilas() > 0) {
-                        do {
-                            $nom_tipo_contrato = $oCon->f('nombre');
+            $sql = "SELECT nombre
+                        from isp.int_tipo_prod 
+                        where id = $id_tipo";
+            if ($oCon->Query($sql)) {
+                if ($oCon->NumFilas() > 0) {
+                    do {
+                        $nom_tipo_contrato = $oCon->f('nombre');
 
-                            $op_active_c = '';
-                            if ($i == 0) {
-                                $op_active_c = 'active';
-                            }
-                            $modal_contenido .= '<li role="presentation" id="tabId' . $id_tipo . '" class="' . $op_active_c . '"><a href="#tab' . $id_tipo . '" aria-controls="tab' . $id_tipo . '" role="tab" data-toggle="tab">' . $nom_tipo_contrato . '</a></li>';
-                        } while ($oCon->SiguienteRegistro());
-                    }
-                }
-                $oCon->Free();
-            }
-
-            //VENTANAS
-            $modal_contenido .= '</ul><div class="tab-content">';
-            for ($i = 0; $i < count($data_tipo_servicio); $i++) {
-
-                $id_tipo = $data_tipo_servicio[$i];
-
-                $sql = "SELECT nombre
-                            from isp.int_tipo_prod 
-                            where id = $id_tipo";
-                if ($oCon->Query($sql)) {
-                    if ($oCon->NumFilas() > 0) {
-                        do {
-                            $nom_tipo_contrato = $oCon->f('nombre');
-
-                            $op_active_c = '';
-                            if ($i == 0) {
-                                $op_active_c = 'active';
-                            }
-                            $precio_instalacion = $array_config_inst[$id_tipo];
-                            if (empty($precio_instalacion)) {
-                                $precio_instalacion = 0;
-                            }
-                            $modal_contenido .= '<div role="tabpanel" class="tab-pane ' . $op_active_c . '" id="tab' . $id_tipo . '">
-                                                    <div class="row" style="margin-bottom: 10px;">
-                                                        <div class="row">
+                        $op_active_c = '';
+                        if ($i == 0) {
+                            $op_active_c = 'active';
+                        }
+                        $precio_instalacion = $array_config_inst[$id_tipo];
+                        if (empty($precio_instalacion)) {
+                            $precio_instalacion = 0;
+                        }
+                        $modal_contenido .= '<div role="tabpanel" class="tab-pane ' . $op_active_c . '" id="tab' . $id_tipo . '">
+                                                <div class="row" style="margin-bottom: 10px;">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
                                                             <div class="col-md-12">
-                                                                <div class="col-md-12">
-                                                                    <h3 class="text-primary">Suscripci&oacute;n ' . $nom_tipo_contrato . ' </h3>
-                                                                    
-                                                                    <div class="form-group">
+                                                                <h3 class="text-primary">Suscripci&oacute;n ' . $nom_tipo_contrato . ' </h3>
+                                                                
+                                                                <div class="form-group">
+
+                                                                
+                                                                <div class="input-group input-group-sm">
+                                                                      </div>
 
                                                                     
-                                                                    <div class="input-group input-group-sm">
-                                                                          </div>
-
-                                               
-                                                                        <div class="col-md-4">
-                                                                            <label for="equipoCantidadP">Cantidad:</label>
-                                                                            <input type="text" id="equipoCantidad' . $id_tipo . '" name="equipoCantidad' . $id_tipo . '" class="form-control" value="1" style="text-align: right;" onkeyup="calcularTotalEquipo(' . $id_tipo . ')"/>
-                                                                        </div>
-                                                                        <div class="col-md-4">
-                                                                            <label for="equipoPrecioP">Precio:</label>
-                                                                            <input type="text" id="equipoPrecio' . $id_tipo . '" name="equipoPrecio' . $id_tipo . '" class="form-control" value="' . $precio_instalacion . '" style="text-align: right;" onkeyup="calcularTotalEquipo(' . $id_tipo . ')" />
-                                                                        </div>
-                                                                        <div class="col-md-4">
-                                                                            <label for="equipoTotalP">Total:</label>
-                                                                            <input type="text" id="equipoTotal' . $id_tipo . '" name="equipoTotal' . $id_tipo . '" class="form-control" value="0" style="text-align: right; color: red;" readonly />
-                                                                        </div>
+                                                                    <div class="col-md-4">
+                                                                        <label for="equipoCantidadP">Cantidad:</label>
+                                                                        <input type="text" id="equipoCantidad' . $id_tipo . '" name="equipoCantidad' . $id_tipo . '" class="form-control" value="1" style="text-align: right;" onkeyup="calcularTotalEquipo(' . $id_tipo . ')"/>
                                                                     </div>
-                                                                    
-                                                                    <div class="form-group">
-                                                                        <div class="col-md-12 table-responsive" style="margin-top: 20px;">
-                                                                            <table id="tablePaquetes' . $id_tipo . '" class="table table-striped table-bordered table-hover table-condensed" style="width: 100%;" align="center">
-                                                                                <thead>
-                                                                                    <tr>
-                                                                                        <td>Codigo</td>
-                                                                                        <td>Servicio</td>
-                                                                                        <td>Tipo</td>
-                                                                                        <td>Precio</td>
-                                                                                        <td>Seleccionar</td>
-                                                                                    </tr>
-                                                                                </thead>
-                                                                                <tbody>
-                                                                                </tbody>
-                                                                            </table>
-                                                                        </div>
+                                                                    <div class="col-md-4">
+                                                                        <label for="equipoPrecioP">Precio:</label>
+                                                                        <input type="text" id="equipoPrecio' . $id_tipo . '" name="equipoPrecio' . $id_tipo . '" class="form-control" value="' . $precio_instalacion . '" style="text-align: right;" onkeyup="calcularTotalEquipo(' . $id_tipo . ')" />
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <label for="equipoTotalP">Total:</label>
+                                                                        <input type="text" id="equipoTotal' . $id_tipo . '" name="equipoTotal' . $id_tipo . '" class="form-control" value="0" style="text-align: right; color: red;" readonly />
+                                                                    </div>';
+
+                                                                    if($id_tipo == 6){
+                                                                        $modal_contenido .= '<div class="col-md-4">
+                                                                                            <label for="cantidadCuentasIptv">Cantidad cuentas:</label>
+                                                                                            <input type="text" id="cantidadCuentasIptv" name="cantidadCuentasIptv" class="form-control" value="1" style="text-align: right;"/>
+                                                                                        </div>';
+                                                                    }
+                                                $modal_contenido .='</div>
+                                                                
+                                                                <div class="form-group">
+                                                                    <div class="col-md-12 table-responsive" style="margin-top: 20px; height: 350px; overflow-y: scroll;">
+                                                                        <table id="tablePaquetes' . $id_tipo . '" class="table table-striped table-bordered table-hover table-condensed" style="width: 100%;" align="center">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <td>Codigo</td>
+                                                                                    <td>Servicio</td>
+                                                                                    <td>Tipo</td>
+                                                                                    <td>Precio</td>
+                                                                                    <td>Seleccionar</td>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                            </tbody>
+                                                                        </table>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>';
-                        } while ($oCon->SiguienteRegistro());
-                    }
+                                                </div>
+                                            </div>';
+                    } while ($oCon->SiguienteRegistro());
                 }
-                $oCon->Free();
             }
+            $oCon->Free();
+        }
 
-            $modal_observaciones = '</div>
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label class="control-label text-primary">Observaciones:</label>
-                                                <textarea id="observacionesOrdenContrato" name="observacionesOrdenContrato" class="form-control" rows="3" style="width:100%"></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-primary" onclick="agregarEquipoPaquetes(' . $idContrato . ')">Ver Resumen</button>
-                                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+        $modal_observaciones = '        </div>
                                     </div>
                                 </div>
-                            </div>';
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label class="control-label text-primary">Observaciones:</label>
+                                        <textarea id="observacionesOrdenContrato" name="observacionesOrdenContrato" class="form-control" rows="3" style="width:100%"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="agregarEquipoPaquetes(' . $idContrato . ')">Ver Resumen</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>';
 
-            $modal_ok .= $modal_contenido;
-            $modal_ok .= $modal_observaciones;
+        $modal_ok .= $modal_contenido;
+        $modal_ok .= $modal_observaciones;
 
-            $oReturn->assign('miModalPaquetes', 'innerHTML', $modal_ok);
-            $oReturn->script('$("#miModalPaquetes").modal("show")');
+        $oReturn->assign('miModalPaquetes', 'innerHTML', $modal_ok);
+        $oReturn->script('$("#miModalPaquetes").modal("show")');
 
-            //EJECUTA SCRIPT PARA TABLAS
-            for ($i = 0; $i < count($data_tipo_servicio); $i++) {
+        //EJECUTA SCRIPT PARA TABLAS
+        for ($i = 0; $i < count($data_tipo_servicio); $i++) {
 
-                $id_tipo = $data_tipo_servicio[$i];
+            $id_tipo = $data_tipo_servicio[$i];
 
-                $oReturn->script("ejecutarScripts($idContrato,$id_tipo, $int_tipo_serv_con);");
-                $oReturn->script("calcularTotalEquipo($id_tipo)");
-            }
-            $oReturn->script('$("#miModal").modal("hide")');
-        } else {
-            $oReturn->script("Swal.fire({
-                type: 'error',
-                title: 'Contrato no habilitado para agregar servicios'
-            })");
+            $oReturn->script("ejecutarScripts($idContrato, $id_tipo, $int_tipo_serv_con);");
+            $oReturn->script("calcularTotalEquipo($id_tipo)");
         }
+        $oReturn->script('$("#miModal").modal("hide")');
+
+
+    } catch (Exception $e) {
+        $oReturn->alert($e->getMessage());
+    }
+
+    return $oReturn;
+}
+
+function cargar_planes_promo($aForm, $int_tipo_serv_con)
+{
+    global $DSN;
+
+    session_start();
+
+    $oCon = new Dbo;
+    $oCon->DSN = $DSN;
+    $oCon->Conectar();
+
+    $oReturn = new xajaxResponse();
+
+    unset($_SESSION['A_CI_PAQ']);
+    $idempresa = $_SESSION['U_EMPRESA'];
+    $idsucursal = $_SESSION['U_SUCURSAL'];
+
+    try {
+
+        if (empty($idempresa)) {
+            throw new Exception("Sesión finalizada, vuelva a ingresar para continuar.");
+        }
+
+        $id_api             = $_SESSION['id_api'];
+        $estado_api         = $_SESSION['estado_api'];
+        $gestion_bqn_sn     = $_SESSION['gestion_bqn_sn'];
+
+        $sql = "SELECT usa_promo_sn from isp.int_parametros WHERE id_sucursal = $idsucursal";
+        $usa_promo_sn = consulta_string_func($sql, 'usa_promo_sn', $oCon, 0);
+
+        //variables del formulario
+        $idContrato = $aForm['idContrato'];
+
+      //tipo contrato
+        $sql = "SELECT tipo_contrato, estado, id_sucursal, id_provincia, id_canton, id_parroquia, id_sector, 
+                    puntaje_score, departamento, cambio_operador_sn, vivienda_propia_sn, con_empleo_sn, id_clpv,
+                    fecha_contrato
+                FROM isp.contrato_clpv 
+                WHERE id = $idContrato";
+        if ($oCon->Query($sql)) {
+            if ($oCon->NumFilas() > 0) {
+                do {
+                    $tipo_contrato      = $oCon->f('tipo_contrato');
+                } while ($oCon->SiguienteRegistro());
+            }
+        }
+        $oCon->Free();
+
+        //servicios de cada tipo
+        $sql = "SELECT servicios from isp.int_tipo_contrato WHERE id = $tipo_contrato";
+        $servicios_tipo = consulta_string_func($sql, 'servicios', $oCon, 0);
+
+        $data_tipo_servicio = explode(",", $servicios_tipo);
+
+        //PESTAÑAS
+        for ($i = 0; $i < count($data_tipo_servicio); $i++) {
+
+            $id_tipo = $data_tipo_servicio[$i];
+
+            $sql = "SELECT nombre
+                        from isp.int_tipo_prod 
+                        where id = $id_tipo";
+            if ($oCon->Query($sql)) {
+                if ($oCon->NumFilas() > 0) {
+                    do {
+                        $nom_tipo_contrato = $oCon->f('nombre');
+
+                        $op_active_c = '';
+                        if ($i == 0) {
+                            $op_active_c = 'active';
+                        }
+                        $modal_contenido .= '<li role="presentation" id="tabId' . $id_tipo . '" class="' . $op_active_c . '"><a href="#tab' . $id_tipo . '" aria-controls="tab' . $id_tipo . '" role="tab" data-toggle="tab">' . $nom_tipo_contrato . '</a></li>';
+                    } while ($oCon->SiguienteRegistro());
+                }
+            }
+            $oCon->Free();
+        }
+
+        //EJECUTA SCRIPT PARA TABLAS
+        for ($i = 0; $i < count($data_tipo_servicio); $i++) {
+
+            $id_tipo = $data_tipo_servicio[$i];
+
+            $oReturn->script("ejecutarScripts($idContrato, $id_tipo, $int_tipo_serv_con);");
+            $oReturn->script("calcularTotalEquipo($id_tipo)");
+        }
+        $oReturn->script('jsRemoveWindowLoad()');
+
+
     } catch (Exception $e) {
         $oReturn->alert($e->getMessage());
     }
@@ -10363,6 +11645,27 @@ function algoritmoCodigo($numero, $num_digitos, $num_letras)
     return $codigo;
 }
 
+function algoritmoCodigo2($numero, $num_digitos, $num_letras, $letras_codigo)
+{
+
+    $array_n = str_split($numero);
+    $codigo = '';
+    if (!$num_digitos) {
+        $num_digitos = 0;
+    }
+    if (!$num_letras) {
+        $num_letras = 0;
+    }
+
+    for ($j = 0; $j < $num_digitos; $j++) {
+        $num2 = $array_n[$j];
+        $codigo .= $num2;
+    }
+
+
+    return $letras_codigo.$codigo;
+}
+
 function cargarCodigoRuta($aForm, $op)
 {
     session_start();
@@ -10411,7 +11714,7 @@ function cargarCodigoRuta($aForm, $op)
     return $oReturn;
 }
 
-function aprobarContrato($aForm, $id_motivo, $op_factura, $aprobar_fecha_cuota, $aprobar_dias_sn = 'N', $cuotas_instalacion = 0, $descuento_cuotas_valor = "", $descuento_cuotas_porcentaje = "", $genera_cuotas_sn = 'N', $comentario_instalacion = '')
+function aprobarContrato($aForm, $id_motivo, $op_factura, $aprobar_fecha_cuota, $aprobar_dias_sn = 'N', $cuotas_instalacion = 0, $descuento_cuotas_valor = "", $descuento_cuotas_porcentaje = "", $genera_cuotas_sn = 'N', $comentario_instalacion = '', $json_cuotas = '')
 {
 
     global $DSN_Ifx, $DSN;
@@ -10537,6 +11840,7 @@ function aprobarContrato($aForm, $id_motivo, $op_factura, $aprobar_fecha_cuota, 
                         }
                         $oCon->Free();
                         //descuento cuotas
+
                         if (count($descuento_cuotas_valor) > 0 && count($descuento_cuotas_porcentaje) > 0) {
                             $i = 0;
                             foreach ($descuento_cuotas_valor as $valor_descuento) {
@@ -10551,11 +11855,103 @@ function aprobarContrato($aForm, $id_motivo, $op_factura, $aprobar_fecha_cuota, 
                                     $valor_porcentaje = 0;
                                 }
                                 $cuota_id = $i + 1;
-                                $sql = "INSERT INTO isp.int_contrato_descuento(id_contrato, cuotas, descuento_p, descuento, incluye_pc,dias_consumo) VALUES ($idContrato, $cuota_id, $valor_porcentaje, $valor_descuento, '$primera_cuota_sn','$aprobar_dias_sn')";
-                                $oCon2->QueryT($sql);
+                                $sql = "INSERT INTO isp.int_contrato_descuento(id_contrato, cuotas, descuento_p, descuento, incluye_pc, dias_consumo) VALUES ($idContrato, $cuota_id, $valor_porcentaje, $valor_descuento, '$primera_cuota_sn','$aprobar_dias_sn')";
+                                $oCon->QueryT($sql);
                                 $i++;
                             }
+                        }else{
+                            $sql = "INSERT INTO isp.int_contrato_descuento(id_contrato, dias_consumo, datos_cuotas) VALUES ($idContrato, '$aprobar_dias_sn', '$json_cuotas')";
+                            $oCon->QueryT($sql);
                         }
+
+                        //PROCESO PARA APLICAR EL BENEFICIO DE INSTALACION *---------------------
+                        $sql = "SELECT datos_beneficio from isp.contrato_clpv WHERE id = $idContrato";
+                        $oCon->Query($sql);
+                        $datos_beneficio = $oCon->f('datos_beneficio', false);
+                        $oCon->Free();
+
+                        if(!empty($datos_beneficio)){
+
+                            $sql = "SELECT sum(total) as total_sus from isp.int_suscribir where id_contrato = $idContrato AND estado = 'PE' AND precio > 0";
+                            $total_sus = consulta_string_func($sql, 'total_sus', $oCon, 0);
+
+                            $datos_beneficio = json_decode($datos_beneficio);
+
+                            if(count($datos_beneficio) > 0){
+
+                                $num_meses_diferido = $datos_beneficio->num_meses_diferido;
+                                $val_descuento      = $datos_beneficio->val_descuento;
+                                $por_descuento      = $datos_beneficio->por_descuento;
+                                $valores_diferido   = $datos_beneficio->valores_diferido;
+
+                                if($por_descuento > 0){
+                                    $total_sus_fin = ($total_sus * $por_descuento) / 100;
+                                    $total_sus_fin = $total_sus - $total_sus_fin;
+                                }
+
+                                if($val_descuento > 0){
+                                    $total_sus_fin = $total_sus - $val_descuento;
+                                }
+
+                                if($datos_beneficio->tipo_diferido == 1){ //VALORES EN AUTOMATICO
+
+                                    $valor_indi = $total_sus_fin / $num_meses_diferido;
+
+                                    $array_cuotas = array();
+                                    $array_cuotas_p = array();
+                                    for($i = 0; $i < $num_meses_diferido; $i++){
+                                        $datos_indi = [
+                                            "num_cuota" => $i,
+                                            "valor" => $valor_indi
+                                        ];
+
+                                        array_push($array_cuotas, $datos_indi);
+                                    }
+
+                                    $resp = guarda_diferir_cuotas2($oCon, $oIfx, $idContrato, $array_cuotas_p, $array_cuotas);
+
+                                    if($resp['status'] == 500){
+                                        throw new Exception($resp["respuesta"]);
+                                    }
+
+                                    $difiere_inst_sn = 'S';
+                                    $valida_diferir = '2';
+                                }else if($datos_beneficio->tipo_diferido == 2){
+                                    if(!empty($valores_diferido)){
+                                        $valores_diferido = json_decode($valores_diferido);
+
+                                        $array_cuotas = array();
+                                        $array_cuotas_p = array();
+                                        if(count($valores_diferido) > 0){
+                                            foreach($valores_diferido as $valores){
+
+                                                $num_cuota = $valores->Numero - 1;
+                                                $PorRestante = $valores->PorRestante;
+
+                                                $valor_indi = ($total_sus_fin * $PorRestante) / 100;
+
+                                                $datos_indi = [
+                                                    "num_cuota" => $num_cuota,
+                                                    "valor" => $valor_indi
+                                                ];
+
+                                                array_push($array_cuotas, $datos_indi);
+                                            }
+
+                                            $resp = guarda_diferir_cuotas2($oCon, $oIfx, $idContrato, $array_cuotas_p, $array_cuotas);
+
+                                            if($resp['status'] == 500){
+                                                throw new Exception($resp["respuesta"]);
+                                            }
+
+                                            $difiere_inst_sn = 'S';
+                                            $valida_diferir = '2';
+                                        }
+
+                                    }
+                                }
+                            }
+                        } //**----------- */
 
                         //DESDE AQUI VA EL CAMBIO PARA DIFERIR LA INSTALACION DE MANERA PERSONALIZADA
 
@@ -10858,10 +12254,48 @@ function aprobarContrato($aForm, $id_motivo, $op_factura, $aprobar_fecha_cuota, 
                                                 width: '40%'
                                                 })");
                         }
+
+                        //PROCESO PARA BUSCAR SI APLICA A UN BENEFICIO DE TIPO CONDICION DE CLIENTE
+                        $sql = "SELECT tipo_cliente from isp.contrato_clpv WHERE id = $idContrato";
+                        $oCon->Query($sql);
+                        $tipo_cliente = $oCon->f('tipo_cliente');
+                        $oCon->Free();
+
+                        $id_beneficio = 0;
+                        $sql = "SELECT id, por_descuento, val_descuento, contrato_cortesia_sn from isp.int_beneficios WHERE tipo_beneficio = 1 AND estado = 'A' AND condicion_cliente = $tipo_cliente";
+                        if ($oCon->Query($sql)) {
+                            if ($oCon->NumFilas() > 0) {
+                                do {
+                                    $id_beneficio       = $oCon->f('id');
+                                    $por_descuento      = $oCon->f('por_descuento');
+                                    $val_descuento      = $oCon->f('val_descuento');
+                                    $contrato_cortesia  = $oCon->f('contrato_cortesia_sn');
+                                } while ($oCon->SiguienteRegistro());
+                            }
+                        }
+                        $oCon->Free();
+
+                        if($id_beneficio > 0){
+                            $sql = "SELECT count(*) as control 
+                                    from isp.contrato_descuentos
+                                    WHERE id_contrato = $idContrato";
+                            $control = consulta_string_func($sql, 'control', $oCon, 0);
+
+                            if ($control == 0) {
+                                $fecha = date("Y-m-d");
+
+                                $sql = "SELECT SUM(precio) as tarifa FROM isp.int_contrato_caja_pack where id_contrato = $idContrato AND estado not in ('E')";
+                                $tarifa = consulta_string_func($sql, 'tarifa', $oCon, 0);
+
+                                $precio = $tarifa;
+
+                                $Contratos = new Contratos($oCon, $oIfx, $idempresa, null, $idClpv, $idContrato);
+                                $idDescuento = $Contratos->registraDescuento($fecha, $tarifa, $precio, $por_descuento, $val_descuento, null, 'S', $contrato_cortesia, 'BENEFICIO CONFIGURADO', 0, 0, 'A');
+                            }
+                        }
+
                         if ($bandera == 1) {
-                            $oCon->QueryT('COMMIT;');
-                            $oCon2->QueryT('COMMIT;');
-                            $oIfx->QueryT('COMMIT WORK;');
+
                             $oReturn->script("Swal.fire({
                                                 type: 'success',
                                                 title: 'Contrato Finalizado Correctamente..!',
@@ -10871,17 +12305,19 @@ function aprobarContrato($aForm, $id_motivo, $op_factura, $aprobar_fecha_cuota, 
                             if ($genera_cuotas_sn == 'S') {
 
                                 $sql = "UPDATE isp.int_contrato_caja_pack SET estado = 'A' WHERE id_contrato = $idContrato AND estado = 'P'";
-                                $oCon3->QueryT($sql);
+                                $oCon->QueryT($sql);
 
-                                $Equipos = new Equipos($oCon3, null, $idempresa, $idsucursal, $idClpv, $idContrato, null);
+                                $Equipos = new Equipos($oCon, null, $idempresa, $idsucursal, $idClpv, $idContrato, null);
                                 $var_tmp = $Equipos->registraCuotaPaqueteCaja(0, '', 'N', $aprobar_fecha_cuota);
-
-                                $oCon3->QueryT('COMMIT;');
                             }
                             $oReturn->script("location.reload();");
                         } else {
                             $oReturn->script("jsRemoveWindowLoad();");
                         }
+
+                        $oCon->QueryT('COMMIT;');
+                        $oCon2->QueryT('COMMIT;');
+                        $oIfx->QueryT('COMMIT;');
                     } else {
                         $oReturn->script("Swal.fire({
                         type: 'error',
@@ -11282,7 +12718,7 @@ function finalizarGeneracion($aForm = '', $idContrato, $fechaContrato, $duracion
 
         //sector
         $optionMotivo = '';
-        $sql = "SELECT id, motivo from isp.int_motivos_canc WHERE id_proceso = 1";
+        $sql = "SELECT id, motivo from isp.int_motivos_canc WHERE id_proceso = 1 AND estado = 'A'";
         if ($oCon->Query($sql)) {
             if ($oCon->NumFilas() > 0) {
                 do {
@@ -11292,10 +12728,12 @@ function finalizarGeneracion($aForm = '', $idContrato, $fechaContrato, $duracion
         }
         $oCon->Free();
 
-        $sql = "SELECT tarifa, estado from isp.contrato_clpv WHERE id = $idContrato";
+        $sql = "SELECT tarifa, estado, tipo_cliente, id_clpv from isp.contrato_clpv WHERE id = $idContrato";
         $oCon->Query($sql);
         $valorCuotas = $oCon->f('tarifa');
         $estado = $oCon->f('estado');
+        $tipo_cliente = $oCon->f('tipo_cliente');
+        $idClpv = $oCon->f('id_clpv');
         $oCon->Free();
 
         $sql = "SELECT estado from isp.estado_contrato WHERE id = '$estado'";
@@ -11303,10 +12741,53 @@ function finalizarGeneracion($aForm = '', $idContrato, $fechaContrato, $duracion
         $estado_txt = $oCon->f('estado');
         $oCon->Free();
 
-        $sql = "SELECT id from isp.instalacion_clpv WHERE id_contrato = $idContrato AND id_proceso = 1 AND estado = 'PE'";
+        $sql = "SELECT id from isp.instalacion_clpv WHERE id_contrato = $idContrato AND id_proceso = 1 AND estado in ('PE','TE')";
         $oCon->Query($sql);
         $control_instalacion = $oCon->f('id');
         $oCon->Free();
+
+        //FUNCION PARA SABER SI APLICA AL DESCUENTO DE INSTALACION
+        $id_beneficio_aplica = valida_aplica_beneficio_instalacion($idContrato);
+
+        if($id_beneficio_aplica['status'] == 500){
+            throw new Exception($id_beneficio_aplica["respuesta"]);
+        }
+
+        $id_beneficio_aplica_fin = 0;
+        $id_beneficio_aplica_fin = $id_beneficio_aplica["respuesta"];
+
+        $array_datos_beneficio = array();
+
+        $sHtmlBeneInst = '';
+        if($id_beneficio_aplica_fin > 0){
+            $sql = "SELECT num_meses_diferido, tipo_diferido, valores_diferido, por_descuento, val_descuento, nombre FROM isp.int_beneficios WHERE id = $id_beneficio_aplica_fin";
+            $oCon->Query($sql);
+            $num_meses_diferido = $oCon->f('num_meses_diferido');
+            $tipo_diferido      = $oCon->f('tipo_diferido');
+            $valores_diferido   = $oCon->f('valores_diferido', false);
+            $por_descuento      = $oCon->f('por_descuento');
+            $val_descuento      = $oCon->f('val_descuento');
+            $nombre      = $oCon->f('nombre');
+            $oCon->Free();
+
+            $array_datos_beneficio = [
+                "num_meses_diferido" => $num_meses_diferido,
+                "tipo_diferido" => $tipo_diferido,
+                "valores_diferido" => $valores_diferido,
+                "por_descuento" => $por_descuento,
+                "val_descuento" => $val_descuento
+            ];
+
+            $array_datos_json = json_encode($array_datos_beneficio);
+
+            $sql = "UPDATE isp.contrato_clpv set datos_beneficio = '$array_datos_json' where id = $idContrato";
+            $oCon->QueryT($sql);
+
+            $oCon->QueryT('COMMIT;');
+
+            $sHtmlBeneInst = 'Contrato aplica para beneficio '.$nombre;
+
+        }
 
         if ($estado == 'PA' || $estado == 'PI' || $estado == 'PE') {
 
@@ -11325,6 +12806,7 @@ function finalizarGeneracion($aForm = '', $idContrato, $fechaContrato, $duracion
                             <div class="box box-primary direct-chat direct-chat-primary">
                                 <div class="box-header with-border">
                                     <h3 class="box-title text-primary">Finalización de la generación del contrato</h3>
+                                    <h5 class="text-primary" id="msnBeneInst"></h5>
 
                                     <div class="box-tools pull-right">
                                     </div>
@@ -11453,9 +12935,16 @@ function finalizarGeneracion($aForm = '', $idContrato, $fechaContrato, $duracion
 
 
                 $oReturn->assign("divFinalizar", "innerHTML", $sHtml);
-                $oReturn->script('cuotasConDescuento(' . $duracionContrato . ',' . $valorCuotas . ')');
+                $oReturn->assign("msnBeneInst", "innerHTML", $sHtmlBeneInst);
+                //$oReturn->script('cuotasConDescuento(' . $duracionContrato . ',' . $valorCuotas . ')');
+                $oReturn->script('cuotasConDescuento(' . $idContrato . ')');
                 $oReturn->script("valida_btn_inst()");
                 $oReturn->script("jsRemoveWindowLoad()");
+
+                if($id_beneficio_aplica_fin > 0){
+                    $oReturn->script("marca_instalacion()");
+                    $oReturn->script("valida_btn_inst()");
+                }
             }
         } else {
 
@@ -11474,7 +12963,7 @@ function finalizarGeneracion($aForm = '', $idContrato, $fechaContrato, $duracion
     return $oReturn;
 }
 
-function cuotasConDescuento($numeroCuotas, $valorCuota)
+function cuotasConDescuento_old($numeroCuotas, $valorCuota)
 {
     session_start();
     global $DSN, $DSN_Ifx;
@@ -11575,6 +13064,249 @@ function cuotasConDescuento($numeroCuotas, $valorCuota)
                             </div>
                         </div>
                     ';
+
+        $oReturn->assign("divCuotasConDescuento", "innerHTML", $sHtml);
+    } catch (Exception $e) {
+        $oCon->QueryT('ROLLBACK;');
+        $oReturn->alert($e->getMessage());
+    }
+    return $oReturn;
+}
+
+function cuotasConDescuento($id_contrato)
+{
+    session_start();
+    global $DSN, $DSN_Ifx;
+
+    $oCon = new Dbo();
+    $oCon->DSN = $DSN;
+    $oCon->Conectar();
+
+    $oIfx = new Dbo;
+    $oIfx->DSN = $DSN_Ifx;
+    $oIfx->Conectar();
+
+    //variables de session
+    $idempresa = $_SESSION['U_EMPRESA'];
+    $idsucursal = $_SESSION['U_SUCURSAL'];
+
+    //variables del formulario
+    $UbicacionAdj = $aForm[$posicionId];
+
+    $oReturn = new xajaxResponse();
+
+    try {
+
+        $oCon->QueryT('BEGIN;');
+
+        $sql = "SELECT usa_promo_sn FROM isp.int_parametros WHERE id_empresa = $idempresa AND id_sucursal = $idsucursal";
+        if ($oCon->Query($sql)) {
+            if ($oCon->NumFilas() > 0) {
+                do {
+                    $usa_promo_sn = $oCon->f('usa_promo_sn');
+                } while ($oCon->SiguienteRegistro());
+            }
+        }
+        $oCon->Free();
+
+        $sql = "SELECT duracion, info_actual_promo, id_promo_aplica FROM isp.contrato_clpv WHERE id = $id_contrato";
+        if ($oCon->Query($sql)) {
+            if ($oCon->NumFilas() > 0) {
+                do {
+                    $duracion           = $oCon->f('duracion');
+                    $id_promo_aplica    = $oCon->f('id_promo_aplica');
+                    $info_actual_promo  = $oCon->f('info_actual_promo', false);
+                    $info_actual_promo  = json_decode($info_actual_promo);
+                } while ($oCon->SiguienteRegistro());
+            }
+        }
+        $oCon->Free();
+
+        $sql = "SELECT id, paquete FROM isp.int_paquetes where id_empresa = $idempresa";
+        $array_info_planes = array_dato($oCon, $sql, 'id', 'paquete');
+
+        $planes = array();
+        $sql = "SELECT id_prod, cod_prod, precio FROM isp.int_contrato_caja_pack WHERE id_contrato = $id_contrato AND estado NOT IN ('E')";
+        if ($oCon->Query($sql)) {
+            if ($oCon->NumFilas() > 0) {
+                do {
+                    $id_prod    = $oCon->f('id_prod');
+                    $cod_prod   = $oCon->f('cod_prod');
+                    $precio     = $oCon->f('precio');
+
+                    $nom_plan   = $array_info_planes[$id_prod];
+                    $info_plan = array(
+                        "id_prod" => $id_prod,
+                        "cod_prod" => $cod_prod,
+                        "precio" => $precio,
+                        "nom_plan" => $nom_plan
+                    );
+
+                    array_push($planes, $info_plan);
+                } while ($oCon->SiguienteRegistro());
+            }
+        }
+        $oCon->Free();
+
+        $sHtml = '<div class="table-responsive"><br><table id="tabla_cuotas_valores" border="1" class="table table-bordered table-striped table-condensed" style="width: 100%; margin-bottom: 0px;">
+                    <thead>
+                        <tr>
+                            <td class="bg-blue">Cuota</td>
+                            <td class="bg-blue">ID Plan</td>
+                            <td class="bg-blue">Código Plan</td>
+                            <td class="bg-blue">Plan</td>
+                            <td class="bg-blue">Precio</td>
+                            <td class="bg-blue">Descuento (%)</td>
+                            <td class="bg-blue">Descuento (Valor)</td>
+                            <td class="bg-blue">Precio Final</td>
+                        </tr>
+                    </thead>
+                    <tbody>';
+
+        for ($cuota = 1; $cuota <= $duracion; $cuota++) {
+
+            $servicios_extra    = json_decode($info_actual_promo->servicios_extra);
+            $valida_indefinido  = $info_actual_promo->meses_indefinido;
+            $num_meses          = $info_actual_promo->num_meses;
+            $intervalo_meses    = $info_actual_promo->intervalo_meses;
+
+            $sHtml .= '<tr>
+                        <td align="center">' . $cuota . '</td>';
+            foreach ($planes as $plan) {
+
+                $precio_plan = $plan["precio"];
+
+                $por_descuento = 0;
+                $val_descuento = 0;
+                $precio_final = 0;
+                if($usa_promo_sn == 'S' && $id_promo_aplica > 0){
+
+                    if($valida_indefinido == 'N' && $num_meses > 0){
+
+                        $array_intervalo = array();
+                        if(!empty($intervalo_meses)){
+                            $array_intervalo = explode(",", $intervalo_meses);
+                        }else{
+                            for ($i = 1; $i <= $num_meses; $i++) {
+                                $array_intervalo[] = strval($i);
+                            }
+                        }
+
+                        //AQUI DEBE IR DANDO LOS DESCUENTOS A LAS CUOTAS DE LA PROMOCION CON LOS VALORES DE LA MISMA POR PLAN
+                        $info_planes_descuento = $info_actual_promo->planes;
+
+                        if(strlen($info_planes_descuento) > 0 && count($array_intervalo) > 0){
+                            $info_planes_descuento = json_decode($info_planes_descuento);
+
+                            if(count($info_planes_descuento) > 0){
+                                foreach($info_planes_descuento as $info_plan){
+                                    if($info_plan->Id == $plan["id_prod"]){
+
+                                        $valida_cuota = false;
+                                        foreach($array_intervalo as $num_cuota){
+                                            if(intval($num_cuota) == $cuota){
+                                                $valida_cuota = true;
+
+                                                break;
+                                            }
+                                        }
+
+                                        if($valida_cuota){
+                                            $por_descuento  = $info_plan->DescuentoPor;
+                                            $val_descuento  = $info_plan->DescuentoVal;
+                                            $precio_final   = $info_plan->PrecioFin;
+
+                                            if($precio_final > 0){
+                                                $precio_plan = $precio_final;
+                                            }
+
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                $sHtml .= '<tr>
+                            <td></td>
+                            <td>' . $plan["id_prod"] . '</td>
+                            <td>' . $plan["cod_prod"] . '</td>
+                            <td>' . $plan["nom_plan"] . '</td>
+                            <td>' . $plan["precio"] . '</td>
+                            <td><input type="number" class="descuento_porcentaje form-control" data-precio="' . $plan["precio"] . '" oninput="calcular(this)" value="'.$por_descuento.'"></td>
+                            <td><input type="number" class="descuento_valor form-control" data-precio="' . $plan["precio"] . '" oninput="calcular(this)" value="'.$val_descuento.'"></td>
+                            <td><span class="precio_final">' . $precio_plan . '</span></td>
+                        </tr>';
+            }
+
+            if($usa_promo_sn == 'S' && $id_promo_aplica > 0){
+                if(count($servicios_extra) > 0){
+                    foreach($servicios_extra as $servicio_extra){
+
+                        $igual_promo            = $servicio_extra->IgualPromo;
+                        $indefinido_promo_ext   = $servicio_extra->Indefinido;
+                        $num_meses_ext          = $servicio_extra->NumMeses;
+                        $intervalo_meses_ext    = $servicio_extra->IntervaloMeses;
+                        $precio_plan_extra      = $servicio_extra->Precio;
+                        if($igual_promo == 'S'){
+                            $indefinido_promo_ext   = $valida_indefinido;
+                            $num_meses_ext          = $num_meses;
+                            $intervalo_meses_ext    = $intervalo_meses;
+                        }
+
+                        if($indefinido_promo_ext == 'N'){
+                            $array_intervalo_ext = array();
+                            if(!empty($intervalo_meses_ext)){
+                                $array_intervalo_ext = explode(",", $intervalo_meses_ext);
+                            }else{
+                                for ($i = 1; $i <= $num_meses_ext; $i++) {
+                                    $array_intervalo_ext[] = strval($i);
+                                }
+                            }
+
+                            $valida_cuota_extra = false;
+                            foreach($array_intervalo_ext as $num_cuota_extra){
+                                if(intval($num_cuota_extra) == $cuota){
+                                    $valida_cuota_extra = true;
+                                    break;
+                                }
+                            }
+
+                            if($valida_cuota_extra){
+                                $por_descuento_extra  = $servicio_extra->DescuentoPor;
+                                $val_descuento_extra  = $servicio_extra->DescuentoVal;
+                                $precio_final_extra   = $servicio_extra->PrecioFin;
+                                if($precio_final_extra > 0){
+                                    $precio_plan_extra = $precio_final_extra;
+                                }
+
+                                $sHtml .= '<tr>
+                                                <td></td>
+                                                <td>' . $servicio_extra->Id . '</td>
+                                                <td>' . $servicio_extra->Codigo . '</td>
+                                                <td>' . $servicio_extra->Servicio . ' / SERVICIO EXTRA</td>
+                                                <td>' . $servicio_extra->Precio . '</td>
+                                                <td><input type="number" class="descuento_porcentaje form-control" data-precio="' . $servicio_extra->Precio . '" oninput="calcular(this)" value="'.$por_descuento_extra.'"></td>
+                                                <td><input type="number" class="descuento_valor form-control" data-precio="' . $servicio_extra->Precio . '" oninput="calcular(this)" value="'.$val_descuento_extra.'"></td>
+                                                <td><span class="precio_final">' . $precio_plan_extra . '</span></td>
+                                            </tr>';
+
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            $sHtml .= '</tr>';
+        }
+
+        $sHtml .= '</tbody>
+                </table></div>';
+
+
+        //HTML PARA COLOCAR LAS CUOTAS CON DESCUENTO
 
         $oReturn->assign("divCuotasConDescuento", "innerHTML", $sHtml);
     } catch (Exception $e) {
@@ -12348,8 +14080,7 @@ function consultarContratosNap($idNap)
     return $oReturn;
 }
 
-function consultarDisponibilidad($idNap)
-{
+function consultarDisponibilidad($idNap) {
     //Definiciones
     global $DSN_Ifx, $DSN;
 
@@ -12362,12 +14093,12 @@ function consultarDisponibilidad($idNap)
     $oIfxA = new Dbo;
     $oIfxA->DSN = $DSN_Ifx;
     $oIfxA->Conectar();
-
-    $oCon = new Dbo;
+	
+	$oCon = new Dbo;
     $oCon->DSN = $DSN;
     $oCon->Conectar();
-
-    $oConA = new Dbo;
+	
+	$oConA = new Dbo;
     $oConA->DSN = $DSN;
     $oConA->Conectar();
 
@@ -12375,20 +14106,20 @@ function consultarDisponibilidad($idNap)
 
     //VARIABLES DE SESION
     $user_web = $_SESSION['U_ID'];
-    $empresa = $_SESSION['U_EMPRESA'];
-    $sucursal = $_SESSION['U_SUCURSAL'];
+	$empresa = $_SESSION['U_EMPRESA'];
+	$sucursal = $_SESSION['U_SUCURSAL'];
 
     try {
-
-        $sql = "SELECT nombre FROM isp.int_nap WHERE id = $idNap";
-        if ($oCon->Query($sql)) {
-            if ($oCon->NumFilas() > 0) {
-                do {
-                    $nombre = $oCon->f('nombre');
-                } while ($oCon->SiguienteRegistro());
-            }
-        }
-        $oCon->Free();
+	
+		$sql = "SELECT nombre FROM isp.int_nap WHERE id = $idNap";
+		if($oCon->Query($sql)){
+			if($oCon->NumFilas() > 0){
+				do{
+					$nombre = $oCon->f('nombre');
+				}while($oCon->SiguienteRegistro());
+			}
+		}
+		$oCon->Free();
 
         $sql = "SELECT id_contrato, puerto_nap FROM isp.int_contrato_caja WHERE id_nap = $idNap AND estado not in ('E')";
         $array_puertos = array_dato($oCon, $sql, 'puerto_nap', 'id_contrato');
@@ -12401,87 +14132,87 @@ function consultarDisponibilidad($idNap)
         $array_estado_nom = array_dato($oCon, $sql, 'id', 'estado');
         $array_estado_col = array_dato($oCon, $sql, 'id', 'color');
 
-        $sql = "SELECT capacidad, poste FROM isp.int_nap WHERE id = $idNap";
-        if ($oCon->Query($sql)) {
-            if ($oCon->NumFilas() > 0) {
-                do {
-                    $capacidad = $oCon->f('capacidad');
+		$sql = "SELECT capacidad, poste FROM isp.int_nap WHERE id = $idNap";
+		if($oCon->Query($sql)){
+			if($oCon->NumFilas() > 0){
+				do{
+					$capacidad = $oCon->f('capacidad');
                     $poste = $oCon->f('poste');
-                } while ($oCon->SiguienteRegistro());
-            }
-        }
-        $oCon->Free();
+				}while($oCon->SiguienteRegistro());
+			}
+		}
+		$oCon->Free();
 
         $capacidad = intval($capacidad);
 
-        $sHtml = '';
-        $sHtml .= '<div class="modal-dialog modal-lg" role="document" style="width: 90%;">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <h4 class="modal-title" id="myModalLabel">Disponibilidad</h4>
-                            </div>
-                            <div class="modal-body">
-                                <div class="table-responsive">';
-
-        $sHtml .= ' <div class="panel panel-primary">
-                        <div class="panel-heading">Puertos ocupados y disponibles dentro de la nap ' . $nombre . ', poste: ' . $poste . ' </div>
+        $sHtml = '<div class="modal-dialog modal-lg" role="document" style="width:80%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h5 class="modal-title" id="myModalLabel" align="center">DISPONIBILIDAD<small></small></h5>
+                </div>
+                <div class="modal-body" style="margin-top:0xp;">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">Puertos ocupados y disponibles dentro de la nap '.$nombre.', poste: '.$poste.' </div>
                         <br>
                         <div class="container-fluid">
-                            <div class="row">';
-        for ($i = 1; $i <= $capacidad; $i++) {
+                            <div class="row">
+                                <div class="col-md-12 table-responsive">
+                                    <table class="table table-bordered table-striped table-bordered table-hover table-condensed" style="align=center">
+                                        <thead>
+                                            <tr>
+                                                <th>Puerto</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>';
 
-            $puerto_ocupado = '';
-            $puerto_ocupado = $array_puertos[$i];
+                                        for($i = 1; $i <= $capacidad; $i++) {
+                                            $puerto_ocupado = '';
+                                            $puerto_ocupado = $array_puertos[$i];
 
-            if (!empty($puerto_ocupado)) {
+                                            if(!empty($puerto_ocupado)) {
+                                                $estado_contrato = $array_estados_c[$puerto_ocupado];
+                                                $nombre_estado = $array_estado_nom[$estado_contrato];
+                                                $color_estado = $array_estado_col[$estado_contrato];
 
-                $estado_contrato = $array_estados_c[$puerto_ocupado];
-                $nombre_estado = $array_estado_nom[$estado_contrato];
-                $color_estado = $array_estado_col[$estado_contrato];
+                                                $color = "red";
+                                                $txt = "Ocupado / <span class='label bg-" . $color_estado . "' style='font-size:11px'>" . $array_nombres[$puerto_ocupado] . " - " . $nombre_estado . "</span>";
+                                            } else {
+                                                $color = "green";
+                                                $txt = "Disponible";
+                                            }
 
-                $color = "red";
-                $txt = " Ocupado / <span class='label bg-" . $color_estado . "' style='font-size:11px'>" . $array_nombres[$puerto_ocupado] . " - " . $nombre_estado . "</span> ";
-                $cursor = 'style="cursor: hand"';
-                $txt_seleccionar = 'title="Ver contrato"';
-                $accion = 'seleccionarPuerto(' . $idNap . ',' . $i . ',\'' . $poste . '\',\'' . $nombre . '\')';
-            } else {
-                $color = "green";
-                $txt = " Disponible";
-                $cursor = 'style="cursor: hand"';
-                $txt_seleccionar = 'title="Seleccionar puerto ' . $i . '"';
-                $accion = 'seleccionarPuerto(' . $idNap . ',' . $i . ',\'' . $poste . '\',\'' . $nombre . '\')';
-            }
+                                            $accion = 'seleccionarPuerto(' . $idNap . ',' . $i . ',\'' . $poste . '\',\'' . $nombre . '\')';
 
-            $sHtml .= ' <div class="col-md-6">
-                            <ul class="list-group" ' . $cursor . ' ' . $txt_seleccionar . ' onclick="' . $accion . '">
-                                <li class="list-group-item"><i class="fa-sharp fa-solid fa-circle fa-2x" style="color: ' . $color . '"></i> Puerto: ' . $i . ' ' . $txt . ' </li>
-                            </ul>
-                        </div>';
-        }
-        $sHtml .= ' </div>
+                                            $sHtml .= '<tr onclick="'.$accion.'" style="cursor:pointer">
+                                                        <td>Puerto: ' . $i . '</td>
+                                                        <td style="color: ' . $color . ';">' . $txt . '</td>
+                                                    </tr>';
+                                        }
+
+                    $sHtml .= '     </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>';
-
-        $sHtml .= '  </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div> ';
+            </div>';
 
-        $oReturn->assign("miModalContratosDisp", "innerHTML", $sHtml);
+		$oReturn->assign("miModalContratosDisp", "innerHTML", $sHtml);
         $oReturn->script("jsRemoveWindowLoad()");
-    } catch (Exception $e) {
+	} catch (Exception $e) {
         $oReturn->alert($e->getMessage());
     }
-
+	
     return $oReturn;
 }
-
 function seleccionarPuerto($id_contrato, $id_nap, $puerto, $poste, $nombre_nap)
 {
     global $DSN, $DSN_Ifx;
@@ -12830,7 +14561,7 @@ function deleteNapEquipo($id_caja)
     return $oReturn;
 }
 
-function cargarCantonCiudad($provincia)
+function cargarCantonCiudad($provincia, $ciudad_crm)
 {
     //Definiciones
     global $DSN;
@@ -12844,6 +14575,7 @@ function cargarCantonCiudad($provincia)
     $oReturn = new xajaxResponse();
 
     $idempresa = $_SESSION['U_EMPRESA'];
+
 
     try {
 
@@ -12866,6 +14598,12 @@ function cargarCantonCiudad($provincia)
         }
 
         $oReturn->assign("ciudDire", "innerHTML", $listaCiudades);
+
+
+        if ($ciudad_crm > 0) {
+            $oReturn->assign("ciudDire", "value", $ciudad_crm);
+            $oReturn->assign("muniDire", "value", $ciudad_crm);
+        }
 
         $oReturn->script("$('.select2').select2();");
     } catch (Exception $e) {
@@ -14035,6 +15773,95 @@ function consultaNapsGeo($id_sector)
     return $oReturn;
 }
 
+function buscaNapsB($naps)
+{
+    global $DSN_Ifx, $DSN;
+
+    session_start();
+
+    $oCon = new Dbo;
+    $oCon->DSN = $DSN;
+    $oCon->Conectar();
+
+    $oReturn = new xajaxResponse();
+
+    $filtro_sect = "";
+    if ($id_sector != 0) {
+        $filtro_sect = " AND id_sector = $id_sector ";
+    }
+
+    try {
+
+        $sql_nap = "";
+        if(count($naps) > 0){
+            $naps = implode(",", $naps);
+            $sql_nap = "AND id in ($naps)";
+        }
+
+        $sql = "SELECT id_nap, count(id_nap) as ocupadas FROM isp.int_contrato_caja WHERE id_nap is not null AND estado not in ('E') GROUP BY id_nap ";
+        $array_ocupadas = array_dato($oCon, $sql, 'id_nap', 'ocupadas');
+        $archivo_naps = '';
+        $archivo_naps .= '<markers>' . PHP_EOL;
+        $sql = "SELECT id, nombre, poste, latitud, longitud, capacidad, can_uso, can_libre, siglas
+            from isp.int_nap
+            where estado = 'A' 
+            $sql_nap
+            $filtro_dis 
+            $filtro_sect 
+            $filtro_nap
+            $filtro_tar
+            $filtro_pue";
+        if ($oCon->Query($sql)) {
+                if ($oCon->NumFilas() > 0) {
+                    do {
+                        $id = $oCon->f('id');
+                        $nombre = $oCon->f('nombre');
+                        $poste = $oCon->f('poste');
+                        $latitud = $oCon->f('latitud');
+                        $longitud = $oCon->f('longitud');
+                        $capacidad = $oCon->f('capacidad');
+                        $can_uso = $array_ocupadas[$id];
+
+                        if (empty($can_uso)) {
+                            $can_uso = 0;
+                        }
+
+                        $can_libre = $capacidad - $can_uso;
+                        $siglas = $oCon->f('siglas');
+
+                        $nombre = $siglas . ' - ' . $nombre;
+
+                        $archivo_naps .= '<marker id="' . $id . '" nombre="' . $nombre . '" poste="' . $poste . '" latitud="' . $latitud . '" longitud="' . $longitud . '" capacidad="' . $capacidad . '" can_uso="' . $can_uso . '" can_libre="' . $can_libre . '"/>' . PHP_EOL;
+                    } while ($oCon->SiguienteRegistro());
+                }
+        }
+        $oCon->Free();
+        $archivo_naps .= '</markers>';
+        $ruta = "upload/naps";
+        if (!file_exists($ruta)) {
+            mkdir($ruta);
+        }
+        $nombre =  "naps_ubicacion.xml";
+        if (unlink($ruta . '/' . $nombre)) {
+            $archivo = fopen($ruta . '/' . $nombre, "w+");
+            //fwrite($archivo, $xml);
+            fwrite($archivo, utf8_encode($archivo_naps));
+            fclose($archivo);
+            $oReturn->script('initMap(\'' . $latitud . '\',\'' . $longitud . '\')');
+        } else {
+            $oReturn->alert("Error al generar mapa");
+        }
+
+        
+    } catch (Exception $e) {
+        // rollback
+        $oCon->QueryT('ROLLBACK;');
+        $oReturn->alert($e->getMessage());
+    }
+
+    return $oReturn;
+}
+
 function opciones_diferir($id_contrato)
 {
     session_start();
@@ -14241,6 +16068,69 @@ function guarda_diferir_cuotas($id_contrato, $array_cuotas_p, $array_cuotas_a)
     return $oReturn;
 }
 
+function guarda_diferir_cuotas2($oCon, $oIfx, $id_contrato, $array_cuotas_p, $array_cuotas_a)
+{
+
+    try {
+
+        $oCon->QueryT('BEGIN;');
+
+        $sql = "SELECT id_empresa, id_sucursal, id_clpv from isp.contrato_clpv where id = $id_contrato";
+        $id_empresa     = consulta_string_func($sql, 'id_empresa', $oCon, 0);
+        $id_sucursal    = consulta_string_func($sql, 'id_sucursal', $oCon, 0);
+        $id_clpv        = consulta_string_func($sql, 'id_clpv', $oCon, 0);
+
+        //COLOCA EN CERO LOS VALORES DE INSTALACION ANTIGUOS
+        $sql = "UPDATE isp.int_suscribir SET cantidad = 0, precio = 0, total = 0, estado = 'AN' WHERE id_contrato = $id_contrato AND estado = 'PE'";
+        $oCon->QueryT($sql);
+
+        //COLOCA LA MANERA EN LA QUE SE DIFIEREN LAS CUOTAS
+        $sql = "UPDATE isp.contrato_clpv SET instalador = '2' WHERE id = $id_contrato";
+        $oCon->QueryT($sql);
+
+        //INSERTA LOS VALORES INDIVIDUALES
+        if (count($array_cuotas_p) > 0) {
+
+            for ($i = 0; $i < count($array_cuotas_p); $i++) {
+                $precio = $array_cuotas_p[$i];
+
+                $sql = "INSERT INTO isp.int_suscribir(id_empresa, id_sucursal, id_clpv, id_contrato, equipo, tipo, cantidad, precio, total, pago, estado)
+                                values($id_empresa, $id_sucursal, $id_clpv, $id_contrato, 2, 'P', 1, $precio, $precio, 0, 'PE')";
+                $oCon->QueryT($sql);
+            }
+        }
+
+        //INSERTA LOS VALORES ADICIONALES EN LA CUOTA
+        if (count($array_cuotas_a) > 0) {
+
+            for ($i = 0; $i < count($array_cuotas_a); $i++) {
+                $id_pago = '';
+                $precio = $array_cuotas_a[$i]["valor"];
+
+                $sql = "INSERT INTO isp.int_suscribir(id_empresa, id_sucursal, id_clpv, id_contrato, equipo, tipo, cantidad, precio, total, pago, estado)
+                                values($id_empresa, $id_sucursal, $id_clpv, $id_contrato, 2, 'P', 1, $precio, $precio, 0, 'PE')";
+                $oCon->QueryT($sql);
+            }
+        }
+
+        $oCon->QueryT('COMMIT;');
+
+        $codigo = 200;
+        $resp = "Ingreso correcto";
+
+    } catch (Exception $e) {
+        $codigo = 500;
+        $resp = $e->getMessage();
+    }
+
+    $respuesta = array(
+        "status" => $codigo,
+        "respuesta" => $resp
+    );
+
+    return $respuesta;
+}
+
 function guarda_firma_scan($aForm = '', $base64)
 {
 
@@ -14318,28 +16208,1958 @@ function valida_cargar_sector($aForm)
         $sql = "SELECT esq_geografia from isp.int_parametros_general WHERE id_empresa = $id_empresa";
         $esq_geografia = consulta_string_func($sql, 'esq_geografia', $oCon, 0);
 
-        if($esq_geografia == 2){
-            if(!empty($id_sucursal) && !empty($parrDire)){
+        if ($esq_geografia == 2) {
+            if (!empty($id_sucursal) && !empty($parrDire)) {
+                $listaSector = '<option value="0">Seleccione una opcion..</option>';
                 $sql = "SELECT id, sector from comercial.sector_direccion WHERE id_empresa = $id_empresa AND id_sucursal = $id_sucursal and id_parroquia = $parrDire";
-                $listaSector .= lista_boostrap_func($oCon, $sql, 0, 'id',  'sector' ); 
-            
+                $listaSector .= lista_boostrap_func($oCon, $sql, 0, 'id',  'sector');
+
                 $oReturn->assign("sectorDire", "innerHTML", $listaSector);
-            
+
                 $oReturn->script("$('.select2').select2();");
-            }else{
+            } else {
                 $oReturn->assign("sectorDire", "innerHTML", "");
-            
+
                 $oReturn->script("$('.select2').select2();");
             }
-    
         }
-        
     } catch (Exception $e) {
         $oReturn->alert($e->getMessage());
     }
 
     return $oReturn;
 }
+
+function validacion_direccion()
+{
+    session_start();
+
+    global $DSN;
+
+    $oCon = new Dbo;
+    $oCon->DSN = $DSN;
+    $oCon->Conectar();
+
+    $oReturn = new xajaxResponse();
+
+    $id_empresa = $_SESSION["U_EMPRESA"];
+    $id_sucursal = $_SESSION["U_SUCURSAL"];
+
+    $sql = "SELECT id, calle from isp.int_calle WHERE id_empresa = $id_empresa";
+    $select_calle = lista_boostrap_func($oCon, $sql, 1, 'id',  'calle');
+
+    $sHtml = '<div class="modal-dialog modal-lg" role="document" style="width:98%;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h5 class="modal-title" id="myModalLabel" align="center">VALIDACIÓN DE DIRECCIÓN<small></small></h5>
+                    </div>
+                    <div class="modal-body" style="margin-top:0xp;">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="input-group input-group-sm">
+                                                <label class="input-group-addon primary" style="background-color: #337ab7; color:white;" for="estado" title="">Tipo calle:</label>
+                                                <label for="tipo_calle_1" class="text-danger text-center input-group-addon ">
+                                                    Digitar Calle
+                                                    <input type="radio" id="tipo_calle_1" name="tipo_calle" value="1" checked onclick="muestra_t_calle()"/>
+                                                </label>
+                                                <label for="tipo_calle_2" class="text-danger text-center input-group-addon ">
+                                                    Listar Calles
+                                                    <input type="radio" id="tipo_calle_2" name="tipo_calle" value="2" onclick="muestra_t_calle()"/>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group" id="div_calle_1">
+                                                <label class="control-label" for="calle_valida">Calle:</label>
+                                                <input type="text" id="calle_valida_txt" name="calle_valida_txt" class="form-control" value="" placeholder="" autocomplete="off">
+                                            </div>
+                                            <div class="form-group" id="div_calle_2" style="display:none;">
+                                                <label class="control-label" for="calle_valida">Calle:</label>
+                                                <select id="calle_valida_select" name="calle_valida_select" class="form-control select2" style=" width: 100%; ">
+                                                    ' . $select_calle . '
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label" for="numero_valida">Número:</label>
+                                                <input type="text" id="numero_valida" name="numero_valida" class="form-control" value="" placeholder="" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <br>
+                                            <button class="btn btn-success btn-block" type="button" onclick="valida_direccion()">
+                                                Validar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 table-responsive" id="resp_valida">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                      
+                    </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" onclick="agregarEquipos(0)">Guardar</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>';
+
+    $sHtml_ok = $sHtml;
+
+    $oReturn->script("$('#miModalCalle').modal('show')");
+    $oReturn->assign("miModalCalle", "innerHTML", $sHtml_ok);
+    $oReturn->script("$('.select2').select2();");
+
+    return $oReturn;
+}
+
+function valida_direccion($calle_valida_txt, $calle_valida_select, $tipo_calle, $numero_valida)
+{
+    //Definiciones
+    global $DSN;
+
+    session_start();
+
+    $oCon = new Dbo;
+    $oCon->DSN = $DSN;
+    $oCon->Conectar();
+
+    $oReturn = new xajaxResponse();
+
+    $id_empresa = $_SESSION['U_EMPRESA'];
+    $id_sucursal = $_SESSION['U_SUCURSAL'];
+
+    $parrDire = $aForm['parrDire'];
+
+    try {
+
+        $sql = "SELECT id, estado, class FROM isp.estado_contrato";
+        $array_e = array_dato($oCon, $sql, 'id', 'estado');
+        $array_e_c = array_dato($oCon, $sql, 'id', 'class');
+
+        $sql = "SELECT id, calle from isp.int_calle WHERE id_empresa = $id_empresa";
+        $array_calle = array_dato($oCon, $sql, 'id', 'calle');
+
+        $fecha = date("Y-m-d");
+        $ultimoDiaMes = date('t', strtotime($fecha));
+        $dia = date("d");
+        $mes = date("m");
+        $anio = date("Y");
+        $fechaComparaPre = $anio . '/' . $mes . '/' . $ultimoDiaMes;
+        $fechaComparaPos = $anio . '/' . $mes . '/01';
+
+        $sql = "SELECT para_aprox_num     
+                from saepara
+                WHERE para_cod_sucu = $id_sucursal";
+        if ($oCon->Query($sql)) {
+            if ($oCon->NumFilas() > 0) {
+                do {
+                    $para_aprox_num          = $oCon->f('para_aprox_num');
+                } while ($oCon->SiguienteRegistro());
+            }
+        }
+        $oCon->Free();
+
+        if ($para_aprox_num > 0) {
+            if ($para_aprox_num == 10) {
+                $num_min = 100;
+            } else if ($para_aprox_num == 1) {
+                $num_min = 1;
+            } else {
+                $num_min = 0;
+            }
+        } else {
+            $num_min = 0;
+        }
+
+        //**ARRAY DEUDAS */
+        $sql = "SELECT a.id, sum(p.tarifa + p.tot_add - p.valor_pago - p.valor_no_uso + p.descuento + p.valor_nc) as saldo, count(p.id) as num_cuotas
+        FROM isp.contrato_clpv a INNER JOIN isp.contrato_pago p ON a.id = p.id_contrato 
+        WHERE CASE a.tipo_contrato_de_cobro
+            WHEN 'POSTPAGO' 
+                    THEN 
+                    p.fecha < '$fechaComparaPos'
+            ELSE
+            p.fecha <= '$fechaComparaPre'
+            END 
+                    AND (p.tarifa + p.tot_add - p.valor_pago - p.valor_no_uso + p.descuento + p.valor_nc) > $num_min AND p.estado = 'PE' AND a.id_empresa = $id_empresa GROUP BY a.id";
+        unset($array_saldo);
+        unset($array_cuotas_saldo);
+        $array_saldo            = array_dato($oCon, $sql, 'id', 'saldo');
+        $array_cuotas_saldo     = array_dato($oCon, $sql, 'id', 'num_cuotas');
+
+        $sql_num = "";
+        if (!empty($numero_valida)) {
+            $sql_num = " AND num_conjunto = '$numero_valida' ";
+        }
+
+        $sql_calle = "";
+        if ($tipo_calle == 1) {
+            $sql_calle = " AND nomb_conjunto LIKE '%$calle_valida_txt%'";
+        } else if ($tipo_calle == 2) {
+            $sql_calle = " AND id_calle = $calle_valida_select ";
+        }
+
+        $sql = "SELECT id, codigo, nom_clpv, telefono, email, fecha_contrato, estado, fecha_c_pago, duracion, tarifa, ruc_clpv, nomb_conjunto, id_calle, num_conjunto
+                FROM isp.contrato_clpv where id_empresa = $id_empresa $sql_calle $sql_num ";
+        if ($oCon->Query($sql)) {
+            if ($oCon->NumFilas() > 0) {
+
+                $sHtml = '<table class="table table-bordered table-striped table-hover" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <td>CODIGO</td>
+                                    <td>ABONADO</td>
+                                    <td>IDENTIFICACION</td>
+                                    <td>CALLE</td>
+                                    <td>NÚMERO</td>
+                                    <td>TELEFONO</td>
+                                    <td>EMAIL</td>
+                                    <td>FECHA CONTRATO</td>
+                                    <td>ESTADO</td>
+                                    <td>FECHA ULTIMO PAGO</td>
+                                    <td>DURACION</td>
+                                    <td>TARIFA</td>
+                                    <td>SALDO</td>
+                                </tr>
+                            </thead>
+                            <tbody>';
+
+                do {
+                    $id             = $oCon->f('id');
+                    $codigo         = $oCon->f('codigo');
+                    $nom_clpv       = $oCon->f('nom_clpv');
+                    $telefono       = $oCon->f('telefono');
+                    $email          = $oCon->f('email');
+                    $fecha_contrato = $oCon->f('fecha_contrato');
+                    $estado         = $oCon->f('estado');
+                    $fecha_c_pago   = $oCon->f('fecha_c_pago');
+                    $duracion       = $oCon->f('duracion');
+                    $tarifa         = $oCon->f('tarifa');
+                    $ruc_clpv       = $oCon->f('ruc_clpv');
+                    $nomb_conjunto  = $oCon->f('nomb_conjunto');
+                    $id_calle_c     = $oCon->f('id_calle');
+                    $num_conjunto   = $oCon->f('num_conjunto');
+
+                    $calle = "";
+                    if ($tipo_calle == 1) {
+                        $calle = $nomb_conjunto;
+                    } else if ($tipo_calle == 2) {
+                        $calle = $array_calle[$id_calle_c];
+                    }
+
+                    $estado_txt     = '<span style="font-size:11px" class="label label-' . $array_e_c[$estado] . '">' . $array_e[$estado] . '</span>';
+
+                    $saldo = 0;
+                    if (isset($array_saldo[$id])) {
+                        $saldo = $array_saldo[$id];
+                    }
+
+                    $sHtml .= '<tr>
+                                    <td>' . $codigo . '</td>
+                                    <td>' . $nom_clpv . '</td>
+                                    <td>' . $ruc_clpv . '</td>
+                                    <td>' . $calle . '</td>
+                                    <td>' . $num_conjunto . '</td>
+                                    <td>' . $telefono . '</td>
+                                    <td>' . $email . '</td>
+                                    <td>' . $fecha_contrato . '</td>
+                                    <td>' . $estado_txt . '</td>
+                                    <td>' . $fecha_c_pago . '</td>
+                                    <td>' . $duracion . '</td>
+                                    <td>' . $tarifa . '</td>
+                                    <td>' . $saldo . '</td>
+                                </tr>';
+                } while ($oCon->SiguienteRegistro());
+
+                $sHtml .= '</tbody></table>';
+            } else {
+                $sHtml = 'Sin datos..';
+            }
+        }
+        $oCon->Free();
+
+        $oReturn->assign("resp_valida", "innerHTML", $sHtml);
+        $oReturn->script("jsRemoveWindowLoad()");
+    } catch (Exception $e) {
+        $oReturn->alert($e->getMessage());
+    }
+
+    return $oReturn;
+}
+
+function consultar_score($aForm = '')
+{
+    //Definiciones
+    global $DSN;
+
+    session_start();
+
+    $oCon = new Dbo();
+    $oCon->DSN = $DSN;
+    $oCon->Conectar();
+
+    $oConA = new Dbo();
+    $oConA->DSN = $DSN;
+    $oConA->Conectar();
+
+    $oIfxA = new Dbo();
+    $oIfxA->DSN = $DSN;
+    $oIfxA->Conectar();
+
+    $oReturn = new xajaxResponse();
+
+    $tipo_documento_ini     = intval($aForm['identificacion']);
+    $identificacion_equi    = $aForm['ruc_cli'];
+
+    //variables de sesion
+    $idempresa  = $_SESSION['U_EMPRESA'];
+    $idsucursal = $_SESSION['U_SUCURSAL'];
+    $user_ifx   = $_SESSION['U_USER_INFORMIX'];
+    $user_web   = $_SESSION['U_ID'];
+    $id_pais    = $_SESSION['U_PAIS_COD'];
+
+    $class_equifax = new Equifax;
+
+    try {
+
+        if(empty($tipo_documento_ini)){
+            throw new Exception('Debe seleccionar un tipo de documento para consultar');
+        }
+        // commit
+        $oCon->QueryT('BEGIN;');
+
+        $sql = "SELECT codigo_equifax FROM comercial.tipo_iden_clpv_pais where id_iden_clpv = $tipo_documento_ini and pais_cod_pais = $id_pais";
+        $tipo_documento = consulta_string($sql, 'codigo_equifax', $oCon, '');
+
+        $sql = "SELECT rango_de_dias FROM comercial.equifax_credentials";
+        $rango_de_dias = consulta_string($sql, 'rango_de_dias', $oCon, '');
+
+        $sql = "SELECT rango_de_dias FROM comercial.equifax_credentials";
+        $rango_de_dias = consulta_string($sql, 'rango_de_dias', $oCon, '');
+
+        if ($id_pais == 1) {
+
+            $sql = "SELECT fecha_score from comercial.consumo_equifax 
+                                    where documento='$identificacion_equi' and tipo_documento='$tipo_documento'";
+            $fecha_score = consulta_string($sql, 'fecha_score', $oCon, '');
+            $fecha_formateada = '2200-01-01';
+
+            if (!empty($fecha_score)) {
+                $fecha_formateada = date("Y-m-d", strtotime($fecha_score . "+" . $rango_de_dias . "days"));
+            }
+
+            $sql = "SELECT nombre_sujeto,score_actual from comercial.consumo_equifax 
+                    where documento='$identificacion_equi' and tipo_documento='$tipo_documento'
+                    and fecha_score <='$fecha_formateada'";
+
+            $base_o_equifax = '';
+            if ($oIfxA->Query($sql)) {
+                if ($oIfxA->NumFilas() > 0) {
+                    $i = 1;
+                    do {
+
+                        $base_o_equifax = '<code class="text-primary">Informacion obtenida de Jireh Web</code>';
+
+                        $nombreSujeto = $oIfxA->f('nombre_sujeto');
+                        $scoreActual = $oIfxA->f('score_actual');
+
+                        $i++;
+                    } while ($oIfxA->SiguienteRegistro());
+                } else {
+
+                    //------------------------------------------------------------------------
+                    //  C O N S U M O       D E         E Q U I F AX                        //
+                    //------------------------------------------------------------------------
+                    $base_o_equifax = '<code class="text-primary">Informacion obtenida de Equifax</code>';
+
+                    $xml_data = $class_equifax->consultarXMLCovidCompleto($oIfxA, $idempresa, $tipo_documento, $identificacion_equi);
+                    //var_dump($xml_data);exit;
+
+                    $xml_data = str_replace('soap:', '', $xml_data);
+                    $xml_data = str_replace('xs:', '', $xml_data);
+                    $xml_data = str_replace('diffgr:', '', $xml_data);
+                    $xml_data = str_replace('version="1.0" encoding="utf-8"?>', '', $xml_data);
+                    $xml_data = str_replace('<?xml', '', $xml_data);
+
+                    // echo $xml_data;exit;
+
+                    $xml = simplexml_load_string($xml_data);
+
+
+                    //TIPO DE DOCUMENTO
+                    $nombre_s = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->IdentificacionConsultada->TipoDocumentoDobleInfo;
+                    $tipoDocumento = (string) $nombre_s;
+
+                    //echo $tipoDocumento;exit;
+
+                    //NUMERO DE DOCUMENTO
+                    $nombre_s = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->IdentificacionConsultada->NumeroDocumentoDobleInfo;
+                    $numeroDocumento = (string) $nombre_s;
+
+                    //NOMBRE CONSULTADO
+                    $nombre_s = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->IdentificacionConsultada->NombreSujeto;
+                    $nombreSujeto = (string) $nombre_s;
+
+                    //SCORE ACTUAL
+                    $score_actual = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Historico_x0020_Score_x0020_360[0];
+                    $scoreActual = intval($score_actual);
+
+                    //SCORE HACE 6 MESES
+                    $score_6_meses = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Historico_x0020_Score_x0020_360->Score[1];
+                    $score_6_meses = intval($score_6_meses);
+
+                    //SCORE HACE 12 MESES
+                    $score_12_meses = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Historico_x0020_Score_x0020_360->Score[2];
+                    $score_12_meses = intval($score_12_meses);
+
+                    //-------------------------------------------
+                    // VALIDAMOS QUE HAY INFORMACION DENTRO DEL TAG DEL SRI
+                    // PARA INGRESAR EN LA BASE DE DATOS
+
+                    $tags_sri = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Informacion_x0020_SRI_x0020_360;
+
+
+                    $actividadSri = '';
+                    $rucSri = '';
+                    $estadoContribuyente = '';
+                    $claseContribuyente = '';
+                    $codigoCiiu = '';
+                    $fechaInicioActividades = '';
+                    $fechaSuspensionDefinitiva = '';
+                    $numeroEstablecimiento = '';
+                    $obligado = '';
+                    $nombreFantasiaComercial = '';
+
+                    if ($tags_sri) {
+
+                        //ACTIVIDA REGISTRADA EN EL SRI
+                        $actividad = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Informacion_x0020_SRI_x0020_360->Actividad;
+                        $actividadSri = (string) $actividad;
+
+                        //RUC REGISTRADO SRI
+                        $ruc = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Informacion_x0020_SRI_x0020_360->RUC;
+                        $rucSri = (string) $ruc;
+
+                        //ESTADO CONTRIBUYENTE  SRI
+                        $contribuyente = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Informacion_x0020_SRI_x0020_360->estadoContribuyente;
+                        $estadoContribuyente = (string) $contribuyente;
+
+                        //CALSE CONTRIBUYENTE SRI
+                        $claseContribuyente = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Informacion_x0020_SRI_x0020_360->claseContribuyente;
+                        $claseContribuyente = (string) $claseContribuyente;
+
+                        //codigoCiiu SRI
+                        $codigoCiiu = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Informacion_x0020_SRI_x0020_360->codigoCiiu;
+                        $codigoCiiu = (string) $codigoCiiu;
+
+                        //inicio Actividades
+                        $fechaInicioActividades = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Informacion_x0020_SRI_x0020_360->fechaInicioActividades;
+                        $fechaInicioActividades = (string) $fechaInicioActividades;
+
+                        //inicio Actividades
+                        $fechaSuspensionDefinitiva = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Informacion_x0020_SRI_x0020_360->fechaSuspensionDefinitiva;
+                        $fechaSuspensionDefinitiva = (string) $fechaSuspensionDefinitiva;
+
+                        //Establecimiento Sri
+                        $numeroEstablecimiento = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Informacion_x0020_SRI_x0020_360->numeroEstablecimiento;
+                        $numeroEstablecimiento = (string) $fechaSuspensionDefinitiva;
+
+                        //Obligado a llevar Contabiliad Sri
+                        $obligado = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Informacion_x0020_SRI_x0020_360->obligado;
+                        $obligado = (string) $obligado;
+
+                        //NOMBRE COMERCIAL
+                        $nombreFantasiaComercial = $xml->Body->ObtenerReporte360Response->ObtenerReporte360Result->diffgram->NewDataSet->Informacion_x0020_SRI_x0020_360->nombreFantasiaComercial;
+                        $nombreFantasiaComercial = (string) $nombreFantasiaComercial;
+                    }
+
+
+                    //---------------------------------------------------
+                    // GUARDAMOS LA INFORMACION EXTRAIDA DE EQUIFAX     //
+                    //---------------------------------------------------
+
+                    $fecha_score = date('Y-m-d');
+
+                    $insert_consumo = $class_equifax->ingresarEquifax(
+                        $tipoDocumento,
+                        $numeroDocumento,
+                        $nombreSujeto,
+                        $scoreActual,
+                        $score_6_meses,
+                        $score_12_meses,
+                        $actividadSri,
+                        $rucSri,
+                        $estadoContribuyente,
+                        $claseContribuyente,
+                        $codigoCiiu,
+                        $fechaInicioActividades,
+                        $fechaSuspensionDefinitiva,
+                        $numeroEstablecimiento,
+                        $obligado,
+                        $nombreFantasiaComercial,
+                        $fecha_score,
+                        $oCon
+                    );
+                }
+                //$oReturn->assign("base_obtenida", "innerHTML", $base_o_equifax);
+                $oReturn->assign("puntaje_score", "value", $scoreActual);
+                $oReturn->assign("nombres", "value", $nombreSujeto);
+                $oReturn->assign("nom_clpv", "value", $nombreSujeto);
+                $oReturn->script("califica_score($scoreActual)");
+            }
+        } else {
+
+            if ($tipo_documento == 1) {
+                $tipo_documento_c = 'DNI';
+            } elseif ($tipo_documento == 6) {
+                $tipo_documento_c = 'RUC';
+            }
+
+            $sql = "SELECT fecha_consulta from comercial.consumo_equifax_peru 
+                                    where numero_documento='$identificacion_equi' and tipo_docu='$tipo_documento_c'";
+            //echo $sql;exit;
+            $fecha_score = consulta_string($sql, 'fecha_consulta', $oCon, '');
+            $fecha_formateada = '2200-01-01';
+
+
+            if (!empty($fecha_score)) {
+                $fecha_formateada = date("Y-m-d", strtotime($fecha_score . "+" . $rango_de_dias . "days"));
+            }
+            // echo $fecha_formateada;exit;
+
+            $sql = "SELECT id,nombres_completos,puntaje_score,direccion, riesgo_actual_score from comercial.consumo_equifax_peru
+                    where numero_documento='$identificacion_equi' and tipo_docu='$tipo_documento_c'
+                    and fecha_consulta <='$fecha_formateada'";
+
+                    //echo $sql;exit;
+
+            $base_o_equifax = '';
+            if ($oIfxA->Query($sql)) {
+                if ($oIfxA->NumFilas() > 0) {
+                    $i = 1;
+                    do {
+
+                        $base_o_equifax = '<code class="text-primary">Informacion obtenida de Jireh Web</code>';
+                        $nombreSujeto = $oIfxA->f('nombres_completos');
+                        $scoreActual = $oIfxA->f('puntaje_score');
+                        $direccion = $oIfxA->f('direccion');
+                        $id = $oIfxA->f('id');
+                        $riesgo_actual_score = $oIfxA->f('riesgo_actual_score');
+                        $scoreActual = $oIfxA->f('puntaje_score');
+
+
+                        $i++;
+                    } while ($oIfxA->SiguienteRegistro());
+
+                    $mas_inf = '<br><button class="btn btn-info" type="button" onclick="info_extra_equi(' . $id . ')"> <i class="fa-solid fa-eye"></i> Más información... </button>';
+
+                    /* $oReturn->assign("base_obtenida", "innerHTML", $base_o_equifax);
+                    $oReturn->assign("score_equi", "value", $scoreActual);
+                    $oReturn->assign("nombre", "value", $nombreSujeto);
+                    $oReturn->assign("direccion", "value", $direccion);
+                    $oReturn->assign("tipo_riesgo_eq", "innerHTML", $riesgo_actual_score);
+                    $oReturn->assign("informacion_adicional_equif", "innerHTML", $mas_inf);
+                    $oReturn->script("califica_score($scoreActual)"); */
+
+                    $oReturn->assign("puntaje_score", "value", $scoreActual);
+                    $oReturn->assign("nombres", "value", $nombreSujeto);
+                    $oReturn->assign("nom_clpv", "value", $nombreSujeto);
+                    $oReturn->script("califica_score($scoreActual)");
+                    $oReturn->assign("tipo_riesgo_eq", "innerHTML", $riesgo_actual_score);
+                    $oReturn->assign("informacion_adicional_equif", "innerHTML", $mas_inf);
+                } else {
+
+                    $base_o_equifax = '<code class="text-primary">Informacion obtenida de Equifax</code>';
+
+                    //------------------------------------------------------------------------
+                    //  C O N S U M O       D E         E Q U I F AX                        //
+                    //------------------------------------------------------------------------
+
+                    if ($tipo_documento == 6) {
+                        $tipo_persona = 2;
+                    } else {
+                        $tipo_persona = 1;
+                    }
+
+                    //echo$tipo_documento;exit;
+
+                   // echo "exit";exit;
+
+                    $xml_data = $class_equifax->consultarXMLCovidCompletoPeru($oIfxA, $idempresa, $tipo_documento, $identificacion_equi, $tipo_persona);
+
+
+                    $xml_data = str_replace('soap:', '', $xml_data);
+                    $xml_data = str_replace('ns3:', '', $xml_data);
+                    $xml_data = str_replace('ns2:', '', $xml_data);
+                    $xml_data = str_replace('xs:', '', $xml_data);
+                    $xml_data = str_replace('diffgr:', '', $xml_data);
+                    $xml_data = str_replace('version="1.0" encoding="utf-8"?>', '', $xml_data);
+                    $xml_data = str_replace('<?xml', '', $xml_data);
+
+                    $xml = simplexml_load_string($xml_data);
+
+                    //echo $xml_data;exit;
+
+                    if (!empty($xml)) {
+                        //***************************************/
+                        // D A T O S    P R I N C I P A L E S
+                        //************************************* */
+
+                        //POSIBLES ERRORES//
+
+                        $xml_error = $xml->Body->Fault->faultstring;
+                        $error_xml = (string) $xml_error;
+
+                        if (empty($error_xml)) {
+
+                            //echo $error_xml;exit;
+
+
+                            //***************************************/
+                            // D A T O S    P R I N C I P A L E S
+                            //************************************* */
+
+                            //FECHA CONSULTA
+                            $xml_fecha_consulta = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->FechaReporte;
+                            $fecha_consulta = (string) $xml_fecha_consulta;
+
+                            //TIPO DOCUMENTO
+                            $xml_tipo_doc = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->DatosPrincipales->TipoDocumento;
+                            $tipo_documento = (string) $xml_tipo_doc;
+
+                            //NUMERO DOCUMENTO
+                            $xml_docuemntos = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->DatosPrincipales->NumeroDocumento;
+                            $numeroDocumento = (string) $xml_docuemntos;
+
+                            //DIRECCION
+                            $xml_direccion = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->DatosPrincipales->Direccion;
+                            $direccion = (string) $xml_direccion;
+
+                            //NOMBRE PERSONA
+                            $xml_nombre = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->DatosPrincipales->Nombre;
+                            $nombres_completos = (string) $xml_nombre;
+
+                            //**********************************************/
+                            // F I N    D A T O S    P R I N C I P A L E S
+                            //**********************************************/
+
+                            // echo 'fecha consulta:' .$fecha_consulta.'tipo doc: '.$tipo_documento. 'documento:'.$numeroDocumento.'direccion: '.$direccion.'nombres completos'.$nombres_completos;exit;
+                            // exit;
+
+                            //**********************************************/
+                            //      S C O R E    H I S T O R I C O
+                            //**********************************************/
+
+                            //SCORE ACTUAL
+                            $xml_periodo_score_actual = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo->Data->ResumenFlags->ResumenComportamiento->ResumenScoreHistorico->ScoreActual->Periodo;
+                            $periodo_actual_score = (string) $xml_periodo_score_actual;
+
+                            //echo $periodo_actual_score;exit;
+                            $xml_riesgo_score_actual = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo->Data->ResumenFlags->ResumenComportamiento->ResumenScoreHistorico->ScoreActual->Riesgo;
+                            $riesgo_actual_score = (string) $xml_riesgo_score_actual;
+
+
+
+                            //SCORE ULTIMA CONSULTA
+                            $xml_periodo_socore_6 = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo->Data->ResumenFlags->ResumenComportamiento->ResumenScoreHistorico->ScoreAnterior->Periodo;
+                            $periodo_anterior_score = (string) $xml_periodo_socore_6;
+                            $xml_riesgo_anterior_actual = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo->Data->ResumenFlags->ResumenComportamiento->ResumenScoreHistorico->ScoreAnterior->Riesgo;
+                            $riesgo_anterior_score = (string) $xml_riesgo_anterior_actual;
+
+
+                            //SCORE 12 MEESES
+                            $xml_periodo_socore_12 = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo->Data->ResumenFlags->ResumenComportamiento->ResumenScoreHistorico->ScoreHace12Meses->Periodo;
+                            $periodo_12_score = (string) $xml_periodo_socore_12;
+                            $xml_riesgo_12_actual = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo->Data->ResumenFlags->ResumenComportamiento->ResumenScoreHistorico->ScoreHace12Meses->Riesgo;
+                            $riesgo_12_score = (string) $xml_riesgo_12_actual;
+
+                            //echo 'fecha consulta:' .$periodo_actual_score.'tipo doc: '.$riesgo_actual_score. 'documento:'.$periodo_anterior_score.'direccion: '.$riesgo_anterior_score.'nombres completos'.$periodo_12_score.'---'.$riesgo_12_score;exit;
+                            //exit;
+
+                            //*************************************************/
+                            //      I N F O R M A C I O N    A D I C I O N A L
+                            //*************************************************/
+
+                            $xml_tarjeta_credito = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo->Data->ResumenFlags->ResumenBloqueFlags->TarjetaCredito;
+                            $tarjeta_credito = (string) $xml_tarjeta_credito;
+
+                            $xml_linea_credito = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo->Data->ResumenFlags->ResumenBloqueFlags->LineaDeCredito;
+                            $linea_credito = (string) $xml_linea_credito;
+
+                            $xml_CreditoHipotecario = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo->Data->ResumenFlags->ResumenBloqueFlags->CreditoHipotecario;
+                            $credito_hipotecario = (string) $xml_CreditoHipotecario;
+
+                            $xml_BuenPagadorDeServicios = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo->Data->ResumenFlags->ResumenBloqueFlags->BuenPagadorDeServicios;
+                            $BuenPagadorDeServicios = (string) $xml_BuenPagadorDeServicios;
+
+                            $xml_inforcorp = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo->Data->ResumenFlags->ResumenBloqueFlags->EstaEnInfocorp;
+                            $esta_infocorp = (string) $xml_inforcorp;
+
+                            $xml_gasto_mensual = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo->Data->ResumenFlags->ResumenBloqueFlags->GastoMensualEstimado;
+                            $gasto_mensual = (string) $xml_gasto_mensual;
+
+                            $xml_auto = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo->Data->ResumenFlags->ResumenBloqueFlags->TieneAuto;
+                            $tiene_auto = (string) $xml_auto;
+
+
+                            // echo 'tarjeta_credito:' .$tarjeta_credito.'linea_credito: '.$linea_credito. 'credito_hipotecario:'.$credito_hipotecario.'BuenPagadorDeServicios: '.$BuenPagadorDeServicios.'esta_infocorp'.$esta_infocorp.'gasto_mensual'.$gasto_mensual.'tiene_auto'.$tiene_auto;exit;
+
+
+                            //*************************************************/
+                            //      S C O R E       P R E D I C T I V O       //
+                            //*************************************************/
+
+                            $xml_titulo_modulo = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo[1]->Nombre;
+                            $titulo_modulo = (string) $xml_titulo_modulo;
+                            //echo $titulo_modulo;exit;
+
+                            $xml_puntaje_score = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo[1]->Data->ResumenScoreRP3->Puntaje;
+                            $puntaje_score = (string) $xml_puntaje_score;
+
+                            if (empty($puntaje_score)) {
+                                $xml_puntaje_score = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo[1]->Data->ResumenScore->Puntaje;
+                                $puntaje_score = (string) $xml_puntaje_score;
+                            }
+
+                            //echo $puntaje_score;exit;
+
+
+                            $xml_nivel_riesgo = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo[1]->Data->ResumenScoreRP3->NivelRiesgo;
+                            $nivel_riesgo = (string) $xml_nivel_riesgo;
+
+                            $xml_conclucion_riesgo = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo[1]->Data->ResumenScoreRP3->Conclusion;
+                            $conclusion_puntaje_riesgo = (string) $xml_conclucion_riesgo;
+
+                            //$xml_conclucion_riesgo = $xml->Body->GetReporteOnlineResponse->ReporteCrediticio->Modulos->Modulo[1]->Data->ResumenScoreRP3->Conclusion;
+                            //$conclusion_puntaje_riesgo = (string) $xml_conclucion_riesgo;
+
+
+                            $sql = "SELECT max(id) as ultimo_id from comercial.consumo_equifax_peru";
+                            $id_score_consulta = consulta_string($sql, 'ultimo_id', $oConA, 0) + 1;
+
+                            //echo "aa";exit;
+                            $insert_consumo = $class_equifax->ingresarEquifaxPeru(
+                                $id_score_consulta,
+                                $fecha_consulta,
+                                $tipo_documento,
+                                $numeroDocumento,
+                                $direccion,
+                                $nombres_completos,
+                                $periodo_actual_score,
+                                $riesgo_actual_score,
+                                $periodo_anterior_score,
+                                $riesgo_anterior_score,
+                                $periodo_12_score,
+                                $riesgo_12_score,
+                                $tarjeta_credito,
+                                $linea_credito,
+                                $credito_hipotecario,
+                                $BuenPagadorDeServicios,
+                                $esta_infocorp,
+                                $gasto_mensual,
+                                $tiene_auto,
+                                $titulo_modulo,
+                                $puntaje_score,
+                                $nivel_riesgo,
+                                $conclusion_puntaje_riesgo,
+                                $oCon
+                            );
+
+                            $mas_inf = '<br><button class="btn btn-info" type="button" onclick="info_extra_equi(' . $id_score_consulta . ')"> <i class="fa-solid fa-eye"></i> Más información... </button>';
+
+                            /* $oReturn->assign("base_obtenida", "innerHTML", $base_o_equifax);
+                            $oReturn->assign("score_equi", "value", $puntaje_score);
+                            $oReturn->assign("nombre", "value", $nombres_completos);
+                            $oReturn->assign("direccion", "value", $direccion);
+                            $oReturn->assign("tipo_riesgo_eq", "innerHTML", $riesgo_actual_score);
+                            $oReturn->assign("informacion_adicional_equif", "innerHTML", $mas_inf);
+                            $oReturn->script("califica_score($puntaje_score)"); */
+
+                            $oReturn->assign("puntaje_score", "value", $puntaje_score);
+                            $oReturn->assign("nombres", "value", $nombres_completos);
+                            $oReturn->assign("nom_clpv", "value", $nombres_completos);
+                            $oReturn->script("califica_score($puntaje_score)");
+                            $oReturn->assign("tipo_riesgo_eq", "innerHTML", $riesgo_actual_score);
+                            $oReturn->assign("informacion_adicional_equif", "innerHTML", $mas_inf);
+                        } else {
+
+                            $oReturn->script("Swal.fire({
+                                position: 'center',
+                                type: 'error',
+                                title: '$error_xml',
+                                showConfirmButton: true,
+                                confirmButtonText: 'Aceptar',
+                               
+                            })");
+                            $oReturn->script('jsRemoveWindowLoad();');
+                        }
+
+                    } else {
+                        $oReturn->script("Swal.fire({
+                            position: 'center',
+                            type: 'warning',
+                            title: 'No se puede conectar con EQUIFAX contactate con soporte',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar',
+                           
+                        })");
+                    }
+                }
+            }
+        }
+
+        $oReturn->script('jsRemoveWindowLoad();');
+
+        $oCon->QueryT('COMMIT;');
+    } catch (Exception $e) {
+        // rollback
+        $oCon->QueryT('ROLLBACK;');
+        $oReturn->script("jsRemoveWindowLoad()");
+        $oReturn->alert($e->getMessage());
+    }
+
+    return $oReturn;
+}
+
+function info_adc($aForm = '', $id_consulta)
+{
+
+    //Definiciones
+    global $DSN_Ifx, $DSN;
+
+    session_start();
+
+    $oIfx = new Dbo;
+    $oIfx->DSN = $DSN_Ifx;
+    $oIfx->Conectar();
+
+    $oCon = new Dbo;
+    $oCon->DSN = $DSN;
+    $oCon->Conectar();
+
+    $oReturn = new xajaxResponse();
+
+    $ifu = new Formulario;
+    $ifu->DSN = $DSN_Ifx;
+    //variables de session
+    $idempresa = $_SESSION['U_EMPRESA'];
+    $idsucursal = $_SESSION['U_SUCURSAL'];
+
+    //variables del formulario
+    $idContrato = $aForm['idContrato'];
+    $latitud = $aForm['latitud'];
+    $longitud = $aForm['longuitud'];
+    $abonadoContrato = $aForm['abonadoContrato'];
+
+    //echo $id_consulta;exit;
+
+
+
+    try {
+
+        $sql = "SELECT * from comercial.consumo_equifax_peru where id=$id_consulta";
+        if ($oIfx->Query($sql)) {
+            if ($oIfx->NumFilas() > 0) {
+                $i = 1;
+                do {
+
+                    $id = $oIfx->f('id');
+                    $fecha_consulta = $oIfx->f('fecha_consulta');
+                    $tipo_docu = $oIfx->f('tipo_docu');
+                    $numero_documento = $oIfx->f('numero_documento');
+                    $direccion = $oIfx->f('direccion');
+                    $nombres_completos = $oIfx->f('nombres_completos');
+                    $periodo_actual_score = $oIfx->f('periodo_actual_score');
+                    $riesgo_actual_score = $oIfx->f('riesgo_actual_score');
+                    $periodo_anterior_score = $oIfx->f('periodo_anterior_score');
+                    $riesgo_anterior_score = $oIfx->f('riesgo_anterior_score');
+                    $periodo_12_score = $oIfx->f('periodo_12_score');
+                    $riesog_12_score = $oIfx->f('riesog_12_score');
+                    $id_empresa = $oIfx->f('id_empresa');
+                    $linea_de_credito = $oIfx->f('linea_de_credito');
+                    $credito_hipo = $oIfx->f('credito_hipo');
+                    $buen_pagador_serv = $oIfx->f('buen_pagador_serv');
+                    $esta_en_infocorp = $oIfx->f('esta_en_infocorp');
+                    $gasto_mensual = $oIfx->f('gasto_mensual');
+                    $tiene_auto = $oIfx->f('tiene_auto');
+                    $titulo_modulo = $oIfx->f('titulo_modulo');
+                    $puntaje_score = $oIfx->f('puntaje_score');
+                    $nivel_riesgo = $oIfx->f('nivel_riesgo');
+                    $conclusion = $oIfx->f('conclusion');
+                    $id_usuario = $oIfx->f('id_usuario');
+                    $tarjeta_credito = $oIfx->f('tarjeta_credito');
+
+
+
+                    $i++;
+                } while ($oIfx->SiguienteRegistro());
+            }
+        }
+
+
+
+
+
+        $sHtml = '';
+        $sHtml .= '<h5 class="text-danger"><code>' . $titulo_modulo . ' <br>  ________________________________________________________________________________________________________________________ </h5></code>';
+
+
+        $sHtml .= '<table class="table table-bordered table-hover table-striped table-condensed" "margin-top: 30px">
+        
+                        <tr>
+                        <td colspan="5" align="center"><h5 class=""><i style="color:#F6D413"class="fa fa-exclamation-triangle" aria-hidden="true"></i><code>PUNTAJE ' . $puntaje_score . '</code> <b>' . $conclusion . '</b></h5></td>
+                        </tr>
+                    </table>
+
+                    <table class="table table-bordered table-hover table-striped table-condensed" "margin-top: 30px" style="width:500px">
+
+                        <tr>
+                        <td><h6><b>Periodo Score Actual:</b></h6></td>
+                        <td><h6 class="text-primary">' . $periodo_actual_score . '</h6></td>
+                        <td><h6><b>Riesgo:</h6></b></td>
+                        <td><h6 class="text-primary">' . $riesgo_actual_score . '</h6></td>
+                        </tr>
+
+                        <tr>
+                        <td><h6><b>Periodo Score Anterior:</b></h6></td>
+                        <td><h6 class="text-primary">' . $periodo_anterior_score . '</h6></td>
+                        <td><h6><b>Riesgo:</h6></b></td>
+                        <td><h6 class="text-primary">' . $riesgo_anterior_score . '</h6></td>
+                        </tr>
+
+                        <tr>
+                        <td><h6><b>Periodo Score Anterior:</b></h6></td>
+                        <td><h6 class="text-primary">' . $periodo_12_score . '</h6></td>
+                        <td><h6><b>Riesgo:</h6></b></td>
+                        <td><h6 class="text-primary">' . $riesog_12_score . '</h6></td>
+                        </tr>
+                       
+        </table>';
+
+        $sHtml .= '<h5 class="text-danger"><code> INFORMACION ADICIONAL <br>  ________________________________________________________________________________________________________________________ </h5></code>';
+
+
+        $sHtml .= '<table style="width:500px" class="table table-bordered table-hover table-striped table-condensed" "margin-top: 30px">
+        
+      
+        <tr>
+        <td><h6><b>Tarjeta de Credito:</b></h6></td>
+        <td><h6 class="text-primary">' . $tarjeta_credito . '</h6></td>
+        <td><h6><b>Esta en Infocorp:</b></h6></td>
+        <td><h6 class="text-primary">' . $esta_en_infocorp . '</h6></td>
+        </tr>
+
+        <tr>
+       
+        <td><h6><b>Linea de Credito:</b></h6></td>
+        <td><h6 class="text-primary">' . $linea_de_credito . '</h6></td>
+        <td><h6><b>Gasto Mensual:</h6></b></td>
+        <td><h6 class="text-primary">' . $gasto_mensual . '</h6></td>
+        </tr>
+
+
+        <tr>
+        <td><h6><b>Credito Hipotecario:</b></h6></td>
+        <td><h6 class="text-primary">' . $credito_hipo . '</h6></td>
+        <td><h6><b>Tiene Auto:</h6></b></td>
+        <td><h6 class="text-primary">' . $tiene_auto . '</h6></td>
+        </tr>
+
+        <tr>
+        <td><h6><b>Buen Pagador de Servicios:</b></h6></td>
+        <td><h6 class="text-primary">' . $buen_pagador_serv . '</h6></td>
+        </tr>
+       
+    </table>';
+
+        //MODAL
+        $MODAL .= '<div class="modal-dialog" role="document" style="width: 60%;">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                               
+                                    <div class="modal-header">
+                                    <h5><b>' . $nombres_completos . '<b> <code>' . $numero_documento . '</code></h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                      <div class="modal-body" id="classModalBody">';
+
+
+
+
+
+
+        //$MODAL .= '<h5 style="color:blue"></h5>';
+        //
+        $MODAL .=  $sHtml;
+
+
+        $MODAL .= '</div>
+
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                      </div>
+              </div>
+          </div>
+      </div>';
+
+        $oReturn->assign("miModal", "innerHTML", $MODAL);
+
+
+        // id_tip_act
+    } catch (Exception $e) {
+        $oReturn->alert($e->getMessage());
+    }
+
+    return $oReturn;
+}
+
+function detalles_promo($id)
+{
+    //Definiciones
+    global $DSN;
+
+    session_start();
+
+    $oCon = new Dbo;
+    $oCon->DSN = $DSN;
+    $oCon->Conectar();
+
+    $oReturn = new xajaxResponse();
+
+    $id_empresa  = $_SESSION['U_EMPRESA'];
+    $pais_cod   = $_SESSION['U_PAIS_COD'];
+    $id_sucu_rep = $aForm['id_sucu_rep'];
+    $fecha_server = date("Y-m-d");
+
+    try {
+
+        $sql = "SELECT *
+                from isp.int_promociones
+                WHERE id = $id";
+        if ($oCon->Query($sql)) {
+            if ($oCon->NumFilas() > 0) {
+                unset($array);
+                $i = 1;
+                do {
+                    $id                         = $oCon->f('id');
+                    $id_empresa                 = $oCon->f('id_empresa');
+                    $id_usuario                 = $oCon->f('id_usuario');
+                    $id_usuario_edit            = $oCon->f('id_usuario_edit');
+                    $nombre                     = $oCon->f('nombre');
+                    $descripcion                = $oCon->f('descripcion');
+                    $id_sucursal                = $oCon->f('id_sucursal');
+                    $id_provincia               = $oCon->f('id_provincia');
+                    $id_canton                  = $oCon->f('id_canton');
+                    $id_parroquia               = $oCon->f('id_parroquia');
+                    $id_sector                  = $oCon->f('id_sector');
+                    $dia_proporcional           = $oCon->f('dia_proporcional');
+                    $fecha_desde                = $oCon->f('fecha_desde');
+                    $fecha_hasta                = $oCon->f('fecha_hasta');
+                    $meses_indefinido           = $oCon->f('meses_indefinido');
+                    $num_meses                  = $oCon->f('num_meses');
+                    $intervalo_meses            = $oCon->f('intervalo_meses');
+                    $id_fpag                    = $oCon->f('id_fpag');
+                    $id_tipo_vivienda           = $oCon->f('id_tipo_vivienda');
+                    $cambio_operador_sn         = $oCon->f('cambio_operador_sn');
+                    $vivienda_propia_sn         = $oCon->f('vivienda_propia_sn');
+                    $con_empleo_sn              = $oCon->f('con_empleo_sn');
+                    $es_cliente_sn              = $oCon->f('es_cliente_sn');
+                    $num_equipos_descuento      = $oCon->f('num_equipos_descuento');
+                    $equipos_descuento          = $oCon->f('equipos_descuento', false);
+                    $equipos_descuento          = json_decode($equipos_descuento);
+                    $planes                     = $oCon->f('planes', false);
+                    $planes                     = json_decode($planes);
+                    $aplica_score_sn            = $oCon->f('aplica_score_sn');
+                    $tipos_score                = $oCon->f('tipos_score', false);
+                    $tipos_score                = json_decode($tipos_score);
+                    $servicios_extra            = $oCon->f('servicios_extra', false);
+                    $servicios_extra            = json_decode($servicios_extra);
+                    $servicios_vel_promocional  = $oCon->f('servicios_vel_promocional', false);
+                    $servicios_vel_promocional  = json_decode($servicios_vel_promocional);
+                    $estado                     = $oCon->f('estado');
+                    //$fecha_server               = $oCon->f('fecha_server');
+                    //$fecha_server_edit          = $oCon->f('fecha_server_edit');
+
+                    $estado = 'Activo';
+                    $class  = 'label-success';
+                    if($fecha_server > $fecha_hasta){
+                        $estado = 'Vencido';
+                        $class  = 'label-danger';
+                    }
+
+                    if($meses_indefinido == 'S'){
+                        $num_meses = 'INDEFINIDO';
+                    }
+
+                    $fecha_desde                = date('Y-m-d', strtotime($fecha_desde));
+                    $fecha_hasta                = date('Y-m-d', strtotime($fecha_hasta));
+
+                    $estado_fn = '<span class="label '.$class.'" style="font-size:12px">'.$estado.'</span>';
+
+                    $sql = "SELECT sucu_nom_sucu from saesucu WHERE sucu_cod_sucu = $id_sucursal";
+                    $sucu_nom_sucu = consulta_string_func($sql, 'sucu_nom_sucu', $oCon, 0);
+
+                    $html_prov = "";
+                    $html_cant = "";
+                    $html_parr = "";
+                    $html_sect = "";
+                    $html_fpag = "";
+                    $html_tip_vivi = "";
+
+                    if(!empty($id_provincia)){
+                        $html_prov = consulta_tabla_prov($id_provincia);
+                        if($html_prov['status'] == 500){
+                            throw new Exception($html_prov["mensaje"]);
+                        }
+                    }
+                    if(!empty($id_canton)){
+                        $html_cant = consulta_tabla_cant($id_canton);
+                        if($html_cant['status'] == 500){
+                            throw new Exception($html_cant["mensaje"]);
+                        }
+                    }
+                    if(!empty($id_parroquia)){
+                        $html_parr = consulta_tabla_parr($id_parroquia);
+                        if($html_parr['status'] == 500){
+                            throw new Exception($html_parr["mensaje"]);
+                        }
+                    }
+                    if(!empty($id_sector)){
+                        $html_sect = consulta_tabla_sect($id_sector);
+                        if($html_sect['status'] == 500){
+                            throw new Exception($html_sect["mensaje"]);
+                        }
+                    }
+                    if(!empty($id_fpag)){
+                        $html_fpag = consulta_tabla_fpag($id_fpag);
+                        if($html_fpag['status'] == 500){
+                            throw new Exception($html_fpag["mensaje"]);
+                        }
+                    }
+                    if(!empty($id_tipo_vivienda)){
+                        $html_tip_vivi = consulta_tabla_tip_vivi($id_tipo_vivienda);
+                        if($html_tip_vivi['status'] == 500){
+                            throw new Exception($html_tip_vivi["mensaje"]);
+                        }
+                    }
+
+                    $oReturn->assign('bodyTablaProv', 'innerHTML', $html_prov["mensaje"]);
+                    $oReturn->assign('bodyTablaCant', 'innerHTML', $html_cant["mensaje"]);
+                    $oReturn->assign('bodyTablaParr', 'innerHTML', $html_parr["mensaje"]);
+                    $oReturn->assign('bodyTablaSect', 'innerHTML', $html_sect["mensaje"]);
+                    $oReturn->assign('bodyTablaFormaPago', 'innerHTML', $html_fpag["mensaje"]);
+                    $oReturn->assign('bodyTablaTipoVivienda', 'innerHTML', $html_tip_vivi["mensaje"]);
+
+                    $oReturn->assign('lbl_nombre_promo', 'innerHTML', $nombre);
+                    $oReturn->assign('lbl_descripcion_promo', 'innerHTML', $descripcion);
+                    $oReturn->assign('lbl_fecha_desde', 'innerHTML', $fecha_desde);
+                    $oReturn->assign('lbl_fecha_hasta', 'innerHTML', $fecha_hasta);
+                    $oReturn->assign('lbl_num_meses', 'innerHTML', $num_meses);
+                    $oReturn->assign('lbl_intervalo_meses', 'innerHTML', $intervalo_meses);
+                    $oReturn->assign('lbl_dia_proporcional', 'innerHTML', $dia_proporcional);
+                    $oReturn->assign('lbl_estado_promo', 'innerHTML', $estado_fn);
+                    $oReturn->assign('lbl_sucursal_promo', 'innerHTML', $sucu_nom_sucu);
+                    $oReturn->assign('lbl_cambio_operador', 'innerHTML', $cambio_operador_sn);
+                    $oReturn->assign('lbl_vivienda_propia', 'innerHTML', $vivienda_propia_sn);
+                    $oReturn->assign('lbl_con_empleo', 'innerHTML', $con_empleo_sn);
+                    $oReturn->assign('lbl_es_cliente', 'innerHTML', $es_cliente_sn);
+
+                    $sHtmlEquipos = '';
+                    if (count((array) $equipos_descuento) > 0) {
+                        foreach ($equipos_descuento as $equipo) {
+                            $sHtmlEquipos .= '<tr>
+                                                <td>' . $equipo->Numero . '</td> 
+                                                <td>' . $equipo->Descuento . '</td> 
+                                            </tr>';
+                        }
+                    }
+
+                    $oReturn->assign("bodyTablaEquiposDescuento", "innerHTML", $sHtmlEquipos);
+
+                    $sHtmlPlanes = '';
+                    if (count((array) $planes) > 0) {
+                        foreach ($planes as $plan) {
+                            $sHtmlPlanes .= '<tr>
+                                                <td>' . $plan->Id . '</td> 
+                                                <td>' . $plan->Codigo . '</td> 
+                                                <td>' . $plan->Servicio . '</td>
+                                                <td>' . $plan->Tipo . '</td>
+                                                <td>' . $plan->Precio . '</td>
+                                                <td>' . $plan->DescuentoPor . '</td>
+                                                <td>' . $plan->DescuentoVal . '</td>
+                                                <td>' . $plan->PrecioFin . '</td>
+                                            </tr>';
+                        }
+                    }
+
+                    $oReturn->assign("bodyTablaPlanes", "innerHTML", $sHtmlPlanes);
+
+                    $sHtmlPlanesExt = '';
+                    if (count((array) $servicios_extra) > 0) {
+                        $input_des_por = '';
+                        $input_des_val = '';
+                        $input_des_fin = '';
+                        $btn_delete = '';
+
+                        foreach ($servicios_extra as $servicio_extra) {
+                            $sHtmlPlanesExt .= '<tr>
+                                                <td>' . $servicio_extra->Id . '</td> 
+                                                <td>' . $servicio_extra->Codigo . '</td> 
+                                                <td>' . $servicio_extra->Servicio . '</td>
+                                                <td>' . $servicio_extra->Tipo . '</td>
+                                                <td>' . $servicio_extra->Precio . '</td>
+                                                <td>' . $servicio_extra->DescuentoPor . '</td>
+                                                <td>' . $servicio_extra->DescuentoVal . '</td>
+                                                <td>' . $servicio_extra->PrecioFin . '</td>
+                                            </tr>';
+                        }
+                    }
+
+                    $oReturn->assign("bodyTablaServiciosExtra", "innerHTML", $sHtmlPlanesExt);
+
+                    $sHtmlPlanesVel = '';
+                    if (count((array) $servicios_vel_promocional) > 0) {
+                        foreach ($servicios_vel_promocional as $servicio_promo) {
+                            $sHtmlPlanesVel .= '<tr>
+                                                <td>' . $servicio_promo->Id . '</td> 
+                                                <td>' . $servicio_promo->Codigo . '</td> 
+                                                <td>' . $servicio_promo->Servicio . '</td>
+                                                <td>' . $servicio_promo->IdNew . '</td>
+                                                <td>' . $servicio_promo->CodigoNew . '</td>
+                                                <td>' . $servicio_promo->ServicioNew . '</td>
+                                                <td>' . $servicio_promo->PeriodoMeses . '</td>
+                                                <td>' . $servicio_promo->AplicaSn . '</td>
+                                            </tr>';
+                        }
+                    }
+
+                    $oReturn->assign("bodyTablaVelocidadPromo", "innerHTML", $sHtmlPlanesVel);
+
+                    $sHtmlScore = "";
+                    if($aplica_score_sn == 'S'){
+                        if (count((array) $tipos_score) > 0) {
+                            $id_scores = array();
+                            foreach ($tipos_score as $tipo_score) {
+                                $id_score_indi = $tipo_score->id_score;
+                                array_push($id_scores, $id_score_indi);
+                            }
+
+                            $id_scores = implode(",",$id_scores);
+
+                            $sHtmlScore = consulta_tipos_score($id_scores);
+
+                            if($sHtmlScore['status'] == 500){
+                                throw new Exception($sHtmlScore["mensaje"]);
+                            }
+
+                            $oReturn->assign("bodyTablaReporteScore", "innerHTML", $sHtmlScore["mensaje"]);
+                        }
+                    }else{
+                        $oReturn->assign("bodyTablaReporteScore", "innerHTML", '<tr><td colspan="4">NO APLICA</td></tr>');
+                    }
+
+                } while ($oCon->SiguienteRegistro());
+            }
+        }
+        $oCon->Free();
+
+        $oReturn->script('jsRemoveWindowLoad();');
+    } catch (Exception $e) {
+        $oReturn->alert($e->getMessage());
+        $oReturn->script('jsRemoveWindowLoad();');
+    }
+
+    return $oReturn;
+}
+
+function consulta_tabla_prov($id_prov)
+{
+    //Definiciones
+    global $DSN;
+
+    session_start();
+
+    $oCon2 = new Dbo;
+    $oCon2->DSN = $DSN;
+    $oCon2->Conectar();
+
+    try {
+
+        $sHtml = "";
+        $sql = "SELECT prov_cod_prov, prov_des_prov from saeprov where prov_cod_prov in ($id_prov)";
+        if ($oCon2->Query($sql)) {
+            if ($oCon2->NumFilas() > 0) {
+                $i = 1;
+                do {
+                    $prov_cod_prov      = $oCon2->f('prov_cod_prov');
+                    $prov_des_prov      = $oCon2->f('prov_des_prov');
+
+                    $sHtml .= '<tr>
+                                    <td>' . $i++ . '</td>
+                                    <td>' . $prov_des_prov . '</td>
+                                </tr>';
+                } while ($oCon2->SiguienteRegistro());
+            }
+        }
+        $oCon2->Free();
+
+        $codigo = 200;
+        $mensaje = $sHtml;
+
+    } catch (Exception $e) {
+        $codigo = 500;
+        $mensaje = $e->getMessage();
+    }
+
+    $respuesta = array(
+        "status" => $codigo,
+        "mensaje" => $mensaje
+    );
+
+    return $respuesta;
+}
+function consulta_tabla_cant($id_cant)
+{
+    //Definiciones
+    global $DSN;
+
+    session_start();
+
+    $oCon2 = new Dbo;
+    $oCon2->DSN = $DSN;
+    $oCon2->Conectar();
+
+    try {
+
+        $sHtml = "";
+        $sql = "SELECT cant_cod_cant, cant_des_cant from saecant where cant_cod_cant in ($id_cant)";
+        if ($oCon2->Query($sql)) {
+            if ($oCon2->NumFilas() > 0) {
+                $i = 1;
+                do {
+                    $cant_cod_cant      = $oCon2->f('cant_cod_cant');
+                    $cant_des_cant      = $oCon2->f('cant_des_cant');
+
+                    $sHtml .= '<tr>
+                                    <td>' . $i++ . '</td>
+                                    <td>' . $cant_des_cant . '</td>
+                                </tr>';
+                } while ($oCon2->SiguienteRegistro());
+            }
+        }
+        $oCon2->Free();
+
+        $codigo = 200;
+        $mensaje = $sHtml;
+
+    } catch (Exception $e) {
+        $codigo = 500;
+        $mensaje = $e->getMessage();
+    }
+
+    $respuesta = array(
+        "status" => $codigo,
+        "mensaje" => $mensaje
+    );
+
+    return $respuesta;
+}
+function consulta_tabla_parr($id_parr)
+{
+    //Definiciones
+    global $DSN;
+
+    session_start();
+
+    $oCon2 = new Dbo;
+    $oCon2->DSN = $DSN;
+    $oCon2->Conectar();
+
+    try {
+
+        $sHtml = "";
+        $sql = "SELECT parr_cod_parr, parr_des_parr from saeparr where parr_cod_parr in ($id_parr)";
+        if ($oCon2->Query($sql)) {
+            if ($oCon2->NumFilas() > 0) {
+                $i = 1;
+                do {
+                    $parr_cod_parr      = $oCon2->f('parr_cod_parr');
+                    $parr_des_parr      = $oCon2->f('parr_des_parr');
+
+                    $sHtml .= '<tr>
+                                    <td>' . $i++ . '</td>
+                                    <td>' . $parr_des_parr . '</td>
+                                </tr>';
+                } while ($oCon2->SiguienteRegistro());
+            }
+        }
+        $oCon2->Free();
+
+        $codigo = 200;
+        $mensaje = $sHtml;
+
+    } catch (Exception $e) {
+        $codigo = 500;
+        $mensaje = $e->getMessage();
+    }
+
+    $respuesta = array(
+        "status" => $codigo,
+        "mensaje" => $mensaje
+    );
+
+    return $respuesta;
+}
+function consulta_tabla_sect($id_sect)
+{
+    //Definiciones
+    global $DSN;
+
+    session_start();
+
+    $oCon2 = new Dbo;
+    $oCon2->DSN = $DSN;
+    $oCon2->Conectar();
+
+    try {
+
+        $sHtml = "";
+        $sql = "SELECT id, sector from comercial.sector_direccion where id in ($id_sect)";
+        if ($oCon2->Query($sql)) {
+            if ($oCon2->NumFilas() > 0) {
+                $i = 1;
+                do {
+                    $id      = $oCon2->f('id');
+                    $sector      = $oCon2->f('sector');
+
+                    $sHtml .= '<tr>
+                                    <td>' . $i++ . '</td>
+                                    <td>' . $sector . '</td>
+                                </tr>';
+                } while ($oCon2->SiguienteRegistro());
+            }
+        }
+        $oCon2->Free();
+
+        $codigo = 200;
+        $mensaje = $sHtml;
+
+    } catch (Exception $e) {
+        $codigo = 500;
+        $mensaje = $e->getMessage();
+    }
+
+    $respuesta = array(
+        "status" => $codigo,
+        "mensaje" => $mensaje
+    );
+
+    return $respuesta;
+}
+function consulta_tabla_fpag($id_fpag)
+{
+    //Definiciones
+    global $DSN;
+
+    session_start();
+
+    $oCon2 = new Dbo;
+    $oCon2->DSN = $DSN;
+    $oCon2->Conectar();
+
+    try {
+
+        $array_fpag = array(
+            "EFE"=>"EFECTIVO",
+            "CHE"=>"CHEQUE",
+            "CHR"=>"CHEQUE POSFECHADO",
+            "TAR"=>"TARJETA",
+            "CRE"=>"CREDITO",
+            "RET"=>"RETENCION",
+            "ANT"=>"ANTICIPO",
+            "DEP"=>"DEPOSITO BANCO",
+            "NCR"=>"NOTAS DE CREDITO",
+            "GIF"=>"GIF CARD"
+        );
+
+        $sHtml = "";
+        $valores = explode(',', $id_fpag);
+
+        // Crear un nuevo array para almacenar los resultados filtrados
+        $resultados = array();
+
+        $i = 1;
+        // Recorrer cada valor y buscar en el array
+        foreach ($valores as $valor) {
+            if (isset($array_fpag[$valor])) {
+                // Si se encuentra, agregar al array de resultados
+
+                $sHtml .= '<tr>
+                                <td>' . $i++ . '</td>
+                                <td>' . $array_fpag[$valor] . '</td>
+                            </tr>';
+            }
+        }
+
+        $codigo = 200;
+        $mensaje = $sHtml;
+
+    } catch (Exception $e) {
+        $codigo = 500;
+        $mensaje = $e->getMessage();
+    }
+
+    $respuesta = array(
+        "status" => $codigo,
+        "mensaje" => $mensaje
+    );
+
+    return $respuesta;
+}
+function consulta_tabla_tip_vivi($id_tip_vivi)
+{
+    //Definiciones
+    global $DSN;
+
+    session_start();
+
+    $oCon2 = new Dbo;
+    $oCon2->DSN = $DSN;
+    $oCon2->Conectar();
+
+    try {
+
+        $sHtml = "";
+        $sql = "SELECT a.id, a.nombre, a.sigla, a.grupo from comercial.dire_siglas a WHERE grupo = 3 and id in ($id_tip_vivi)";
+        if ($oCon2->Query($sql)) {
+            if ($oCon2->NumFilas() > 0) {
+                $i = 1;
+                do {
+                    $id      = $oCon2->f('id');
+                    $nombre      = $oCon2->f('nombre');
+
+                    $sHtml .= '<tr>
+                                    <td>' . $i++ . '</td>
+                                    <td>' . $nombre . '</td>
+                                </tr>';
+                } while ($oCon2->SiguienteRegistro());
+            }
+        }
+        $oCon2->Free();
+
+        $codigo = 200;
+        $mensaje = $sHtml;
+
+    } catch (Exception $e) {
+        $codigo = 500;
+        $mensaje = $e->getMessage();
+    }
+
+    $respuesta = array(
+        "status" => $codigo,
+        "mensaje" => $mensaje
+    );
+
+    return $respuesta;
+}
+function consulta_tipos_score($id_score)
+{
+    //Definiciones
+    global $DSN;
+
+    session_start();
+
+    $oCon2 = new Dbo;
+    $oCon2->DSN = $DSN;
+    $oCon2->Conectar();
+
+    try {
+
+        $sHtml = "";
+        $sql = "SELECT id, descripcion, puntos_ini, puntos_fin from isp.int_promociones_score WHERE id in ($id_score)";
+        if ($oCon2->Query($sql)) {
+            if ($oCon2->NumFilas() > 0) {
+                $i = 1;
+                do {
+                    $id             = $oCon2->f('id');
+                    $descripcion    = $oCon2->f('descripcion');
+                    $puntos_ini     = $oCon2->f('puntos_ini');
+                    $puntos_fin     = $oCon2->f('puntos_fin');
+
+                    $sHtml .= '<tr>
+                                    <td>' . $i++ . '</td>
+                                    <td>' . $descripcion . '</td>
+                                    <td>' . $puntos_ini . '</td>
+                                    <td>' . $puntos_fin . '</td>
+                                </tr>';
+                } while ($oCon2->SiguienteRegistro());
+            }
+        }
+        $oCon2->Free();
+
+        $codigo = 200;
+        $mensaje = $sHtml;
+
+    } catch (Exception $e) {
+        $codigo = 500;
+        $mensaje = $e->getMessage();
+    }
+
+    $respuesta = array(
+        "status" => $codigo,
+        "mensaje" => $mensaje
+    );
+
+    return $respuesta;
+}
+
+function valida_aplica_beneficio_instalacion($idContrato)
+{
+    global $DSN;
+
+    session_start();
+
+    $oConP = new Dbo;
+    $oConP->DSN = $DSN;
+    $oConP->Conectar();
+
+    $oReturn = new xajaxResponse();
+
+    $idempresa  = $_SESSION['U_EMPRESA'];
+    $idsucursal = $_SESSION['U_SUCURSAL'];
+
+    try {
+
+        if(!isset($_SESSION['U_EMPRESA'])){
+            throw new Exception("Sesión finalizada, vuelva a ingresar");
+        }
+
+        $sql = "SELECT tipo_contrato, estado, id_sucursal, id_provincia, id_canton, id_parroquia, id_sector, 
+                        puntaje_score, departamento, cambio_operador_sn, vivienda_propia_sn, con_empleo_sn, id_clpv,
+                        fecha_contrato, id_tipo_cont_serv
+                FROM isp.contrato_clpv 
+                WHERE id = $idContrato";
+        if ($oConP->Query($sql)) {
+            if ($oConP->NumFilas() > 0) {
+                do {
+                    $tipo_contrato      = $oConP->f('tipo_contrato');
+                    $estado             = $oConP->f('estado');
+                    $id_sucursal        = $oConP->f('id_sucursal');
+                    $id_provincia       = $oConP->f('id_provincia');
+                    $id_canton          = $oConP->f('id_canton');
+                    $id_parroquia       = $oConP->f('id_parroquia');
+                    $id_sector          = $oConP->f('id_sector');
+                    $puntaje_score      = $oConP->f('puntaje_score');
+                    $tipo_casa          = $oConP->f('departamento');
+                    $cambio_operador_sn = $oConP->f('cambio_operador_sn');
+                    $vivienda_propia_sn = $oConP->f('vivienda_propia_sn');
+                    $con_empleo_sn      = $oConP->f('con_empleo_sn');
+                    $id_clpv            = $oConP->f('id_clpv');
+                    $fecha_contrato     = $oConP->f('fecha_contrato');
+                    $id_tipo_cont_serv  = $oConP->f('id_tipo_cont_serv');
+                } while ($oConP->SiguienteRegistro());
+            }
+        }
+        $oConP->Free();
+
+        if(empty($fecha_contrato)){
+            throw new Exception("Sin fecha de contrato para validar beneficio.");
+        }
+
+        $v_es_cliente = 0;
+        $sql = "SELECT COUNT(id) as v_es_cliente
+                FROM isp.contrato_clpv 
+                WHERE id_clpv = $id_clpv AND estado IN ('AP','PI','PE')";
+        if ($oConP->Query($sql)) {
+            if ($oConP->NumFilas() > 0) {
+                do {
+                    $v_es_cliente      = $oConP->f('v_es_cliente');
+                } while ($oConP->SiguienteRegistro());
+            }
+        }
+        $oConP->Free();
+
+        $es_cliente = 'N';
+        if($v_es_cliente > 1){
+            $es_cliente = 'S';
+        }
+
+        $id_tipo = "";
+        $sql = "SELECT id_tipo from isp.contrato_medio_pago where id_contrato = $idContrato order by id DESC LIMIT 1";
+        if ($oConP->Query($sql)) {
+            if ($oConP->NumFilas() > 0) {
+                do {
+                    $id_tipo  = $oConP->f('id_tipo');
+                } while ($oConP->SiguienteRegistro());
+            }
+        }
+        $oConP->Free();
+
+        $array_parametros = array(
+            "id_provincia" => $id_provincia,
+            "id_canton" => $id_canton,
+            "id_parroquia" => $id_parroquia,
+            "id_sector" => $id_sector,
+            "id_fpag" => $id_tipo,
+            "tipo_vivienda" => $tipo_casa,
+            "cambio_operador" => $cambio_operador_sn,
+            "vivienda_propia" => $vivienda_propia_sn,
+            "con_empleo" => $con_empleo_sn,
+            "es_cliente" => $es_cliente,
+            "puntaje_score" => $puntaje_score,
+            "fecha_contrato" => $fecha_contrato,
+            "id_sucursal" => $id_sucursal,
+            "tipo_cliente" => $id_tipo_cont_serv
+        );
+
+        $beneficios = array();
+        $sql = "SELECT *
+                FROM isp.int_beneficios
+                WHERE id_sucursal = $idsucursal 
+                    AND id_empresa = $idempresa 
+                    AND estado = 'A' 
+                    AND '$fecha_contrato' BETWEEN fecha_desde AND fecha_hasta AND tipo_beneficio = 2";
+        if ($oConP->Query($sql)) {
+            if ($oConP->NumFilas() > 0) {
+                do {
+                    $id                         = $oConP->f('id');
+                    $id_empresa                 = $oConP->f('id_empresa');
+                    $nombre                     = $oConP->f('nombre');
+                    $descripcion                = $oConP->f('descripcion');
+                    $id_sucursal                = $oConP->f('id_sucursal');
+                    $id_provincia               = $oConP->f('id_provincia');
+                    $id_canton                  = $oConP->f('id_canton');
+                    $id_parroquia               = $oConP->f('id_parroquia');
+                    $id_sector                  = $oConP->f('id_sector');
+                    $id_fpag                    = $oConP->f('id_fpag');
+                    $id_tipo_vivienda           = $oConP->f('id_tipo_vivienda');
+                    $cambio_operador_sn         = $oConP->f('cambio_operador_sn');
+                    $vivienda_propia_sn         = $oConP->f('vivienda_propia_sn');
+                    $con_empleo_sn              = $oConP->f('con_empleo_sn');
+                    $es_cliente_sn              = $oConP->f('es_cliente_sn');
+                    $aplica_score_sn            = $oConP->f('aplica_score_sn');
+                    $tipo_cliente               = $oConP->f('tipo_cliente');
+                    $tipos_score                = $oConP->f('tipos_score', false);
+                    $tipos_score                = json_decode($tipos_score);
+
+                    $info_promo = array(
+                        "id" => $id,
+                        "id_empresa" => $id_empresa,
+                        "nombre" => $nombre,
+                        "id_sucursal" => $id_sucursal,
+                        "id_provincia" => $id_provincia,
+                        "id_canton" => $id_canton,
+                        "id_parroquia" => $id_parroquia,
+                        "id_sector" => $id_sector,
+                        "id_fpag" => $id_fpag,
+                        "id_tipo_vivienda" => $id_tipo_vivienda,
+                        "cambio_operador_sn" => $cambio_operador_sn,
+                        "vivienda_propia_sn" => $vivienda_propia_sn,
+                        "con_empleo_sn" => $con_empleo_sn,
+                        "es_cliente_sn" => $es_cliente_sn,
+                        "aplica_score_sn" => $aplica_score_sn,
+                        "tipos_score" => $tipos_score,
+                        "tipo_cliente" => $tipo_cliente
+                    );
+
+                    array_push($beneficios, $info_promo);
+                } while ($oConP->SiguienteRegistro());
+            }
+        }
+        $oConP->Free();
+
+        // Buscar beneficio que aplica
+        $idBeneficioAplica = 0;
+        if(count($beneficios) > 0){
+            foreach ($beneficios as $beneficio) {
+                if (aplicaBeneficio($beneficio, $array_parametros)) {
+                    $idBeneficioAplica = $beneficio["id"];
+                    break;
+                }
+            }
+        }
+
+        $codigo = 200;
+        $resp = $idBeneficioAplica;
+
+    } catch (Exception $e) {
+        $codigo = 500;
+        $resp = $e->getMessage();
+    }
+
+    $respuesta = array(
+        "status" => $codigo,
+        "respuesta" => $resp
+    );
+
+    return $respuesta;
+}
+
+function aplicaBeneficio($beneficio, $params) {
+    $aplica = true;
+    $aplica = $aplica && valorEnLista($params["id_provincia"], $beneficio["id_provincia"]);
+    $aplica = $aplica && valorEnLista($params["id_canton"], $beneficio["id_canton"]);
+    $aplica = $aplica && valorEnLista($params["id_parroquia"], $beneficio["id_parroquia"]);
+    $aplica = $aplica && valorEnLista($params["id_sector"], $beneficio["id_sector"]);
+    $aplica = $aplica && valorEnLista($params["id_fpag"], $beneficio["id_fpag"]);
+    $aplica = $aplica && valorEnLista($params["tipo_vivienda"], $beneficio["id_tipo_vivienda"]);
+    $aplica = $aplica && valorEnLista($params["tipo_cliente"], $beneficio["tipo_cliente"]);
+    $aplica = $aplica && ($params["cambio_operador"] == $beneficio["cambio_operador_sn"]);
+    $aplica = $aplica && ($params["vivienda_propia"] == $beneficio["vivienda_propia_sn"]);
+    $aplica = $aplica && ($params["con_empleo"] == $beneficio["con_empleo_sn"]);
+    $aplica = $aplica && ($params["es_cliente"] == $beneficio["es_cliente_sn"]);
+    if($beneficio["aplica_score_sn"] == 'S'){
+        $aplica = $aplica && validaScore($params["puntaje_score"], $beneficio["tipos_score"]);
+    }
+    return $aplica;
+}
+
+
+function GuardarClientesOpenPay($nombre, $email, $cod_clpv, $id_empresa, $oConP) {
+
+    $control_clpv = 0;
+    $clpv_cod_openpay = 0;
+    $clpv_fech_openpay = 0;
+
+
+    $sql_clpv = "SELECT clpv_ruc_clpv,clpv_cod_openpay, clpv_fech_openpay FROM saeclpv WHERE clpv_cod_clpv = '$cod_clpv'";
+    if ($oConP->Query($sql_clpv)) {
+        if ($oConP->NumFilas() > 0) {
+            do {
+                $clpv_cod_openpay   = $oConP->f('clpv_cod_openpay');
+                $clpv_fech_openpay  = $oConP->f('clpv_fech_openpay');
+                $clpv_ruc_clpv      = $oConP->f('clpv_ruc_clpv');
+
+            } while ($oConP->SiguienteRegistro());
+        }
+    }
+    $oConP->Free();
+
+    $cod_openpay = '';
+    $fech_openpay = '';
+
+    $sql_clpv = "SELECT cod_openpay, fech_openpay FROM isp.contrato_clpv WHERE id_clpv = '$cod_clpv'";
+    if ($oConP->Query($sql_clpv)) {
+        if ($oConP->NumFilas() > 0) {
+            do {
+                $cod_openpay   = $oConP->f('cod_openpay');
+                $fech_openpay  = $oConP->f('fech_openpay');
+
+            } while ($oConP->SiguienteRegistro());
+        }
+    }
+    $oConP->Free();
+
+    if (!empty($clpv_cod_openpay) && !empty($clpv_fech_openpay)) {
+        // Cliente ya registrado en OpenPay
+        print_r("cliente $clpv_ruc_clpv ya registrado en openpay");exit;
+        return '';
+    }
+
+    $sql = "SELECT empr_openpay_sn, empr_openpay_api_url, empr_openpay_idempresa, empr_openpay_publick, empr_openpay_privatek FROM saeempr WHERE empr_cod_empr = $id_empresa";
+
+    $empr_openpay_sn = '';
+
+    if ($oConP->Query($sql)) {
+        if ($oConP->NumFilas() > 0) {
+            do {
+                $empr_openpay_sn = $oConP->f('empr_openpay_sn');
+                $empr_openpay_api_url = $oConP->f('empr_openpay_api_url');
+                $empr_openpay_idempresa = $oConP->f('empr_openpay_idempresa');
+                $empr_openpay_publick = $oConP->f('empr_openpay_publick');
+                $empr_openpay_privatek = $oConP->f('empr_openpay_privatek');
+            } while ($oConP->SiguienteRegistro());
+        }
+    }
+    $oConP->Free();
+
+    // URL de la API
+    $url = "$empr_openpay_api_url/v1/$empr_openpay_idempresa/customers";
+    $password = '';
+
+    // Datos a enviar en la solicitud POST
+    $data = array(
+        'name' => "$nombre",
+        'email' => "$email"
+    );
+    $body = json_encode($data, true);
+
+    $curl = curl_init();
+
+    $header_array = array(
+        'Accept: application/json',
+        'Content-Type: application/json',
+    );
+
+    $auth_data = base64_encode("$empr_openpay_privatek:$password");
+    array_push($header_array, "Authorization: Basic $auth_data");
+
+    // Configurar opciones de cURL
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $header_array);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
+
+    // Ejecutar solicitud cURL
+    $response = curl_exec($curl);
+
+    $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+    $response_data = json_decode($response, true);
+
+
+    if ($http_code >= 200 && $http_code < 300) {
+        $array_response = array(
+            "http_code" => "$http_code",
+            "data" => $response_data,
+            "mensaje" => 'respuesta exitosa',
+        );
+        if (!empty($cod_clpv)) {
+            // Actualizar base de datos con los valores obtenidos de OpenPay
+            $sql_update_saeclpv = "UPDATE saeclpv SET 
+                                    clpv_cod_openpay = '".$response_data['id']."',
+                                    clpv_fech_openpay = '".$response_data['creation_date']."'
+                                    WHERE clpv_cod_clpv = '$cod_clpv'";
+
+            $oConP->QueryT($sql_update_saeclpv);
+
+
+            $sql_update_contrato_clpv = "UPDATE isp.contrato_clpv SET 
+                                    cod_openpay = '".$response_data['id']."',
+                                    fech_openpay = '".$response_data['creation_date']."'
+                                    WHERE id_clpv = '$cod_clpv'";
+            $oConP->QueryT($sql_update_contrato_clpv);
+        }
+    } else {
+        curl_close($curl);
+        throw new Exception("Error desconocido en el WebService OpenPay, Consulte con el administrador (error $response)");
+    }
+
+    // Cerrar cURL
+    curl_close($curl);
+    return json_encode($array_response);
+}
+
 /* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
 /* PROCESO DE REQUEST DE LAS FUNCIONES MEDIANTE AJAX NO MODIFICAR */
 $xajax->processRequest();
