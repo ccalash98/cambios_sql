@@ -9,7 +9,7 @@ BEGIN;
     UPDATE public.saemone SET mone_cod_empr = 1, mone_des_mone = 'DOLAR', mone_sgl_mone = 'USD', mone_smb_mene = '$', mone_est_mone = '1', mone_cod_pais = 7 WHERE mone_cod_mone = 2;
     --etiquetas por pais
     DELETE from comercial.pais_etiq_imp;
-    INSERT INTO comercial.pais_etiq_imp (pais_cod_pais, pais_codigo_inter, impuesto, etiqueta, porcentaje, porcentaje2) VALUES (5, '58', 'IVA', 'ISLR', 12, 0);
+    INSERT INTO comercial.pais_etiq_imp (pais_cod_pais, pais_codigo_inter, impuesto, etiqueta, porcentaje, porcentaje2) VALUES (5, '58', 'IVA', 'IVA', 16, 0);
     INSERT INTO comercial.pais_etiq_imp (pais_cod_pais, pais_codigo_inter, impuesto, etiqueta, porcentaje, porcentaje2) VALUES (5, '58', 'ICE', 'ICE', 0, 0);
     INSERT INTO comercial.pais_etiq_imp (pais_cod_pais, pais_codigo_inter, impuesto, etiqueta, porcentaje, porcentaje2) VALUES (5, '58', 'IRBP', 'IRBP', 0, 0);
     INSERT INTO comercial.pais_etiq_imp (pais_cod_pais, pais_codigo_inter, impuesto, etiqueta, porcentaje, porcentaje2) VALUES (5, '58', 'RETENCION', 'DET/RET', 0, 0);

@@ -282,3 +282,4 @@ COMMIT;
 ---EXTRAER CIUDAD
 SELECT concat('(',ciud_cod_ciud,', ',ciud_cod_pais,', ','''',ciud_nom_ciud,''', ',ciud_cod_prov,', ',ciud_tip_ciud, ', ''0'', ',ciud_cod_urbano,', ''0''),') from saeciud ORDER BY ciud_cod_ciud asc
 SELECT concat('(',parr_cod_parr,', ''',parr_cod_char,''', ',parr_cod_cant,', ','''',parr_des_parr,''', '''', ',parr_zip_code, ',''',parr_cod_ciud,'''),') from saeparr ORDER BY parr_cod_parr asc
+SELECT concat('(',prov_cod_prov,', ''',prov_des_prov,''', ',prov_cod_pais, ',''',prov_cod_char,'''),') from saeprov ORDER BY prov_cod_prov asc
