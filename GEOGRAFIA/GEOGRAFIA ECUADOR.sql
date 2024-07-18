@@ -81,8 +81,6 @@ BEGIN;
                 (1, 1, 'SANTA ELENA', NULL, NULL ),
                 (1, 1, 'ZONAS NO DELIMITADAS', NULL, NULL );
 
-
-
     INSERT INTO public.saeprov (prov_cod_prov, prov_des_prov, prov_cod_pais, prov_cod_char)
         VALUES 
                 (1, 'AZUAY', 1, '593' ),
