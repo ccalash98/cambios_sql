@@ -1,8 +1,50 @@
 <!--COFRADIA-->
 <style>
-    .containerBox {
-        text-align: left;    
-        max-width: 100%;
+    body {
+        font-family: Arial, sans-serif;
+    }
+    .pagare {
+        width: 700px;
+        border: 2px solid black;
+        padding: 10px;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .lado-izquierdo {
+        width: 20%;
+        border-right: 2px solid black;
+        padding-right: 10px;
+    }
+    .lado-derecho {
+        width: 75%;
+        padding-left: 10px;
+    }
+    .aceptado {
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        font-size: 24px;
+        font-weight: bold;
+        background-color: black;
+        color: white;
+        padding: 10px;
+    }
+    .info {
+        margin-top: 20px;
+    }
+    .info label {
+        display: block;
+        margin: 5px 0;
+    }
+    .firma {
+        height: 100px;
+    }
+    .cantidad, .por, .lps {
+        margin-top: 20px;
+    }
+    .por-lps {
+        display: flex;
+        justify-content: space-between;
     }
 </style>
     <table border="0" height="40" align="center" style="text-align: center; vertical-align: middle; border-collapse: collapse;">
@@ -87,160 +129,102 @@
             </td>
         </tr>      
     </table>
-    <table border="0" height="50" style="width: 100%; text-align: center;">
-        <tr>
-            <td style="width: 100%; text-align: left; ">
-               <b> Velocidad (Mbps): {max_bajada}</b>
-            </td>
-        </tr>
-    </table>
-    <table border="0" height="50" style="width: 100%; text-align: center;">
-        <tr>
-            <td style="width: 50%; text-align: left; ">
-                <table border="1" height="50" style="width: 100%; vertical-align: middle; border-collapse: collapse;">
-                    <tr>
-                        <td style="width: 50%;">Producto contratado</td>
-                        <td style="width: 50%;">{nom_plan}</td>
-                    </tr>
-                    <tr>
-                        <td style="width: 50%;">Bajada</td>
-                        <td style="width: 50%;">{max_bajada}</td>
-                    </tr>
-                </table>
-            </td>
-             <td style="width: 50%; text-align: left; ">
-                <table border="1" height="50" style="vertical-align: middle; border-collapse: collapse;">
-                    <tr>
-                       <td style="width: 50%;">espacioco</td>
-                       <td style="width: 50%;">espacioco</td>
-                    </tr>
-                    <tr>
-                       <td style="width: 50%;">Subida</td>
-                       <td style="width: 50%;">{max_subida}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>   
-    </table>
-    <table border="0" height="50" style="width: 100%; text-align: center;">
-        <tr style=" border: hidden">
-            <td style="width: 100%; text-align: left; ">
-               <b> Servicios adicionales que ofrece:</b>
-            </td>
-        </tr>
-    </table>
-    <table border="1" height="50" style="width: 100%;  text-align: center; vertical-align: middle; border-collapse: collapse;">
-                    <tr>
-                        <td style="width: 40%;"></td>
-                        <td style="width: 10%;">SI</td>
-                        <td style="width: 10%;">NO</td>
-                        <td style="width: 40%;">Descripcion:</td>
-                    </tr>
-                    <tr>
-                        <td style="width: 40%;">espacioco</td>
-                        <td style="width: 10%;">espacioco</td>
-                        <td style="width: 10%;">espacioco</td>
-                        <td style="width: 40%;">espacioco</td>
-                    </tr>
-    </table>
-    <table border="0" height="50" style="width: 100%; text-align: center;">
-        <tr style=" border: hidden">
-           <td style="width: 100%; text-align: left; ">
-               <b> Tarifas (*):</b> <br>
-               <b>Valores a pagar por una sola vez:</b>
-            </td>
-        </tr>
-    </table>
-    <table border="0" height="50" style="width: 100%;">
-        <tr>
-            <td style="width: 50%;">
-                <table border="1" height="50" align="center" style="width: 100%; vertical-align: middle; border-collapse: collapse;">
-                    <tr>
-                        <td style="width: 100%;">Valor instalación</td>
-                    </tr>
-                </table>    
-            </td>
-            <td style="width: 50%;">
-                <table border="1" height="50" align="center" style="width: 100%; text-align: center; vertical-align: middle; border-collapse: collapse;">
-                    <tr>
-                        <td style="width: 100%;height: 20%;">150.00</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <td style="width: 110%; font-family: Arial, Helvetica, sans-serif; text-align: justify; vertical-align: top;">
-                <p style="text-align: justify;">
-                    La conexión del servicio será a la red de Internet de EL PRESTADOR DE SERVICIO, desde los nodos establecidos para el efecto y de acuerdo a lo descrito en la Solicitud de Servicio correspondiente.<br>
-                    En caso que EL ABONADO, instale la última milla de fibra óptica desde sus instalaciones hacia el nodo de EL PRESTADOR DE SERVICIO, se realizan las pruebas de conectividad correspondientes y el tiempo de instalación es de 5 a 7 días calendario, una vez aprobada la instalación de la última milla por parte del PRESTADOR DE SERVICIO        
-                </p>
-            </td>
-        </tr>
-    </table>
-    <table border="0" height="50" style="width: 100%; text-align: center;">
-        <tr style=" border: hidden">
-           <td style="width: 100%; text-align: left; ">
-               <b> Valores pago mensual:</b>
-            </td>
-        </tr>
-    </table>
-    <table border="0" height="100" style="width: 100%; text-align: left;">	
-        <tr>
-            <td style="width: 100%;">
-                <table border="1" height="100" align="center" style="width: 100%; vertical-align: middle; border-collapse: collapse;">
-                    <tr>
-                        <td style="width: 50%;"></td>
-                        <td style="width: 50%;">Valor USD</td>
-                    </tr>
-                    <tr style="width: 100%; text-align: center;">
-                        <td style="width: 50%;">Valor Mensual</td>
-                        <td style="width: 50%;">preciofin</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-    <table border="0" height="100" align="left" style="width: 100%; text-align: left; border: hidden">
-        <tr height="20" style="text-align: left;">
-            <td colspan="2">
-                Nota: *Las tarifas incluyen impuestos de ley<br>
-            </td>
-        </tr>
-    </table>
-    <table border="0" height="40" align="center" style="text-align: center; vertical-align: middle; border-collapse: collapse;">
-        <tr>
+        <table border="0" height="50" style="width: 100%; text-align: center; border-collapse: collapse;">
+            <tr>
+                <td style="width: 100%; text-align: center; ">
+                <b> DATOS DEL SOLICITANTE</b>
+                </td>
+            </tr>
+        </table>
+        <table height="20" BORDER=0 CELLSPACING=0 style="text-align: center;width: 100%; vertical-align: middle; border-color: white;">
+            <tr>
+                <td style="max-width:100%; white-space:nowrap;border: 1px solid #007bff; border-collapse: collapse; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                    <b>NOMBRES Y APELLIDOS</b>
+                </td>
+            </tr>
+        </table>
+        <table border="1" height="50" align="center" style=" width: 100%; text-align: center; vertical-align: middle; border-collapse: collapse;">
+            <tr>
+                <td style="width: 100%; height: 20%;text-align: center;border: 1px solid #007bff;">
+                nombreemplco
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 100%; height: 20%; color: black;border: 1px solid #007bff;">
+                    <b>DIRECCION (BARRIO O COLONIA, PUNTOS DE REFERENCIA)</b>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 100%; height: 20%;text-align: ceter;border: 1px solid #007bff;">
+                    nombreemplco
+                </td>
+            </tr>
+        </table>
+        <table border="1" height="50" style="width: 100%;  text-align: left; vertical-align: middle; border-collapse: collapse;">
+            <tr>
+                <td style="width: 20%;text-align: center; color: black;border: 1px solid #007bff">
+                    <b>iden_con_clpv</b>
+                </td>
+                <td style="width: 40%;text-align: center; color: black;border: 1px solid #007bff">
+                    <b>TELEFONO CASA/ CELULAR</b>
+                </td>
+                <td style="width: 40%;text-align: center; color: black;border: 1px solid #007bff">
+                    <b>TELEFONO TRABAJO</b>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 20%;text-align: center;border: 1px solid #007bff">dniemplco</td>
+                <td style="width: 40%;text-align: center;border: 1px solid #007bff">teleemplco</td>
+                <td style="width: 40%;text-align: center;border: 1px solid #007bff">teleemplco</td>
+            </tr>
+        </table>
+        <table border="1" height="20" align="center" style=" width: 100%; text-align: center; vertical-align: middle; border-collapse: collapse;">
+            <tr>
+                <td style="width: 100%; height: 20%; color: black;border: 1px solid #007bff;">
+                    <b>CORREO ELECTRONICO</b>
+                </td>
+            </tr>
+        </table>
+        <table height="20" BORDER=0 CELLSPACING=0 style="text-align: center;width: 100%; vertical-align: middle; border-color: white;">
+            <tr>
+                <td style="width: 100%; white-space:nowrap;border: 1px solid #007bff; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
+                    emialemplco
+                </td>
+            </tr>
+        </table>
+        <br><br>
+        <table BORDER=0 CELLSPACING=0 style="text-align: center;width: 100%; vertical-align: middle; border-color: white; width: 100%;">
+            <tr>
+                <td style="max-width:100%; white-space:nowrap;border: 1px solid #007bff; border-collapse: collapse; border-radius: 10px;">
+                    <b>DATOS DE INSTALACION</b>
+                </td>
+            </tr>
+        </table>
+        <br>   
+        <table>
             <td>
-                <p>
-                    <b>NOTAS SOBRE EL SERVICIO</b>  
-                </p>
+                    <b> TIPO DE CLIENTE:</b><br>
+                    tipocontratoco<br>
+                    <b>OTRAS OBERSERVACIONES:</b><br>
+                    _________________________________________________________________________<br>
+                    _________________________________________________________________________<br><br>
+                    <b>NOMBRE DEL PLAN TARIFARIO:</b><br>
+                    {nom_plan} <img class="left" src="check_si" width="10"/><br>
+                    <b>ESPECIFIQUE:</b><br>
+                    _________________________________________________________________________<br>
+                    _________________________________________________________________________<br><br>
+                    El Valor mensual por el Plan de Servicio solicitado es de Lps.________.<br>
+                    La suscripcion de este contrato equivale  al págo del derecho de instalacion por Lps. ___________.<br>
             </td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <td style="width: 110%; font-family: Arial, Helvetica, sans-serif; text-align: justify; vertical-align: top;">
-                <p style="text-align: justify;">
-                    El período de entrega de este servicio es de <b>TRES (3) AÑOS</b>, desde la fecha estipulada en el Contrato de Prestación de Servicios. En los valores de instalación y renta mensual no están incluidos impuestos ni cargos adicionales.<br><br>
-                    El costo de instalación es gratis si se cumple el tiempo de permanencia del servicio, es decir TRES años. En caso de no cumplir con este período, se cobrará el proporcional del costo de instalación correspondiente al tiempo de permanencia, considerando que el costo de instalación es CIENTO CINCUENTA (USD 150) DÓLARES DE LOS ESTADOS UNIDOS DE AMÉRICA.<br><br> 
-                    El tiempo comprometido para la instalación del servicio contempla la activación de los equipos y las pruebas de conectividad, sin incluirse obras adicionales ni adecuaciones extras en las oficinas de EL ABONADO, las que en el caso de ser requeridas estarán sujetas a una cotización e incrementarán el tiempo de instalación. Una vez cumplidas las pruebas de conectividad a satisfacción del ABONADO, el enlace entrará en producción y se dará lugar a la facturación del servicio contratado.   
-                </p>
-            </td>
-        </tr>
-    </table>
-    <table border="0" height="100" align="center" style="width: 100%; text-align: center; border: hidden; font-size:10px;">
-        <tr>
-            <td>rubco</td>
-            <td style="width:100px; color:white" border: hidden; align="center"></td>
-            <td>firmacontratoimg</td>
-        </tr>
-        <tr>
-            <td><b>EL PRESTADOR DEL SERVICIO</b></td>
-            <td style="width:100px; color:white" border: hidden; align="center"></td>
-            <td><b>EL ABONADO</b></td>
-        </tr>
-    </table>
+        </table>
+
+
+
+
+
+
+
+
 <table>
     <tr>
         <td style="width: 310px; font-family: Arial, Helvetica, sans-serif; text-align: center; vertical-align: top; font-size: 11px;">
