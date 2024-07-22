@@ -4,37 +4,44 @@
         font-family: Arial, sans-serif;
     }
     .pagare {
-        width: 700px;
-        border: 2px solid black;
+        width: 550px;
+        border: 2px solid #007bff;
         padding: 10px;
-        border-radius: 10px;
+        border-radius: 20px;
         display: flex;
         justify-content: space-between;
     }
     .lado-izquierdo {
         width: 20%;
-        border-right: 2px solid black;
-        padding-right: 10px;
+        border-right: 2px solid #007bff;
+        padding-right: 30px;
     }
     .lado-derecho {
         width: 75%;
-        padding-left: 10px;
+        padding-left: 20px;
+        margin: 10px;
+        margin-left: 170px;
+        margin-top: -125px;
     }
     .aceptado {
-        writing-mode: vertical-rl;
-        text-orientation: upright;
-        font-size: 24px;
+        border-radius: 10px;
+        writing-mode: horizontal-tb;
+        text-orientation: mixed;
+        font-size: 21px;
         font-weight: bold;
-        background-color: black;
+        background-color: #007bff;
         color: white;
         padding: 10px;
+        width: 120px;
     }
     .info {
-        margin-top: 20px;
+        margin-top: 10px;
     }
     .info label {
         display: block;
-        margin: 5px 0;
+        margin: 10px;
+        margin-left: 12px;
+        text-align: justify;
     }
     .firma {
         height: 100px;
@@ -44,7 +51,7 @@
     }
     .por-lps {
         display: flex;
-        justify-content: space-between;
+        text-align: justify;
     }
 </style>
     <table border="0" height="40" align="center" style="text-align: center; vertical-align: middle; border-collapse: collapse;">
@@ -68,21 +75,18 @@
             </td>
         </tr>
     </table>
-
-
-    
     <table height="100" style="width: 100%; text-align: center; border-color: white;">
         <tr>
             <td style="width:30%; text-align: left; ">
                 <table  height="40" BORDER=0 CELLSPACING=0 style="text-align: center;width: 80%; vertical-align: middle; border-color: white;">
                     <tr>
-                        <td style="max-width:50%; white-space:nowrap;border: 1px solid #007bff; border-collapse: collapse; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                        <td style="max-width:50%; white-space:nowrap;border: 1px solid #007bff; background-color: #a9d0fa;border-collapse: collapse; border-top-left-radius: 10px; border-top-right-radius: 10px;">
                             <b>Contrato No.</b>
                         </td>
                     </tr>
                     <tr>
                         <td height="30" style="max-width:50%; white-space:nowrap;border: 1px solid #007bff; border-collapse: collapse; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
-                            VARCOD
+                            contratoco
                         </td>
                     </tr>
                 </table>
@@ -90,13 +94,13 @@
             <td style="width: 30%; text-align: left;">
                 <table height="40" BORDER=0 CELLSPACING=0 style="text-align: center;width: 80%; vertical-align: middle; border-color: white; ">
                     <tr>
-                        <td style="max-width:50%; white-space:nowrap;border: 1px solid #007bff; border-collapse: collapse; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                        <td style="max-width:50%; white-space:nowrap;border: 1px solid #007bff; background-color: #a9d0fa;border-collapse: collapse; border-top-left-radius: 10px; border-top-right-radius: 10px;">
                             <b>Codigo Cliente</b>
                         </td>
                     </tr>
                     <tr>
                         <td height="30" style="max-width:50%; white-space:nowrap;border: 1px solid #007bff; border-collapse: collapse; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
-                            VARCOD10px
+                            contratoco
                         </td>
                     </tr>
                 </table>
@@ -104,13 +108,13 @@
             <td style="width: 15%; text-align: left; ">
                 <table height="40" BORDER=0 CELLSPACING=0 style="text-align: center;width: 80%; vertical-align: middle; border-color: white;  margin-left: 80px;">
                     <tr>
-                        <td style="max-width:50%; white-space:nowrap;border: 1px solid #007bff; border-right: none; border-collapse: collapse; border-top-left-radius: 10px;">
+                        <td style="max-width:50%; white-space:nowrap;border: 1px solid #007bff; background-color: #a9d0fa;border-right: none; border-collapse: collapse; border-top-left-radius: 10px;">
                             <b>DIA</b>
                         </td>
-                        <td style="max-width:50%; white-space:nowrap;border: 1px solid #007bff; border-right: none;">
+                        <td style="max-width:50%; white-space:nowrap;border: 1px solid #007bff; background-color: #a9d0fa;border-right: none;">
                             <b>MES</b>
                         </td>
-                        <td style="max-width:50%; white-space:nowrap;border: 1px solid #007bff; border-collapse: collapse; border-top-right-radius: 10px;">
+                        <td style="max-width:50%; white-space:nowrap;border: 1px solid #007bff; background-color: #a9d0fa;border-collapse: collapse; border-top-right-radius: 10px;">
                             <b>AÑO</b>
                         </td>
                     </tr>
@@ -129,17 +133,10 @@
             </td>
         </tr>      
     </table>
-        <table border="0" height="50" style="width: 100%; text-align: center; border-collapse: collapse;">
+        <table height="20" BORDER=0 CELLSPACING=0 style="text-align: cenleftter;width: 100%; vertical-align: middle; border-color: white;">
             <tr>
-                <td style="width: 100%; text-align: center; ">
-                <b> DATOS DEL SOLICITANTE</b>
-                </td>
-            </tr>
-        </table>
-        <table height="20" BORDER=0 CELLSPACING=0 style="text-align: center;width: 100%; vertical-align: middle; border-color: white;">
-            <tr>
-                <td style="max-width:100%; white-space:nowrap;border: 1px solid #007bff; border-collapse: collapse; border-top-left-radius: 10px; border-top-right-radius: 10px;">
-                    <b>NOMBRES Y APELLIDOS</b>
+                <td style="width:100%; white-space:nowrap;border: 1px solid #007bff;background-color: #a9d0fa; border-collapse: collapse; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                    <b>&nbsp;DATOS DEL SOLICITANTE: &nbsp;&nbsp;&nbsp;&nbsp; NOMBRES Y APELLIDOS</b>
                 </td>
             </tr>
         </table>
@@ -150,25 +147,25 @@
                 </td>
             </tr>
             <tr>
-                <td style="width: 100%; height: 20%; color: black;border: 1px solid #007bff;">
+                <td style="width: 100%; height: 20%; color: black;border: 1px solid #007bff;background-color: #a9d0fa;">
                     <b>DIRECCION (BARRIO O COLONIA, PUNTOS DE REFERENCIA)</b>
                 </td>
             </tr>
             <tr>
                 <td style="width: 100%; height: 20%;text-align: ceter;border: 1px solid #007bff;">
-                    nombreemplco
+                    direemplco
                 </td>
             </tr>
         </table>
         <table border="1" height="50" style="width: 100%;  text-align: left; vertical-align: middle; border-collapse: collapse;">
             <tr>
-                <td style="width: 20%;text-align: center; color: black;border: 1px solid #007bff">
+                <td style="width: 20%;text-align: center; color: black;border: 1px solid #007bff;background-color: #a9d0fa;">
                     <b>iden_con_clpv</b>
                 </td>
-                <td style="width: 40%;text-align: center; color: black;border: 1px solid #007bff">
+                <td style="width: 40%;text-align: center; color: black;border: 1px solid #007bff;background-color: #a9d0fa;">
                     <b>TELEFONO CASA/ CELULAR</b>
                 </td>
-                <td style="width: 40%;text-align: center; color: black;border: 1px solid #007bff">
+                <td style="width: 40%;text-align: center; color: black;border: 1px solid #007bff;background-color: #a9d0fa;">
                     <b>TELEFONO TRABAJO</b>
                 </td>
             </tr>
@@ -178,9 +175,23 @@
                 <td style="width: 40%;text-align: center;border: 1px solid #007bff">teleemplco</td>
             </tr>
         </table>
+        <table border="1" height="50" style="width: 100%;  text-align: left; vertical-align: middle; border-collapse: collapse;">
+            <tr>
+                <td style="width: 50%;text-align: center; color: black;border: 1px solid #007bff;background-color: #a9d0fa;">
+                    <b>NOMBRE DEL CONYUGE / PARENTEZCO</b>
+                </td>
+                <td style="width: 50%;text-align: center; color: black;border: 1px solid #007bff;background-color: #a9d0fa;">
+                    <b>VENDEDOR</b>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 50%;text-align: center;border: 1px solid #007bff">referenciabo / referparent</td>
+                <td style="width: 50%;text-align: center;border: 1px solid #007bff">vendedorco</td>
+            </tr>
+        </table>
         <table border="1" height="20" align="center" style=" width: 100%; text-align: center; vertical-align: middle; border-collapse: collapse;">
             <tr>
-                <td style="width: 100%; height: 20%; color: black;border: 1px solid #007bff;">
+                <td style="width: 100%; height: 20%; color: black;border: 1px solid #007bff;background-color: #a9d0fa;">
                     <b>CORREO ELECTRONICO</b>
                 </td>
             </tr>
@@ -192,39 +203,108 @@
                 </td>
             </tr>
         </table>
-        <br><br>
-        <table BORDER=0 CELLSPACING=0 style="text-align: center;width: 100%; vertical-align: middle; border-color: white; width: 100%;">
+        <br>
+        <table height="20" BORDER=0 CELLSPACING=0 style="text-align: center;width: 100%; vertical-align: middle; border-color: white;">
             <tr>
-                <td style="max-width:100%; white-space:nowrap;border: 1px solid #007bff; border-collapse: collapse; border-radius: 10px;">
+                <td style="width:100%; white-space:nowrap;border: 1px solid #007bff;background-color: #a9d0fa; border-collapse: collapse; border-radius: 10px;">
                     <b>DATOS DE INSTALACION</b>
                 </td>
             </tr>
         </table>
-        <br>   
+        <br>
+        <table height="20" BORDER=0 CELLSPACING=0 style="text-align: center;width: 100%; vertical-align: middle; border-color: white;">
+            <tr>
+                <td style="width:100%; white-space:nowrap;border: 1px solid #007bff;background-color: #a9d0fa; border-collapse: collapse; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                    <b>TIPO DE CLIENTE:
+                    </b>
+                </td>
+            </tr>
+        </table>
+        <table border="1" height="50" align="center" style=" width: 100%; text-align: left; vertical-align: middle; border-collapse: collapse;">
+            <tr>
+                <td style="width: 100%; height: 20%;text-align: center;border: 1px solid #007bff;">
+                    tipocontratoco
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 100%; height: 20%; color: black;border: 1px solid #007bff;background-color: #a9d0fa;">
+                    <b>OTRAS OBSERVACIONES:</b>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 100%; height: 20%;text-align: ceter;border: 1px solid #007bff;">
+                    
+                </td>
+            </tr>
+        </table>
+        <table border="1" height="50" align="center" style=" width: 100%; text-align: center; vertical-align: middle; border-collapse: collapse;">
+            <tr>
+                <td style="width: 100%; height: 20%; color: black;border: 1px solid #007bff;background-color: #a9d0fa;">
+                    <b>NOMBRE DEL PLAN TARIFARIO:</b>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 100%; height: 20%;text-align: center;border: 1px solid #007bff;">
+                    {nom_plan} <img class="left" src="check_si" width="10"/>
+                </td>
+            </tr>
+        </table>
+        <table border="1" height="20" align="center" style=" width: 100%; text-align: left; vertical-align: middle; border-collapse: collapse;">
+            <tr>
+                <td style="width: 100%; height: 20%; color: black;border: 1px solid #007bff;background-color: #a9d0fa;">
+                    <b>ESPECIFIQUE:</b>
+                </td>
+            </tr>
+        </table>
+        <table height="20" BORDER=0 CELLSPACING=0 style="text-align: center;width: 100%; vertical-align: middle; border-color: white;">
+            <tr>
+                <td style="width: 100%; white-space:nowrap;border: 1px solid #007bff; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>   
         <table>
             <td>
-                    <b> TIPO DE CLIENTE:</b><br>
-                    tipocontratoco<br>
-                    <b>OTRAS OBERSERVACIONES:</b><br>
-                    _________________________________________________________________________<br>
-                    _________________________________________________________________________<br><br>
-                    <b>NOMBRE DEL PLAN TARIFARIO:</b><br>
-                    {nom_plan} <img class="left" src="check_si" width="10"/><br>
-                    <b>ESPECIFIQUE:</b><br>
-                    _________________________________________________________________________<br>
-                    _________________________________________________________________________<br><br>
-                    El Valor mensual por el Plan de Servicio solicitado es de Lps.________.<br>
-                    La suscripcion de este contrato equivale  al págo del derecho de instalacion por Lps. ___________.<br>
+                <br>
+                El Valor mensual por el Plan de Servicio solicitado es de Lps.________.<br>
+                La suscripcion de este contrato equivale  al págo del derecho de instalacion por Lps. ___________.<br>
             </td>
         </table>
-
-
-
-
-
-
-
-
+        <br><br><br><br>
+        <tr>
+            <div class="pagare">
+                <div class="lado-izquierdo">
+                    <div class="aceptado">ACEPTADO</div>
+                    <div class="info">
+                        <label>Fecha: diasco/mesco/anioco</label>
+                    </div>
+                    <div class="info">
+                        <label>Lugar: provinciaclpv</label>
+                    </div>
+                    <div class="info">
+                        <label>Firma:</label>
+                    </div>
+                </div>
+                <div class="lado-derecho">
+                    <div class="por-lps">
+                        <label>Por Lps. ___________</label>
+                        <label><b>PAGARE SIN PROTESTO</b></label>
+                    </div>
+                    <div class="fecha">
+                        <label>El <b>diasco</b> de <b>mesco</b> del <b>anioco</b></label>
+                    </div>
+                    <div class="orden">
+                        <label>Se servirá usted pagar a la orden de <b>empresaco</b></label>
+                    </div>
+                    <div class="cantidad">
+                        <label>La cantidad de: ___________</label>
+                    </div>
+                    <div class="por">
+                        <label>Por: _____________________</label>
+                    </div>
+                </div>
+            </div>
+        </tr>
 <table>
     <tr>
         <td style="width: 310px; font-family: Arial, Helvetica, sans-serif; text-align: center; vertical-align: top; font-size: 11px;">
@@ -232,7 +312,7 @@
                 <b>CLASULAS</b><br>
                 <b>PRECIOS:</b><br>
                 El cliente pagara a <b>comercialco</b>  la mensualidad de los servicios prestados de acuerdo con la tabla de 
-                tarifas establecidas. Esta tabla y sus futuras modificaciones forman parte de este contrato y <b>EL CLIENTE</b> 
+                tarifas establecidas. Esta tabla y sus futuras modificaciones forman parte de este contrato y EL CLIENTE
                 acepta su conocimiento y lo establecido en ella con su firma al pie de la misma.
             </p>
             <p style="text-align: left; margin-bottom: 1px;">
@@ -266,24 +346,211 @@
                 reconectado hasta que la deuda y los gastos de reconexión incurridos se han cancelados. 
                 Se conviene que por cada cheque que sea rechazado o devuelto por el banco el usuario pagara los cargos respectivos. 
             </p>
-            <p style="text-align: left; margin-bottom: 1px;">
+            <p style="text-align: justify; margin-bottom: 1px;">
                 <b>PLAZO PARA LA INSTALACION Y CONDICIONES:</b><br>
                 El periodo de la instalación del objeto del presente contrato será 5 días hábiles. La instalación del servicio solicitado 
                 queda sujeto a que el sector de la instalación haya tenido el cable de <b>comercialco</b> y el que la distancia entre la 
                 toma principal y el lugar de instalación no exceda de los 300 metros. De lo contrario se le avisara oportunamente para 
                 convenir el costo adicional de instalación.  
             </p>
+            <p style="text-align: justify; margin-bottom: 1px;">
+                <b>SUSPENSIÓN Y/O DESCONEXION DE SERVICIOS:</b><br>
+                En caso de suspensión y/o desconexión de servicio en forma inmediata o antes de 6 meses después de ser instalado, 
+                se cobrará una penalidad de un mil lempiras (lps.1,000.00) en base a las políticas internas de la empresa, sobre el 
+                valor de la mensualidad por gastos de instalación, materiales y administrativos.
+            </p>
+            <p style="text-align: justify; margin-bottom: 1px;">
+                <b>RESPONSABILIDAD POR USOS INDEBIDOS:</b><br>               
+                EL CLIENTE asume la responsabilidad ante <b>comercialco</b> por el juicio que ocasionara el hecho de que, bajo su 
+                conocimiento, otros usuarios hagan uso de su instalación para beneficiarse de la señal recibida por el suscriptor. 
+                Ambas partes acuerdan que esta situación anula este contrato sin previo aviso y da derecho a la empresa para 
+                realizar la desconexión inmediata del servicio y realizar las investigaciones correspondientes sea para 
+                penalización y reconexión de este según sea el caso o iniciar labores penales y administrativas contra el cliente 
+                y/o contra terceros. 
+            </p>
         </td>
         <td style="width: 20px; font-family: Arial, Helvetica, sans-serif; text-align: center;">
         </td>
-        <td style="width: 310px; font-family: Arial, Helvetica, sans-serif; text-align: center; vertical-align: top;">
+        <td style="width: 310px; font-family: Arial, Helvetica, sans-serif; text-align: center; vertical-align: top; font-size: 11px;">
             <p style="text-align: justify;">
-                <b>CUARTA: VIGENCIA DEL CONTRATO.- </b> El plazo del presente Contrato será de TRES (3) años y entrará en vigencia, a partir de la fecha de instalación y prestación efectiva del servicio.<br>
-                La fecha inicial considerada para facturación para cada uno de los servicios contratados debe ser la de la activación de servicio.<br>
-                Las partes se comprometen a respetar el plazo de vigencia pactado, sin perjuicio de que el abonado/suscriptor pueda darlo por terminado unilateralmente, en cualquier tiempo, previa notificación física o electrónica, con al menos QUINCE (15) días de anticipación, conforme lo dispuesto en las Leyes Orgánicas de Telecomunicaciones y de Defensa del Consumidor y sin que para ello esté obligado a cancelar multas o recargos de valores de ninguna naturaleza.<br>
-                El abonado acepta la renovación automática sucesiva del contrato en las mismas condiciones de este contrato, independientemente de su derecho a terminar la relación contractual conforme la legislación aplicable, o solicitar en cualquier tiempo, con hasta quince (15) días de antelación a la fecha de renovación, su decisión de no renovación. .<br><br>
-                <b>QUINTA: PRECIO Y FORMAS DE PAGO.- </b>  EL ABONADO cancelará a EL PRESTADOR DEL SERVICIO por los servicios prestados conforme las tarifas y condiciones detalladas en el ANEXO 1 de este Contrato.<br><br> 
-                Una vez que ha vencido la fecha de pago determinada en la factura y en caso de verificarse que no ha existido reclamo o que EL ABONADO no ha cancelado el valor de la factura, el ABONADO cancelará el valor total adeudado más el máximo interés por mora calculado con las tasas vigentes fijadas por el Banco Central a la fecha en que se hay producido el no pago. De mantenerse el incumplimiento, EL PRESTADOR DEL SERVICIO, suspenderá el servicio en el que se encuentre en mora hasta por TREINTA (30) días, quedando EL ABONADO obligado a cancelar el costo de reconexión y todos los valores adeudados. En el evento de prolongar su negativa de pago, EL PRESTADOR DEL SERVICIO podrá suspender definitivamente el servicio y dar por terminada en forma unilateral la relación contractual, reservándose el derecho al reclamo del pago de lo debido mediante la vía judicial y aplicar las garantías detalladas en este instrumento. EL PRESTADO DEL SERVICIO incluirá a sus tarifas los impuestos y cargos adicionales que por Ley correspondan por la prestación del servicio objeto de este Contrato. El ABONADO, realizará los pagos, de la siguiente manera:<br>
+                El consentir o facilitar el uso de la señal de cable en forma indebida o abusiva a favor del 
+                cliente o de terceros constituye un delito sancionado establecidas por la ley.  El cliente permitirá que 
+                <b>comercialco</b> realice visitas de inspección periódicas al inmueble donde se encuentre instalado el servicio o 
+                las áreas comunales de apartamentos o condominios en el momento que <b>comercialco</b>  lo consideren necesario
+            </p>
+            <p style="text-align: justify;">
+                <b>FALLAS DEL SERVICIO:</b><br>
+                <b>comercialco</b>  no asume responsabilidad alguna por interrupciones en calidad del servicio por causas fuera de 
+                su control. 
+            </p>
+            <p style="text-align: justify;">
+                <b>CONDICIONES:</b><br>
+                1.-Se entiende como obligación por parte del cliente, que deberá pagar el valor en la letra de cambio plasmada en 
+                el contrato, por daños a los equipos que la empresa le brinda o por no seguir las políticas de seguridad 
+                establecidas por la empresa.<br>
+                2.-El cliente deberá adquirir un protector o regulador de voltaje para proteger los equipos que la empresa le 
+                brinda para ofrecerle el servicio ya sea de cable, Internet o datos. <br>
+                3.- El cliente debe mantener el equipo en un lugar ventilado y libre de polvo para garantizar el buen 
+                funcionamiento del mismo.<br>
+                4.- Cualquier daño estructural, físico o deformación del equipo entregado, el cliente deberá cancelar los gastos 
+                que incurra en la reparación, ya sea por reemplazo, cambio de línea de datos (UTP) o porque el equipo se haya 
+                dañado por causas eléctricas y que el cliente no haya tomado las recomendaciones pertinentes antes expuestas. <br>
+                5.- El cliente deberá pagar Lps. 200.00 por Reinstalación en caso de corte (ya sea automatizado o en físico a la 
+                casa del cliente) ya sea por mora o por situación del cliente.
+            </p>
+            <p style="text-align: justify;">
+                <b>TIPO DE INSTALACION:</b><br>
+                La instalación realizada por <b>comercialco</b> Será externa y lo mejor disimulada posible, si se trata de hacerla 
+                por conductos que previamente existan se indicara al representante las condiciones y el valor de la misma queda 
+                sujeto a un estudio previo, que se le avisará oportunamente.
+            </p>
+            <p style="text-align: justify;">
+                <b>PROMOCIONES:</b><br>
+                Si en esta suscripción el cliente adquiere en promoción nuestros servicios el mismo no podrá cambiarse a una 
+                promoción con un valor mensual menor a la adquirida. El cliente da por aceptado los términos y mensualidades de 
+                los mismos
+            </p>
+            <p style="text-align: justify;">
+                <b>CONDICIONES ESPECIALES DE VENTA:</b><br>
+                Toda condición especial de la venta que no se indique en las observaciones de este contrato   no será compromiso 
+                formal de <b>comercialco</b>  ni servirá para rescindir la suscripción y sus cláusulas. EL CLIENTE expresa que 
+                acepta que <b>comercialco</b>  se reserva el derecho de cambiar total o parcialmente suscripciones dando aviso a 
+                sus suscriptores, cuando las condiciones del mercado o suplidores de señal así lo obliguen, los suscriptores 
+                tendrán el derecho de no estar de acuerdo, únicamente a rescindir del contrato.
+            </p>
+            <p style="text-align: justify;">
+                <b>CONEXIÓN DE EQUIPO:</b><br>
+                <b>comercialco</b> solo se obliga con el cliente a conectar el cable a su televisor e instalar sus equipos en caso 
+                de que el cliente tenga más accesorios deberá llamar a nuestro departamento de Servicio al cliente, para una 
+                visita técnica y el equipo adicional tendrá un costo de Lps. 600.00 y la instalación gratis. 
+            </p>
+            <p style="text-align: justify;">
+                <b>HECHOS QUE LIBERAN DE RESPONSABILIDAD A comercialco FRENTE AL CLIENTE:</b><br>
+                A) Las partes que expresamente acuerda que <b>comercialco</b>  no se responsabiliza por los daños que a cualquier 
+                causa pueda afectar los equipos, si los mismos han sido abiertos, ni se hace responsable por las instalaciones no 
+                realizadas por la persona de <b>comercialco</b> . <br>
+            </p>
+        </td>
+    </tr>
+</table>
+
+
+
+<table>
+    <tr>
+        <td style="width: 310px; font-family: Arial, Helvetica, sans-serif; text-align: center; vertical-align: top; font-size: 11px;">
+            <p style="text-align: justify;">
+                B)Asimismo <b>comercialco</b>  no asume ninguna responsabilidad 
+                por el uso de las claves de acceso que use el cliente de igual forma <b>comercialco</b>  no asume ninguna 
+                responsabilidad por accesos ilegales o no autorizados por el CLIENTE o que terceros puedan realizar en su equipo.<br> 
+                C)<b>comercialco</b>  podrá suspender temporalmente el servicio por motivos de relación o mantenimiento del equipo 
+                o red sin ninguna responsabilidad de su parte frente al  CLIENTE o terceros. <br>
+                D) <b>comercialco</b>  queda libre de toda responsabilidad o reclamo por la suspensión de sus servicios, cuando 
+                estos se originen en actos administrativos, orden judicial o de cualquier otra autoridad competente, fuerza mayor 
+                o caso fortuito. <br>
+                E) <b>comercialco</b>  queda libre de responsabilidad por la desconfiguración  del equipo 
+                instalado al cliente, si el cliente ha procedido a la manipulación del mismo.
+            </p>
+            <p style="text-align: justify;">
+                <b>INCUMPLIMIENTO DEL CONTRATO:</b><br>
+                Ambas partes expresan aceptan que el incumplimiento del CLIENTE de cualquiera de las obligaciones establecidas en 
+                este contrato, dará derecho para que  <b>comercialco</b>  de por terminada la relación, teniendo además derecho de 
+                cobrar por los daños y perjuicios correspondientes, en casos de variaciones por las condiciones declaradas por el 
+                CLIENTE, ambas partes expresamente aceptan que <b>comercialco</b>  pueda sin pago de daño o indemnización alguna 
+                dar por terminado de forma inmediata el presente contrato y retirar el equipo suministrado al cliente. El presente 
+                contrato se rige por la legislación de Honduras y cualquier diferencia será sometida a los tribunales de justicia. 
+                Si el cliente emite o falsifica datos sobre la dirección o domicilio u omite cualquier información de viabilidad 
+                técnica, el contrato queda sin efecto desde su inicio, quedando facultada <b>comercialco</b>  para o instalar el 
+                servicio y retirar el equipo en su caso. 
+            </p>
+            <p style="text-align: justify;">
+                <b>DEPOSITO DE GARANTIA:</b><br>
+                El cliente está en la obligación de firmar Letra de cambio en garantía del equipo instalado, el monto dependerá 
+                del tipo de servicio solicitado por el cliente. <br>
+                Así mismo el cliente tiene la obligación de entregar cualquier equipo o accesorio que pertenezca a 
+                <b>comercialco</b>  una vez prescindiendo de nuestros servicios en caso contrario la empresa procede por la vía 
+                legal. 
+            </p>
+            <p style="text-align: justify;">
+                <b>PLAZO DEL CONTRATO:</b> <br>
+                Este contrato es por un mínimo de seis meses a partir de la firma del presente contrato.
+            </p>
+            <p style="text-align: justify;">
+                <b>VARIACION DE CLAUSULA:</b><br>
+                El presente contrato y sus condiciones con la dependencia de <b>comercialco</b>  sobre las políticas de trasmisión 
+                pautadas por empresas extranjeras y el cambio de la legislación de honduras pueden ser variados unilateralmente 
+                por <b>comercialco</b>  quien lo comunicara al suscriptor con 15 días de anticipación. El suscriptor decidirá si 
+                continua o no contratando los servicios de <b>comercialco</b>  y únicamente deberá comunicar a <b>comercialco</b>  
+                su decisión con 5días de anticipo antes de entrada en vigencia la nueva reforma. Pasado 15 días de emitido el 
+                comunicado de variación del contrato, precio programación el cliente dará por aceptada las nuevas condiciones. 
+                Las variaciones  indicadas se comunicaran al cliente por medios de avisos impresos, por televisión en el canal 
+                informativo de <b>comercialco</b>. 
+            </p>
+            <p style="text-align: justify;">
+                <b>AUTORIZACION PARA INSTALAR, REVISAR Y DESINSTALAR:</b><br>
+                EL CLIENTE con su firma autoriza al personal de <b>comercialco</b> , debidamente identificado para que realice una 
+                inspección previa a la instalación del servicio contratado, a la red interna del inmueble donde se instalara el 
+                mismo. El cliente expresamente acepta que la instalación del servicio que condicionada al cumplimiento de las 
+                recomendaciones que autorice el técnico las que corresponde a cuenta del cliente.  EL CLIENTE que no esté de 
+                acuerdo con las recomendaciones técnicas, acepta que <b>comercialco</b>  únicamente devolverá el dinero que el 
+                CLIENTE haya entregado dentro del término estipulado en el presente contrato con la deducción mencionada del 
+                mismo, así mismo  
+            </p>
+        </td>
+        <td style="width: 20px; font-family: Arial, Helvetica, sans-serif; text-align: center;">
+        </td>
+        <td style="width: 310px; font-family: Arial, Helvetica, sans-serif; text-align: center; vertical-align: top; font-size: 11px;">
+            <p style="text-align: justify;">
+                el CLIENTE autoriza al personal de <b>comercialco</b> para que realice todas las instalaciones 
+                que sean necesarias y aceptadas por parte del cliente.
+            </p>
+            <p style="text-align: justify;">
+                así mismo el CLIENTE autoriza al personal de <b>comercialco</b> para que realice todas las instalaciones 
+                que sean necesarias y aceptadas por parte del cliente. 
+            </p>
+            <p style="text-align: justify;">
+                <b>EQUIPO ADICIONAL:</b> <br>
+                Para la instalación de servicios adicionales, en algunos casos es necesario la instalación de otro equipo como 
+                ser amplificadores, routers, repetidores, ups, etc.  Los mismos serán instalados por parte del cliente. 
+            </p>
+            <p style="text-align: justify;">
+                <b>OBLIGACIONES DE comercialco:</b>
+                <b>comercialco</b>  es responsable de realizar la solicitud de instalación, reparación y / o mantenimientos  
+                de los servicios contratados por el cliente en la dirección que EL CLIENTE estipula en el presente contrato del 
+                servicio de asistencia técnica siempre y cuando el problema sea originado por nuestra red. 
+            </p>
+            <p style="text-align: justify;">
+                <b>OBLIGACIONES DEL CLIENTE:</b><br>
+                EL CLIENTE se obliga y compromete a 
+                A) Notificar el cambio de domicilio ya sea para instalarlo o para instalaciones de servicio adicionales. 
+                <b>comercialco</b>  desde ya se reserva el derecho de realizar el traslado debido a las limitaciones físicas que 
+                pueda tener la red que haga imposible la instalación de internet. <br>
+                B) cancelar las obligaciones de pago estipuladas en el presente contrato. <br>
+                C) Pagar el precio convenido y mantenerse durante la vigencia del presente contrato como suscriptor de 
+                <b>comercialco</b>  estar al día con sus mensualidades de los servicios  adquiridos por el cliente.
+                D) EL CLIENTE debe encontrarse al día siempre con sus pagos, de existir saldos pendientes de pagos, el convenio se 
+                tiene incumplido por parte del cliente. <br>
+                E) Comunicar a <b>comercialco</b> cualquier daño al sistema o uso inapropiado del mismo. <br>
+                F) No vender señal a terceras personas. <br>
+                G) NO modificar, cambiar, dañar alterar el equipo que <b>comercialco</b>  
+                le instala para proveer la señal de internet. <br>
+                H) Utilizar la conexión de los servicios de <b>comercialco</b>  para  fines ilícitos. <br>
+                I)  EL CLIENTE se  compromete a no arrendar, vender o ceder de forma alguna los beneficios que le otorga el 
+                presente contrato las partes acuerdan que <b>comercialco</b>  podrá tener por resuelto de pleno derecho esta 
+                relación, en caso que el CLIENTE no cumpla con lo establecido por este contrato. 
+                J) EL CLIENTE deberá cancelar los costos por servicio de reinstalación de cambio de domicilio  o traslados donde 
+                se ubicara el sistema de cable/internet. <br>
+                K) Todo el equipo que se instala por parte de <b>comercialco</b>  deberá estar en el domicilio indicado en el 
+                presente contrato. 
+            </p>
+            <p style="text-align: justify;">
+                <b>SERVICIO DE ATENCION Y AVERIAS AL CLIENTE:</b><br>
+                <b>comercialco</b>  ofrece  el servicio de atención de reporte de averías suscitadas en la red del sistema de la empresa, la cual será 
+                disponible en el horario estipulado por <b>comercialco</b>. Para acceder a este servicio el cliente deberá llamar a los teléfonos que 
+                <b>comercialco</b>  designe y su atención será gratuita. Si la situación corresponde a averías ajenas a la red de <b>comercialco</b>  
+                o al equipo que la empresa suministra el CLIENTE deberá solicitar la visita técnica y al validar la situación al caso , tendrá un costo 
+                adicional por daños causados.  
+ 
             </p>
         </td>
     </tr>

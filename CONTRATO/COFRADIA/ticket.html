@@ -9,37 +9,42 @@
             font-family: Arial, sans-serif;
         }
         .pagare {
-            width: 700px;
+            width: 600px;
             border: 2px solid black;
             padding: 10px;
-            border-radius: 10px;
+            border-radius: 20px;
             display: flex;
             justify-content: space-between;
         }
         .lado-izquierdo {
             width: 20%;
             border-right: 2px solid black;
-            padding-right: 10px;
+            padding-right: 30px;
         }
         .lado-derecho {
             width: 75%;
-            padding-left: 10px;
+            padding-left: 20px;
+            margin: 10px;
         }
         .aceptado {
-            writing-mode: vertical-rl;
+            border-radius: 10px;
+            writing-mode: horizontal-tb;
             text-orientation: mixed;
-            font-size: 24px;
+            font-size: 21px;
             font-weight: bold;
             background-color: black;
             color: white;
             padding: 10px;
+            width: 120px;
         }
         .info {
-            margin-top: 20px;
+            margin-top: 30px;
         }
         .info label {
             display: block;
-            margin: 5px 0;
+            margin: 10px;
+            margin-left: 12px;
+            text-align: justify;
         }
         .firma {
             height: 100px;
@@ -58,27 +63,27 @@
         <div class="lado-izquierdo">
             <div class="aceptado">ACEPTADO</div>
             <div class="info">
-                <label>Fecha:</label>
-                <label>Lugar:</label>
-                <label>Firma del Aceptante:</label>
+                <label>Fecha:______</label>
+                <label>Lugar:______</label>
+                <label>Firma:______</label>
             </div>
         </div>
         <div class="lado-derecho">
             <div class="por-lps">
-                <label>Por Lps. <input type="text" style="width: 100px;"></label>
-                <label>PAGARÉ SIN PROTESTO</label>
+                <label>Por Lps. ___________</label>
+                <label><b>PAGARE SIN PROTESTO</b></label>
             </div>
             <div class="fecha">
-                <label>El <input type="text" style="width: 50px;"> de <input type="text" style="width: 100px;"> del <input type="text" style="width: 50px;"></label>
+                <label>El <b>diasco</b> de <b>mesco</b> del <b>anioco</b></label>
             </div>
             <div class="orden">
-                <label>Se servirá usted pagar a la orden de TV CABLE COFRADIA S.A. de C.V.</label>
+                <label>Se servirá usted pagar a la orden de <b>empresaco</b></label>
             </div>
             <div class="cantidad">
-                <label>La cantidad de: <input type="text" style="width: 200px;"></label>
+                <label>La cantidad de: ___________</label>
             </div>
             <div class="por">
-                <label>Por: <input type="text" style="width: 300px;"></label>
+                <label>Por: ________________________________________</label>
             </div>
         </div>
     </div>
