@@ -1892,6 +1892,4 @@ BEGIN;
     INSERT INTO public.saeparr (parr_cod_parr, parr_cod_char, parr_cod_cant, parr_des_parr, parr_zip_code, parr_cod_ciud) VALUES (1121, '1121', 335, 'RAFAEL URDANETA', '', '335');
     INSERT INTO public.saeparr (parr_cod_parr, parr_cod_char, parr_cod_cant, parr_des_parr, parr_zip_code, parr_cod_ciud) VALUES (1122, '1122', 335, 'LA VICTORIA', '', '335');
     INSERT INTO public.saeparr (parr_cod_parr, parr_cod_char, parr_cod_cant, parr_des_parr, parr_zip_code, parr_cod_ciud) VALUES (1123, '1123', 335, 'RAUL CUENCA', '', '335');
-    
-    
 COMMIT;
